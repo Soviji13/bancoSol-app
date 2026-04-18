@@ -37,11 +37,11 @@
 }
 
 .border-main {
-  border: 1.5px solid var(--color-borde);
+  border: 0.12vw solid var(--color-borde);
 }
 
 .border-soft {
-  border: 1.5px solid var(--color-borde-suave);
+  border: 0.12vw solid var(--color-borde-suave);
 }
 
 /* =========================
@@ -53,59 +53,71 @@ body {
 }
 
 .pantalla-login {
-  width: calc(100% - 20px);
-  min-height: calc(100vh - 20px);
-  margin: 10px;
-  border-radius: 14px;
+  width: 97%;
+  min-height: 96vh;
+  margin: 1vh auto;
+  border-radius: 1.2vw;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 45px;
+  padding-top: 5%;
+  overflow-y: hidden;
 }
 
 .login-contenido {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .logo-login {
-  width: 190px;
+  width: 28%;
+  max-width: 320px;
+  min-width: 180px;
   height: auto;
   display: block;
-  margin: 0 auto 28px auto;
+  margin: 0 auto 3%;
 }
 
 .titulo-login {
-  font-size: 17px;
+  font-size: 2.2vw;
   font-weight: 400;
-  margin-bottom: 18px;
+  margin-bottom: 2.5%;
+  text-align: center;
 }
 
 .form-login {
+  width: 32%;
+  min-width: 280px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .grupo-campo {
-  margin-bottom: 18px;
+  width: 100%;
+  margin-bottom: 7%;
 }
 
 .label-login {
   display: block;
-  font-size: 12px;
-  margin-bottom: 8px;
+  width: 100%;
+  font-size: 1.1vw;
+  margin-bottom: 4%;
+  text-align: left;
 }
 
 .input-login {
   width: 100%;
-  height: 32px;
-  border-radius: 8px;
+  height: 3vw;
+  min-height: 42px;
+  border-radius: 0.6vw;
   background: transparent;
   outline: none;
-  padding: 0 10px;
-  font-size: 13px;
+  padding: 0 4%;
+  font-size: 1vw;
 }
 
 .input-login:focus {
@@ -113,12 +125,15 @@ body {
 }
 
 .btn-login {
-  margin-top: 8px;
-  min-width: 82px;
-  height: 28px;
+  margin-top: 4%;
+  width: 42%;
+  min-width: 120px;
+  height: 3vw;
+  min-height: 42px;
   border: none;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 0.6vw;
+  font-size: 1vw;
   font-weight: 700;
   cursor: pointer;
 }
+
