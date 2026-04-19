@@ -15,6 +15,7 @@
   --color-fondo: #ffffff;
   --color-blanco: #ffffff;
   --color-texto-secundario: #333333;
+  --color-error: #d62828;
 }
 
 /* =========================
@@ -137,3 +138,19 @@ body {
   cursor: pointer;
 }
 
+.mensaje-error {
+  width: 100%;
+  margin-top: 3%;
+  color: var(--color-error);
+  font-size: 0.9vw;
+  text-align: left;
+}
+
+.incorrecto {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.incorrecto:focus {
+  border-color: var(--color-error);
+}
