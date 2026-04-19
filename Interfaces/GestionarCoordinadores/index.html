@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestionar coordinadores</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="coordinadores">
+    <section class="panel-coordinadores" aria-label="Gestión de coordinadores">
+      <header class="panel-coordinadores__header">
+        <div class="usuario">
+          <div class="usuario__logo">
+            <img src="../assets/logo.png" alt="Logo" />
+          </div>
+
+          <div class="usuario__datos">
+            <p class="usuario__bienvenida">Bienvenido, Nombre apellidos</p>
+            <p class="usuario__rol">Administrador</p>
+          </div>
+        </div>
+
+        <a href="#" class="panel-coordinadores__logout">Cerrar sesión</a>
+      </header>
+
+      <div class="panel-coordinadores__body">
+        <aside class="menu-lateral" aria-label="Menú de administración">
+          <button class="menu-lateral__btn" type="button">Gestionar campañas</button>
+          <button class="menu-lateral__btn menu-lateral__btn--activo" type="button">
+            Gestionar coordinadores
+          </button>
+          <button class="menu-lateral__btn" type="button">Gestionar tiendas</button>
+          <button class="menu-lateral__btn" type="button">Gestionar colaboradores</button>
+          <button class="menu-lateral__btn" type="button">Gestionar voluntarios</button>
+          <button class="menu-lateral__btn" type="button">Incidencias y movimientos</button>
+        </aside>
+
+        <section class="contenido" aria-labelledby="titulo-campania">
+          <div class="contenido__topbar">
+            <div class="contenido__acciones-superiores">
+              <button class="boton-icono" type="button" aria-label="Filtrar">
+                <img src="../assets/embudo.png" alt="" />
+                <span class="boton-icono__contador">3</span>
+              </button>
+
+              <button class="boton-secundario" type="button">
+                Seleccionar otra campaña
+              </button>
+            </div>
+
+            <div class="contenido__campania">
+                <span><h1 id="titulo-campania" class="contenido__titulo">Gran Recogida</h1></span>
+                
+            </div>
+
+            <div class="seccion-ayuda">
+                <p class="contenido__ayuda">
+                Para ver más información sobre el coordinador, haga doble clic sobre su fila correspondiente.
+              </p>
+              <button class="boton-ayuda" type="button" aria-label="Ayuda">?</button>
+            </div>
+          </div>
+
+          <div class="tabla-contenedor">
+            <table class="tabla-coordinadores">
+              <thead>
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Entidades</th>
+                  <th scope="col">Tiendas</th>
+                  <th scope="col">Área asignada</th>
+                  <th scope="col">Contacto</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr tabindex="0">
+                  <td>Juan García Sánchez</td>
+                  <td>Bancosol</td>
+                  <td>12</td>
+                  <td>Málaga</td>
+                  <td>600 00 00 00</td>
+                </tr>
+
+                <tr tabindex="0">
+                  <td>Mariana Olmo Jiménez</td>
+                  <td>
+                    <ul class="lista-entidades">
+                      <li>Colegio Los Olivos</li>
+                      <li>UMA</li>
+                    </ul>
+                  </td>
+                  <td>34</td>
+                  <td>Costa Occidental</td>
+                  <td>600 00 00 00</td>
+                </tr>
+
+                <tr tabindex="0">
+                  <td>Pepe Zamora Blanco</td>
+                  <td>Colegio Girasoles</td>
+                  <td>20</td>
+                  <td>Torremolinos</td>
+                  <td>600 00 00 00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <footer class="contenido__footer">
+            <div class="acciones-tabla">
+              <button class="acciones-tabla__btn" type="button">Eliminar coordinador</button>
+              <button class="acciones-tabla__btn" type="button">Modificar coordinador</button>
+              <button class="acciones-tabla__btn" type="button">Añadir coordinador</button>
+            </div>
+
+            <button class="boton-exportar" type="button" aria-label="Exportar">
+              <img src="../assets/simbolo_exportar.png" alt="" />
+            </button>
+          </footer>
+        </section>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
