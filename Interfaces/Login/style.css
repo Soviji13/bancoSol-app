@@ -138,12 +138,22 @@ body {
   cursor: pointer;
 }
 
+.contenedor-error {
+  width: 100%;
+  min-height: 1.6vw;
+  margin-top: 3%;
+}
+
 .mensaje-error {
   width: 100%;
-  margin-top: 3%;
   color: var(--color-error);
   font-size: 0.9vw;
   text-align: left;
+  line-height: 1.2;
+}
+
+.oculto {
+  visibility: hidden;
 }
 
 .incorrecto {

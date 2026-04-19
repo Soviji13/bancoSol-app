@@ -25,7 +25,7 @@ function validarUsuario(usuario, contrasenia) {
 function limpiarErrores() {
   iUsuario.classList.remove("incorrecto");
   iContrasenia.classList.remove("incorrecto");
-  mensajeError.hidden = true;
+  mensajeError.classList.add("oculto");
   mensajeError.textContent = "";
 }
 
@@ -39,7 +39,7 @@ function mostrarError(texto, marcarUsuario = false, marcarContrasenia = false) {
   }
 
   mensajeError.textContent = `⚠ ${texto}`;
-  mensajeError.hidden = false;
+  mensajeError.classList.remove("oculto");
 }
 
 iUsuario.addEventListener("input", limpiarErrores);
