@@ -1,58 +1,6 @@
-/* JOSE */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* =========================
-   VARIABLES DE COLOR
-========================= */
-:root {
-  --color-principal: #3b3ea3;
-  --color-borde: #5a5a5a;
-  --color-borde-suave: #9aa0e6;
-  --color-fondo: #ffffff;
-  --color-blanco: #ffffff;
-  --color-texto-secundario: #333333;
-  --color-error: #d62828;
-}
-
-/* =========================
-   CLASES UTILITARIAS
-========================= */
-.bg-page {
-  background-color: var(--color-fondo);
-}
-
-.bg-main {
-  background-color: var(--color-principal);
-}
-
-.text-main {
-  color: var(--color-principal);
-}
-
-.text-white {
-  color: var(--color-blanco);
-}
-
-.border-main {
-  border: 0.12vw solid var(--color-borde);
-}
-
-.border-soft {
-  border: 0.12vw solid var(--color-borde-suave);
-}
-
 /* =========================
    ESTRUCTURA GENERAL
 ========================= */
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-}
-
 .pantalla-login {
   width: 97%;
   min-height: 96vh;
@@ -150,10 +98,6 @@ body {
   font-size: 0.9vw;
   text-align: left;
   line-height: 1.2;
-}
-
-.oculto {
-  visibility: hidden;
 }
 
 .incorrecto {

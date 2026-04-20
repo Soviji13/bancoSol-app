@@ -1,0 +1,111 @@
+/* =========================
+   RESET BASE
+========================= */
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* =========================
+   VARIABLES GLOBALES
+========================= */
+:root {
+    font-size: 16px;
+  --color-principal: #2f33a1;
+  --color-principal-oscuro: #232781;
+  --color-borde: #6f6f6f;
+  --color-borde-suave: #d3d3d3;
+  --color-texto: #2f2f2f;
+  --color-texto-secundario: #666666;
+  --color-fondo: #ffffff;
+  --color-fondo-suave: #f8f8fc;
+  --color-hover: #eef1ff;
+  --color-focus: #5d62d8;
+  --color-fila-seleccionada: #e7ebff;
+  --color-blanco: #ffffff;
+  --color-error: #d62828;
+
+  --radio-sm: 0.5rem;
+  --radio-md: 0.9rem;
+  --radio-lg: 1.2rem;
+
+  --borde-general: 0.08rem solid var(--color-borde);
+  --borde-suave: 0.08rem solid var(--color-borde-suave);
+  --borde-principal: 0.08rem solid var(--color-principal);
+
+  --transicion: 0.2s ease;
+}
+
+/* =========================
+   ESTILOS GLOBALES
+========================= */
+body {
+  min-height: 100vh;
+  max-width: 100vw;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+.bg-page {
+  background-color: var(--color-fondo);
+}
+
+.bg-main {
+  background-color: var(--color-principal);
+}
+
+.text-main {
+  color: var(--color-principal);
+}
+
+.text-white {
+  color: var(--color-blanco);
+}
+
+.border-main {
+  border: 0.12vw solid var(--color-borde);
+}
+
+.border-soft {
+  border: 0.12vw solid var(--color-borde-suave);
+}
+
+.oculto {
+  visibility: hidden;
+}
+
+button:focus-visible,
+a:focus-visible,
+tr:focus-visible {
+  outline: 0.18rem solid var(--color-focus);
+  outline-offset: 0.15rem;
+}
