@@ -2,19 +2,24 @@
    CONTENEDOR PRINCIPAL
 ========================= */
 .coordinadores {
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
   padding: 1.5%;
   background-color: var(--color-fondo);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .panel-coordinadores {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   border: none;
   border-radius: 0;
   overflow: visible;
   background-color: transparent;
+  display: flex;
+  flex-direction: column;
 }
 
 /* =========================
@@ -84,7 +89,8 @@
 .panel-coordinadores__body {
   display: grid;
   grid-template-columns: 24% 76%;
-  min-height: calc(100vh - 7.5rem);
+  flex: 1;
+  min-height: 0;
 }
 
 /* =========================

@@ -24,6 +24,9 @@ const botonExportar = document.querySelector(".boton-exportar");
 // Elemento donde aparece el título de la campaña
 const tituloCampania = document.querySelector(".contenido__titulo");
 
+// iframe del contenido
+const iframeContenido = document.querySelector(".contenido");
+
 
 // ==============================
 // ESTADO DE LA INTERFAZ
@@ -77,8 +80,21 @@ function cambiarPantalla(boton) {
   pantallaActual = nuevaPantalla;
   actualizarBotonActivoMenu(boton);
 
-  // Simulación visual / funcional
-  mostrarAlerta(`Cambio de pantalla a: ${nuevaPantalla}`);
+  // Mapa de pantallas a archivos HTML
+  const mapaPantallas = {
+    "Gestionar campañas": "campañas.html",
+    "Gestionar coordinadores": "contenido.html",
+    "Gestionar tiendas": "tiendas.html",
+    "Gestionar colaboradores": "colaboradores.html",
+    "Gestionar voluntarios": "voluntarios.html",
+    "Incidencias y movimientos": "incidencias.html"
+  };
+
+  // Cambiar el src del iframe
+  const archivoHTML = mapaPantallas[nuevaPantalla];
+  if (archivoHTML && iframeContenido) {
+    iframeContenido.src = archivoHTML;
+  }
 }
 
 //Quita la selección visual de todas las filas.

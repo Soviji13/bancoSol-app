@@ -5,6 +5,11 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 .contenido__topbar {
@@ -14,6 +19,8 @@
   gap: 2%;
   padding: 0.75% 1%;
   border-bottom: var(--borde-principal);
+  flex: 0 0 20%;
+  overflow: auto;
 }
 
 .contenido__acciones-superiores {
@@ -149,7 +156,8 @@
 .tabla-contenedor {
   flex: 1;
   width: 100%;
-  overflow-y: scroll;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .tabla-coordinadores {
@@ -207,19 +215,18 @@
 }
 
 /* =========================
-   FOOTER
+   ACCIONES TABLA
 ========================= */
-.contenido__footer {
-  display: flex;
-  align-items: stretch;
-  border-top: var(--borde-principal);
-  min-height: 10%;
-}
-
 .acciones-tabla {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  flex: 1;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  border-top: var(--borde-principal);
+  flex: 0 0 auto;
+  position: fixed;
+  bottom: 0;
+  background-color: var(--color-fondo);
+  z-index: 10;
 }
 
 .acciones-tabla__btn {
@@ -232,6 +239,8 @@
   transition:
     background-color var(--transicion),
     color var(--transicion);
+  display: grid;
+  place-items: center;
 }
 
 .acciones-tabla__btn:last-child {
@@ -241,6 +250,12 @@
 .acciones-tabla__btn:hover,
 .acciones-tabla__btn:focus-visible {
   background-color: var(--color-hover);
+}
+
+.acciones-tabla__btn--exportar img {
+  width: clamp(1.8rem, 2.4vw, 2.4rem);
+  height: auto;
+  object-fit: contain;
 }
 
 .boton-exportar {
@@ -282,10 +297,6 @@
 @media (max-width: 768px) {
   .contenido__campania {
     text-align: left;
-  }
-
-  .contenido__footer {
-    flex-direction: column;
   }
 
   .acciones-tabla {
