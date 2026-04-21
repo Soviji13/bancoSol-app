@@ -1,0 +1,59 @@
+/* =========================
+   MENÚ LATERAL
+========================= */
+.menu-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 4%;
+  border: none;
+  margin: 0;
+  height: 100%;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.menu-lateral__btn {
+  width: 80%;
+  min-height: 10%;
+  padding: 5% 6%;
+  border: var(--borde-general);
+  border-radius: var(--radio-md);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  font-size: clamp(0.95rem, 1vw, 1.08rem);
+  line-height: 1.25;
+  text-align: center;
+  transition:
+    background-color var(--transicion),
+    color var(--transicion),
+    border-color var(--transicion),
+    transform var(--transicion);
+}
+
+.menu-lateral__btn:hover,
+.menu-lateral__btn:focus-visible {
+  background-color: var(--color-hover);
+  border-color: var(--color-principal);
+}
+
+.menu-lateral__btn--activo {
+  background-color: var(--color-principal);
+  border-color: var(--color-principal);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.menu-lateral__btn--activo:hover,
+.menu-lateral__btn--activo:focus-visible {
+  background-color: var(--color-principal-oscuro);
+  border-color: var(--color-principal-oscuro);
+}
+
+/* =========================
+   ACCESIBILIDAD
+========================= */
+button:focus-visible {
+  outline: 0.18rem solid var(--color-focus);
+  outline-offset: 0.15rem;
+}

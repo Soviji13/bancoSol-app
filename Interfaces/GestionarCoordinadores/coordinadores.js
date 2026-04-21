@@ -1,11 +1,10 @@
-// JOSE
+// ==============================
+// SCRIPT COORDINADORES
+// ==============================
 
 // ==============================
 // SELECTORES DEL DOM
 // ==============================
-
-// Botones del menú lateral
-const botonesMenu = document.querySelectorAll(".menu-lateral__btn");
 
 // Botones de la parte superior
 const botonFiltro = document.querySelector(".boton-icono");
@@ -24,95 +23,27 @@ const botonExportar = document.querySelector(".boton-exportar");
 // Elemento donde aparece el título de la campaña
 const tituloCampania = document.querySelector(".contenido__titulo");
 
-// iframe del contenido
-const iframeContenido = document.querySelector(".contenido");
-
-
 // ==============================
 // ESTADO DE LA INTERFAZ
 // ==============================
 
-// Variable para guardar qué fila está seleccionada actualmente.
+// Variable para guardar qué fila está seleccionada actualmente
 let filaSeleccionada = null;
-
-// Nombre de la pantalla actual.
-// Como esta vista es la de coordinadores, empezamos ahí.
-let pantallaActual = "Gestionar coordinadores";
-
 
 // ==============================
 // FUNCIONES AUXILIARES
 // ==============================
-
-function mostrarAlerta(mensaje) {
-  alert(mensaje);
-}
 
 function obtenerTextoElemento(elemento) {
   return elemento.textContent.trim();
 }
 
 /**
- * Elimina la clase activa de todos los botones del menú
- * y la añade únicamente al botón pulsado.
+ * Obtiene el nombre del coordinador a partir de la primera celda de la fila.
  *
- * @param {HTMLButtonElement} botonActivo - Botón que pasa a estar activo.
+ * @param {HTMLTableRowElement} fila - Fila de la tabla.
+ * @returns {string} Nombre del coordinador o mensaje por defecto.
  */
-function actualizarBotonActivoMenu(botonActivo) {
-  botonesMenu.forEach((boton) => {
-    boton.classList.remove("menu-lateral__btn--activo");
-  });
-
-  botonActivo.classList.add("menu-lateral__btn--activo");
-}
-
-function cambiarPantalla(boton) {
-  const nuevaPantalla = obtenerTextoElemento(boton);
-
-  // Si el usuario pulsa la pantalla en la que ya está,
-  // igualmente avisamos para dejar claro qué ocurre.
-  if (nuevaPantalla === pantallaActual) {
-    mostrarAlerta(`Ya estás en la pantalla "${nuevaPantalla}".`);
-    return;
-  }
-
-  // Actualizamos estado interno y botón activo
-  pantallaActual = nuevaPantalla;
-  actualizarBotonActivoMenu(boton);
-
-  // Mapa de pantallas a archivos HTML
-  const mapaPantallas = {
-    "Gestionar campañas": "campañas.html",
-    "Gestionar coordinadores": "contenido.html",
-    "Gestionar tiendas": "tiendas.html",
-    "Gestionar colaboradores": "colaboradores.html",
-    "Gestionar voluntarios": "voluntarios.html",
-    "Incidencias y movimientos": "incidencias.html"
-  };
-
-  // Cambiar el src del iframe
-  const archivoHTML = mapaPantallas[nuevaPantalla];
-  if (archivoHTML && iframeContenido) {
-    iframeContenido.src = archivoHTML;
-  }
-}
-
-//Quita la selección visual de todas las filas.
-function limpiarSeleccionFilas() {
-  filasTabla.forEach((fila) => {
-    fila.classList.remove("tabla-coordinadores__fila--seleccionada");
-  });
-}
-
-//Selecciona una fila de la tabla.
-function seleccionarFila(fila) {
-  limpiarSeleccionFilas();
-
-  fila.classList.add("tabla-coordinadores__fila--seleccionada");
-  filaSeleccionada = fila;
-}
-
-// Obtiene el nombre del coordinador a partir de la primera celda de la fila.
 function obtenerNombreCoordinador(fila) {
   if (!fila) {
     return "coordinador no seleccionado";
@@ -122,28 +53,40 @@ function obtenerNombreCoordinador(fila) {
   return primeraCelda ? primeraCelda.textContent.trim() : "coordinador no seleccionado";
 }
 
-//Comprueba si hay una fila seleccionada.
+/**
+ * Comprueba si hay una fila seleccionada.
+ *
+ * @returns {boolean} True si hay fila seleccionada, false en caso contrario.
+ */
 function hayFilaSeleccionada() {
   if (!filaSeleccionada) {
-    mostrarAlerta("Debes seleccionar primero un coordinador.");
+    alert("Debes seleccionar primero un coordinador.");
     return false;
   }
 
   return true;
 }
 
-
-// ==============================
-// EVENTOS DEL MENÚ LATERAL
-// ==============================
-
-// Recorremos todos los botones del menú para escuchar clics
-botonesMenu.forEach((boton) => {
-  boton.addEventListener("click", () => {
-    cambiarPantalla(boton);
+/**
+ * Quita la selección visual de todas las filas.
+ */
+function limpiarSeleccionFilas() {
+  filasTabla.forEach((fila) => {
+    fila.classList.remove("tabla-coordinadores__fila--seleccionada");
   });
-});
+}
 
+/**
+ * Selecciona una fila de la tabla.
+ *
+ * @param {HTMLTableRowElement} fila - Fila a seleccionar.
+ */
+function seleccionarFila(fila) {
+  limpiarSeleccionFilas();
+
+  fila.classList.add("tabla-coordinadores__fila--seleccionada");
+  filaSeleccionada = fila;
+}
 
 // ==============================
 // EVENTOS DE LA ZONA SUPERIOR
@@ -152,14 +95,14 @@ botonesMenu.forEach((boton) => {
 // Botón de filtro
 if (botonFiltro) {
   botonFiltro.addEventListener("click", () => {
-    mostrarAlerta("Se abrirá el panel de filtros de coordinadores.");
+    alert("Se abrirá el panel de filtros de coordinadores.");
   });
 }
 
 // Botón para cambiar de campaña
 if (botonSeleccionarCampania) {
   botonSeleccionarCampania.addEventListener("click", () => {
-    mostrarAlerta("Aquí se abrirá la selección de otra campaña.");
+    alert("Aquí se abrirá la selección de otra campaña.");
   });
 }
 
@@ -170,12 +113,11 @@ if (botonAyuda) {
       ? tituloCampania.textContent.trim()
       : "la campaña actual";
 
-    mostrarAlerta(
+    alert(
       `Ayuda de la pantalla de coordinadores.\n\nCampaña actual: ${nombreCampania}\n\nHaz clic en una fila para seleccionarla y doble clic para ver más información.`
     );
   });
 }
-
 
 // ==============================
 // EVENTOS DE LA TABLA
@@ -186,14 +128,14 @@ filasTabla.forEach((fila) => {
     seleccionarFila(fila);
 
     const nombre = obtenerNombreCoordinador(fila);
-    mostrarAlerta(`Has seleccionado a: ${nombre}`);
+    alert(`Has seleccionado a: ${nombre}`);
   });
 
   fila.addEventListener("dblclick", () => {
     seleccionarFila(fila);
 
     const nombre = obtenerNombreCoordinador(fila);
-    mostrarAlerta(`Se abrirá la ficha de: ${nombre}`);
+    alert(`Se abrirá la ficha de: ${nombre}`);
   });
 
   // Accesibilidad básica con teclado:
@@ -203,11 +145,10 @@ filasTabla.forEach((fila) => {
       seleccionarFila(fila);
 
       const nombre = obtenerNombreCoordinador(fila);
-      mostrarAlerta(`Has seleccionado a: ${nombre}`);
+      alert(`Has seleccionado a: ${nombre}`);
     }
   });
 });
-
 
 // ==============================
 // EVENTOS DEL FOOTER
@@ -221,7 +162,7 @@ if (botonEliminar) {
     }
 
     const nombre = obtenerNombreCoordinador(filaSeleccionada);
-    mostrarAlerta(`Se eliminará al coordinador: ${nombre}`);
+    alert(`Se eliminará al coordinador: ${nombre}`);
   });
 }
 
@@ -233,7 +174,7 @@ if (botonModificar) {
     }
 
     const nombre = obtenerNombreCoordinador(filaSeleccionada);
-    mostrarAlerta(`Se abrirá la edición del coordinador: ${nombre}`);
+    alert(`Se abrirá la edición del coordinador: ${nombre}`);
   });
 }
 
@@ -244,13 +185,13 @@ if (botonAnadir) {
       ? tituloCampania.textContent.trim()
       : "la campaña actual";
 
-    mostrarAlerta(`Se añadirá un coordinador nuevo a la campaña: ${nombreCampania}`);
+    alert(`Se añadirá un coordinador nuevo a la campaña: ${nombreCampania}`);
   });
 }
 
 // Exportar datos
 if (botonExportar) {
   botonExportar.addEventListener("click", () => {
-    mostrarAlerta("Se exportarán los coordinadores a un archivo.");
+    alert("Se exportarán los coordinadores a un archivo.");
   });
 }
