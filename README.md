@@ -17,10 +17,10 @@ Aún no están terminados. Falta por seguir completando.
 
 ### Arquitectura
 
-**Diseño y creación de la Base de Datos** - Modelo relacional e integración en Supabase (PostgreeSQL): [@soviji13](https://github.com/Soviji13).
+- **Diseño y creación de la Base de Datos** - Modelo relacional e integración en Supabase (PostgreeSQL): [@soviji13](https://github.com/Soviji13).
 
-**Conexión de BBDD** - Pasos para conectar SpringBoot con Supabase: [@Alewuito](https://github.com/Alewuito)
+- **Conexión de BBDD** - Pasos para conectar SpringBoot con Supabase: [@Alewuito](https://github.com/Alewuito)
 
-**Análisis de requisitos** - Gestión de roles: [@CodeJose21](https://github.com/CodeJose21)
+- **Análisis de requisitos** - Gestión de roles: [@CodeJose21](https://github.com/CodeJose21)
 
 ### Back-end
