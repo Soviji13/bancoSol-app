@@ -7,7 +7,10 @@
 ## REGLAS ESTRICTAS EN SPRING BOOT
 **IMPORTANTE:** Es estrictamente necesario implementar esto; de lo contrario, las restricciones creadas en la BBDD lanzarán errores y bloquearán la aplicación.
 
-* **Nomenclatura de Entidades:** El nombre de todos los tipos STRING debe guardarse obligatoriamente en **MAYÚSCULAS** (p.e., `GUARDIA CIVIL`).
+**Nomenclatura de Datos:**
+
+- **Nombres y códigos**: Obligatorio en **mayúsculas** (nombre de entidades, cadenas, localidades, personas...)
+- **Descripciones y observaciones**: Se permite formato libre
 
 ---
 
