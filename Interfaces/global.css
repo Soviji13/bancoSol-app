@@ -52,6 +52,7 @@ a {
   --color-fila-seleccionada: #e7ebff;
   --color-blanco: #ffffff;
   --color-error: #d62828;
+  --color-deshabilitado: #b3b3b3;
 
   --radio-sm: 0.5rem;
   --radio-md: 0.9rem;

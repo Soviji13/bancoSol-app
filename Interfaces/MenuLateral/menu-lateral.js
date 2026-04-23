@@ -51,12 +51,12 @@ function cambiarPantalla(boton) {
 
   // Mapa de pantallas a archivos HTML
   const mapaPantallas = {
-    "Gestionar campañas": "campañas.html",
-    "Gestionar coordinadores": "coordinadores.html",
-    "Gestionar tiendas": "tiendas.html",
-    "Gestionar colaboradores": "colaboradores.html",
-    "Gestionar voluntarios": "voluntarios.html",
-    "Incidencias y movimientos": "incidencias.html"
+    "Gestionar campañas": "../Campanias/campanias.html",
+    "Gestionar coordinadores": "../GestionarCoordinadores/coordinadores.html",
+    "Gestionar tiendas": "../Tiendas/tiendas.html",
+    "Gestionar colaboradores": "../Colaboradores/colaboradores.html",
+    "Gestionar voluntarios": "../Voluntarios/voluntarios.html",
+    "Incidencias y movimientos": "../Incidencias/incidencias.html"
   };
 
   // Cambiar el src del iframe del contenido
