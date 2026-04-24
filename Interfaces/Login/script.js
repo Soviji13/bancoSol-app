@@ -5,8 +5,8 @@ const iContrasenia = document.querySelector("#password");
 const btnentrar = document.querySelector(".btn-login");
 const mensajeError = document.querySelector("#mensaje-error");
 
-const uPrueba = "Sofia";
-const cPrueba = "Xina";
+const uPrueba = "user";
+const cPrueba = "password";
 
 function retrasoAleatorio(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

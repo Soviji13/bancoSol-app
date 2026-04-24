@@ -92,10 +92,6 @@ body {
   color: var(--color-blanco);
 }
 
-.border-main {
-  border: 0.12vw solid var(--color-borde);
-}
-
 .border-soft {
   border: 0.12vw solid var(--color-borde-suave);
 }
