@@ -1,5 +1,10 @@
 # Notas sobre la Base de Datos
 
+## ANTES DE TOCAR LA BBDD LEER
+
+[mockeo](./mockeo.md)
+[parche](./parche_bd.md)
+
 > **Aviso:** Es recomendable leer las restricciones que se han añadido en la carpeta `archivos_equipo` en conjunto con este documento.
 
 ---

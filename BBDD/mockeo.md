@@ -1,5 +1,7 @@
 # Leer antes de mockear
 
+Siempre que añadáis nuevos datos desde terminal (no desde Spring), debéis hacer esto
+
 ## Antes de añadir los datos
 
 Debeis desactivar temporalmente el RLS para evitar que los trigues de validación fallen por no poder leer las tablas debido a la falta de políticas:
