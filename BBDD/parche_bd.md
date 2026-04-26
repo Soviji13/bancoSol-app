@@ -1,6 +1,6 @@
 # Necesario añadir este parche a la base de datos para que funcione
 
-**HAY DOS PARCHES**
+**HAY TRES PARCHES**
 
 Os vais a SQLEditor y ejecutais esta Query:
 
@@ -41,7 +41,7 @@ BEFORE INSERT OR UPDATE ON "public"."Tienda_turno"
 FOR EACH ROW EXECUTE FUNCTION "public"."validar_voluntario_tienda"(); 
 ```
 
-Y esta otra:
+Esta otra:
 
 ```SQL
 -- 1. Borramos la restricción antigua que es demasiado cerrada
@@ -52,4 +52,46 @@ DROP CONSTRAINT "unique_tienda_colaborador";
 ALTER TABLE "public"."Tienda_colaborador" 
 ADD CONSTRAINT "unique_tienda_colaborador_campania" 
 UNIQUE ("tienda_id", "colaborador_id", "campania_id");
+```
+
+Y esta:
+
+```SQL
+-- AREGLO 3
+
+-- 1. SOLUCIÓN AL MODELO DE CONTACTOS
+-- Primero, eliminamos la restricción y la Foreign Key que ataban el contacto al Responsable de Entidad
+ALTER TABLE "public"."Contacto" DROP CONSTRAINT IF EXISTS "Contacto_responsable_entidad_id_fkey";
+ALTER TABLE "public"."Contacto" DROP CONSTRAINT IF EXISTS "Contacto_responsable_id_key";
+
+-- Ahora eliminamos la columna sobrante en la tabla Contacto
+ALTER TABLE "public"."Contacto" DROP COLUMN IF EXISTS "responsable_entidad_id";
+
+-- Añadimos la nueva Foreign Key a Coordinador
+ALTER TABLE "public"."Coordinador" ADD COLUMN "contacto_id" bigint;
+ALTER TABLE "public"."Coordinador" ADD CONSTRAINT "Coordinador_contacto_id_fkey" 
+    FOREIGN KEY ("contacto_id") REFERENCES "public"."Contacto"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+-- Añadimos la nueva Foreign Key a Responsable_entidad
+ALTER TABLE "public"."Responsable_entidad" ADD COLUMN "contacto_id" bigint;
+ALTER TABLE "public"."Responsable_entidad" ADD CONSTRAINT "Responsable_entidad_contacto_id_fkey" 
+    FOREIGN KEY ("contacto_id") REFERENCES "public"."Contacto"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+-- Añadimos la nueva Foreign Key a Responsable_tienda
+ALTER TABLE "public"."Responsable_tienda" ADD COLUMN "contacto_id" bigint;
+ALTER TABLE "public"."Responsable_tienda" ADD CONSTRAINT "Responsable_tienda_contacto_id_fkey" 
+    FOREIGN KEY ("contacto_id") REFERENCES "public"."Contacto"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+-- 2. SOLUCIÓN A LA VIOLACIÓN DRY EN TIENDA_TURNO
+-- Eliminamos la Foreign Key y la columna del colaborador_id que era redundante
+ALTER TABLE "public"."Tienda_turno" DROP CONSTRAINT IF EXISTS "Tienda_turno_colaborador_id_fkey";
+ALTER TABLE "public"."Tienda_turno" DROP COLUMN IF EXISTS "colaborador_id";
+
+
+-- 3. SOLUCIÓN A LA NOMENCLATURA FANTASMA 
+-- Esto renombra el generador de IDs y la clave primaria
+-- para que dejen de llamarse "Notificacion" y pasen a llamarse "Solicitud_cambio"
+ALTER SEQUENCE IF EXISTS "public"."Notificacion_id_seq" RENAME TO "Solicitud_cambio_id_seq";
+ALTER TABLE "public"."Solicitud_cambio" RENAME CONSTRAINT "Notificacion_pkey" TO "Solicitud_cambio_pkey";
 ```
