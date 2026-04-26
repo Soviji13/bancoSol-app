@@ -25,7 +25,7 @@ BEGIN
         WHERE tienda_id = NEW.tienda_id 
           AND colaborador_id = id_entidad_del_responsable
     ) THEN
-        RAISE EXCEPTION 'Operación cancelada: El responsable no puede asignar voluntarios en esta tienda porque su entidad no está vinculada a ella.'; [cite: 450]
+        RAISE EXCEPTION 'Operación cancelada: El responsable no puede asignar voluntarios en esta tienda porque su entidad no está vinculada a ella.'; 
     END IF;
 
     RETURN NEW;
