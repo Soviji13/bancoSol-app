@@ -1,6 +1,6 @@
 # Necesario añadir este parche a la base de datos para que funcione
 
-**HAY TRES PARCHES**
+**HAY CUATRO PARCHES**. Id haciéndolo en orden poco a poco.
 
 Os vais a SQLEditor y ejecutais esta Query:
 
@@ -54,7 +54,7 @@ ADD CONSTRAINT "unique_tienda_colaborador_campania"
 UNIQUE ("tienda_id", "colaborador_id", "campania_id");
 ```
 
-Y esta:
+Esta:
 
 ```SQL
 -- AREGLO 3
@@ -94,4 +94,31 @@ ALTER TABLE "public"."Tienda_turno" DROP COLUMN IF EXISTS "colaborador_id";
 -- para que dejen de llamarse "Notificacion" y pasen a llamarse "Solicitud_cambio"
 ALTER SEQUENCE IF EXISTS "public"."Notificacion_id_seq" RENAME TO "Solicitud_cambio_id_seq";
 ALTER TABLE "public"."Solicitud_cambio" RENAME CONSTRAINT "Notificacion_pkey" TO "Solicitud_cambio_pkey";
+```
+Esta:
+
+```SQL
+
+CREATE OR REPLACE FUNCTION "public"."validar_tienda_responsable"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    id_entidad_del_responsable bigint;
+BEGIN
+    -- Usamos el nombre correcto: responsable_entidad_id
+    SELECT entidad_id INTO id_entidad_del_responsable 
+    FROM "Responsable_entidad" WHERE id = NEW.responsable_entidad_id; 
+
+    -- (El resto de la lógica de validación se queda igual...)
+    IF NOT EXISTS (
+        SELECT 1 FROM "Tienda_colaborador"
+        WHERE tienda_id = NEW.tienda_id 
+          AND colaborador_id = id_entidad_del_responsable
+    ) THEN
+        RAISE EXCEPTION 'Denegado: No puedes asignar este responsable porque su entidad no está vinculada a esta tienda.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
 ```
