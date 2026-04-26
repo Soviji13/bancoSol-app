@@ -1,5 +1,7 @@
 # Necesario añadir este parche a la base de datos para que funcione
 
+**HAY DOS PARCHES**
+
 Os vais a SQLEditor y ejecutais esta Query:
 
 ```SQL
@@ -37,4 +39,17 @@ $$;
 CREATE TRIGGER trigger_valida_voluntario_asignacion
 BEFORE INSERT OR UPDATE ON "public"."Tienda_turno"
 FOR EACH ROW EXECUTE FUNCTION "public"."validar_voluntario_tienda"(); 
+```
+
+Y esta otra:
+
+```SQL
+-- 1. Borramos la restricción antigua que es demasiado cerrada
+ALTER TABLE "public"."Tienda_colaborador" 
+DROP CONSTRAINT "unique_tienda_colaborador";
+
+-- 2. Creamos la nueva que permite repetir la dupla siempre que sea en campañas diferentes
+ALTER TABLE "public"."Tienda_colaborador" 
+ADD CONSTRAINT "unique_tienda_colaborador_campania" 
+UNIQUE ("tienda_id", "colaborador_id", "campania_id");
 ```
