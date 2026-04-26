@@ -17,7 +17,7 @@ BEGIN
     -- Usamos responsable_entidad_id que es el nombre real en Tienda_turno
     SELECT entidad_id INTO id_entidad_del_responsable 
     FROM "Responsable_entidad" 
-    WHERE id = NEW.responsable_entidad_id; [cite: 450]
+    WHERE id = NEW.responsable_entidad_id; 
 
     -- Verificamos si esa entidad tiene permiso para gestionar esa tienda específica
     IF NOT EXISTS (
@@ -36,5 +36,5 @@ $$;
 -- Es aquí donde se produce la unión y donde tiene sentido validar
 CREATE TRIGGER trigger_valida_voluntario_asignacion
 BEFORE INSERT OR UPDATE ON "public"."Tienda_turno"
-FOR EACH ROW EXECUTE FUNCTION "public"."validar_voluntario_tienda"(); [cite: 450]
+FOR EACH ROW EXECUTE FUNCTION "public"."validar_voluntario_tienda"(); 
 ```
