@@ -1,6 +1,6 @@
 # Necesario añadir este parche a la base de datos para que funcione
 
-**HAY CUATRO PARCHES**. Id haciéndolo en orden poco a poco.
+**HAY CINCO PARCHES**. Id haciéndolo en orden poco a poco.
 
 Os vais a SQLEditor y ejecutais esta Query:
 
@@ -121,4 +121,42 @@ BEGIN
     RETURN NEW;
 END;
 $$;
+```
+
+Esta:
+
+```SQL
+-- Desnormalización en "Tienda_turno"
+
+-- El voluntario ya sabe quién es su responsable, no hace falta guardarlo de nuevo en el turno.
+-- IMPORTANTE: Como el trigger dependía de esta columna, primero lo actualizamos.
+
+-- Nuevo trigger que busca el responsable leyendo directamente del voluntario
+CREATE OR REPLACE FUNCTION "public"."validar_voluntario_tienda"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    id_entidad_del_responsable bigint;
+BEGIN
+    -- Ahora obtenemos el responsable consultando la tabla Voluntario usando el voluntario_id del nuevo turno
+    SELECT r.entidad_id INTO id_entidad_del_responsable 
+    FROM "Voluntario" v
+    JOIN "Responsable_entidad" r ON v.responsable_entidad_id = r.id
+    WHERE v.id = NEW.voluntario_id;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM "Tienda_colaborador"
+        WHERE tienda_id = NEW.tienda_id 
+          AND colaborador_id = id_entidad_del_responsable
+    ) THEN
+        RAISE EXCEPTION 'Operación cancelada: El responsable del voluntario no puede asignarlo a esta tienda.'; 
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+-- Ahora sí, eliminamos la columna redundante y su restricción (y matamos dos pájaros de un tiro)
+ALTER TABLE "public"."Tienda_turno" DROP CONSTRAINT "Tienda_turno_responsable_entidad_id_fkey";
+ALTER TABLE "public"."Tienda_turno" DROP COLUMN "responsable_entidad_id";
 ```
