@@ -5,6 +5,8 @@
 [mockeo](./mockeo.md)
 [parche](./parche_bd.md)
 
+[joins](./joins.md) son opcionales, pero muy recomendables a ejecutar.
+
 > **Aviso:** Es recomendable leer las restricciones que se han añadido en la carpeta `archivos_equipo` en conjunto con este documento.
 
 ---
