@@ -23,4 +23,8 @@ Aún no están terminados. Falta por seguir completando.
 
 - **Análisis de requisitos** - Gestión de roles: [@CodeJose21](https://github.com/CodeJose21)
 
+- **Elección y creación de patrón** - Patrón DTO unificado (creación de los DTOs y services): [@soviji13](https://github.com/Soviji13)
+
+- **Conexión a la API** - Creación de RestControllers y configuración del CORS: [@soviji13](https://github.com/Soviji13) 
+
 ### Back-end
