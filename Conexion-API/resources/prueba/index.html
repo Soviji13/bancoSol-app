@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sound Check - BancoSol API</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        .status-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: #2ecc71; font-weight: bold; }
+        .error { color: #e74c3c; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background-color: #3498db; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="status-card">
+        <h1>API BancoSol Check</h1>
+        <p id="status">Conectando con Spring Boot...</p>
+        
+        <div id="data-container">
+            </div>
+    </div>
+
+    <script>
+        // Apuntamos al endpoint de Campañas que ya tenemos listo
+        const API_URL = 'http://localhost:8080/api/campanias';
+
+        async function checkConnection() {
+            const statusEl = document.getElementById('status');
+            const container = document.getElementById('data-container');
+
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) throw new Error('Respuesta de red no ok');
+
+                const data = await response.json();
+                
+                statusEl.innerHTML = '<span class="success"> ¡Señal recibida! El Back-end y el Front-end están conectados.</span>';
+                
+                // Si hay datos, los pintamos en una tabla
+                if (data.length > 0) {
+                    let html = '<table><tr><th>ID</th><th>Nombre</th><th>Inicio</th><th>Fin</th></tr>';
+                    data.forEach(campania => {
+                        html += `<tr>
+                            <td>${campania.id}</td>
+                            <td>${campania.nombre}</td>
+                            <td>${campania.fechaInicio}</td>
+                            <td>${campania.fechaFin}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p>La tabla de Campañas está vacía en la base de datos. ¡Pero la conexión funciona!</p>';
+                }
+
+            } catch (error) {
+                console.error('Error en el fetch:', error);
+                statusEl.innerHTML = `
+                    <span class="error">Fallo en la conexión.</span><br>
+                    <small>Causas probables: ¿Está Spring Boot encendido? ¿Configuraste bien el CORS en WebConfig.java?</small>
+                `;
+            }
+        }
+
+        checkConnection();
+    </script>
+</body>
+</html>
