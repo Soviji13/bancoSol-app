@@ -2,7 +2,7 @@ Estos comandos son útiles para que al realizar un JOIN, las claves foráneas se
 
 ```SQL
 -- En PostgreSQL, las claves primarias (PK) se indexan solas, pero las foráneas (FK) NO.
--- Añadir estos índices asegura que los JOINs y las búsquedas por relación vuelen 🚀.
+-- Añadir estos índices asegura que los JOINs y las búsquedas por relación vuelen 
 
 -- 1. Tiendas y sus relaciones
 CREATE INDEX idx_tienda_cadena ON "public"."Tienda"("cadena_id");
