@@ -1,7 +1,7 @@
 # 🗄️ Guía de Implementación: Base de Datos & Spring Boot
 
 > **🚨 LEER ANTES DE EMPEZAR:**
-> Antes de realizar cualquier cambio, revisad: [mockeo](./mockeo.md) | [parche](./parche_bd.md).
+> Antes de realizar cualquier cambio, revisad: [mockeo](./mockeo.md) | [parche](./parche_bd.md) | [adaptacionSpring](./adaptacionSpring.md)
 > Se recomienda encarecidamente ejecutar los [joins](./joins.md) para comprender el flujo de datos.
 
 ---
