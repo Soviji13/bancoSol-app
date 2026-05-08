@@ -1,0 +1,143 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+.coordinadores {
+  height: 100vh;
+  width: 100%;
+  padding: 0;
+  background-color: var(--color-fondo);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.panel-coordinadores {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   CABECERA
+========================= */
+.panel-coordinadores__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2%;
+  padding: 1.5% 2%;
+  border-bottom: var(--borde-general);
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+  width: 80%;
+}
+
+.usuario__logo {
+  width: clamp(3.6rem, 5vw, 5rem);
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.usuario__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.usuario__datos {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.usuario__bienvenida {
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.usuario__rol {
+  margin-top: 0.25em;
+  font-size: clamp(0.8rem, 0.95vw, 1rem);
+  color: var(--color-texto-secundario);
+}
+
+.panel-coordinadores__logout {
+  font-size: clamp(0.9rem, 1vw, 1.05rem);
+  color: var(--color-texto);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.panel-coordinadores__logout:hover,
+.panel-coordinadores__logout:focus-visible {
+  color: var(--color-principal);
+}
+
+/* =========================
+   CUERPO
+========================= */
+.panel-coordinadores__body {
+  display: grid;
+  grid-template-columns: 25% 75%;
+  flex: 1;
+  gap: 0;
+  min-height: 0;
+}
+
+/* =========================
+   IFRAMES
+========================= */
+.iframe-contenedor {
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.iframe-menu {
+  grid-column: 1;
+  border-right: var(--borde-general);
+}
+
+.iframe-contenido {
+  grid-column: 2;
+}
+
+.menu-lateral-iframe {
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+
+.contenido-iframe {
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+}
+
+/* =========================
+   ACCESIBILIDAD
+========================= */
+button:focus-visible,
+a:focus-visible,
+tr:focus-visible {
+  outline: 0.18rem solid var(--color-focus);
+  outline-offset: 0.15rem;
+}

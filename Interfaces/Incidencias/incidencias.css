@@ -1,0 +1,361 @@
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+.contenido {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background-color: var(--color-fondo);
+  border: var(--borde-general);
+  overflow: hidden;
+}
+
+/* =========================
+   BARRA SUPERIOR
+========================= */
+.contenido__topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: var(--borde-principal);
+  min-width: 0;
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.boton-icono {
+  position: relative;
+  width: 2.8rem;
+  height: 2.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--borde-principal);
+  border-radius: var(--radio-md);
+  background-color: var(--color-fondo-suave);
+  color: var(--color-principal);
+  transition: background-color var(--transicion);
+}
+
+.boton-icono:hover {
+  background-color: var(--color-hover);
+}
+
+.boton-icono img {
+  width: 1.2rem;
+  height: 1.2rem;
+  object-fit: contain;
+}
+
+.boton-icono__contador {
+  position: absolute;
+  right: -0.2rem;
+  bottom: -0.2rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #7888d8;
+  color: var(--color-blanco);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.historial-incidencias {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.historial-incidencias span {
+  display: block;
+  min-width: 0;
+}
+
+.historial_titulo {
+  color: var(--color-principal);
+  font-size: clamp(1.15rem, 2vw, 1.9rem);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.seccion-ayuda {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.contenido__ayuda {
+  max-width: 18rem;
+  color: var(--color-texto-secundario);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.boton-ayuda {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--borde-suave);
+  border-radius: 50%;
+  color: #9a9a9a;
+  background-color: var(--color-fondo);
+  font-size: 0.95rem;
+  transition: background-color var(--transicion), color var(--transicion);
+}
+
+.boton-ayuda:hover {
+  background-color: var(--color-hover);
+  color: var(--color-principal);
+}
+
+/* =========================
+   ZONA CENTRAL CON TABLA
+========================= */
+.tabla-contenedor {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background-color: var(--color-fondo);
+}
+
+.tabla-incidencias {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background-color: var(--color-fondo);
+}
+
+/* =========================
+   ANCHOS DE COLUMNAS
+========================= */
+.tabla-incidencias th:nth-child(1),
+.tabla-incidencias td:nth-child(1) {
+  width: 15rem;
+}
+
+.tabla-incidencias th:nth-child(2),
+.tabla-incidencias td:nth-child(2) {
+  width: 16rem;
+}
+
+.tabla-incidencias th:nth-child(3),
+.tabla-incidencias td:nth-child(3) {
+  width: 8rem;
+}
+
+.tabla-incidencias th:nth-child(4),
+.tabla-incidencias td:nth-child(4) {
+  width: 14rem;
+}
+
+.tabla-incidencias th:nth-child(5),
+.tabla-incidencias td:nth-child(5) {
+  width: 11rem;
+}
+
+/* =========================
+   TABLA
+========================= */
+.tabla-incidencias th,
+.tabla-incidencias td {
+  padding: 1rem 0.8rem;
+  border-right: var(--borde-general);
+  border-bottom: var(--borde-general);
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.tabla-incidencias th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--color-fondo);
+  color: var(--color-principal);
+  font-weight: 600;
+}
+
+.tabla-incidencias tbody tr {
+  cursor: pointer;
+  transition: background-color var(--transicion);
+}
+
+.tabla-incidencias tbody tr:hover {
+  background-color: var(--color-hover);
+}
+
+.tabla-incidencias tbody tr.seleccionada {
+  background-color: var(--color-fila-seleccionada);
+}
+
+.lista-entidades {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* =========================
+   BARRA INFERIOR FIJA AL CONTENEDOR
+========================= */
+.acciones-tabla {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background-color: var(--color-fondo);
+  border-top: var(--borde-general);
+}
+
+.acciones-tabla__btn {
+  min-width: 0;
+  min-height: 3.2rem;
+  padding: 0.9rem 1rem;
+  color: #8a8a8a;
+  background-color: var(--color-fondo);
+  border-right: var(--borde-general);
+  transition: background-color var(--transicion), color var(--transicion);
+}
+
+.acciones-tabla__btn:last-child {
+  border-right: none;
+}
+
+.acciones-tabla__btn:hover:not(:disabled) {
+  background-color: var(--color-hover);
+}
+
+.acciones-tabla__btn:disabled {
+  color: var(--color-deshabilitado);
+  cursor: not-allowed;
+}
+
+.acciones-tabla__btn:not(:disabled){
+  color: var(--color-principal);
+}
+
+/* =========================
+   SCROLLBARS
+========================= */
+.tabla-contenedor::-webkit-scrollbar {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.tabla-contenedor::-webkit-scrollbar-thumb {
+  background-color: #c7c7c7;
+  border-radius: 999px;
+}
+
+.tabla-contenedor::-webkit-scrollbar-track {
+  background-color: #f2f2f2;
+}
+
+.tabla-incidencias th:nth-child(1),
+.tabla-incidencias td:nth-child(1) {
+  width: 6rem;
+}
+
+.tabla-incidencias th:nth-child(2),
+.tabla-incidencias td:nth-child(2) {
+  width: 13rem;
+}
+
+.tabla-incidencias th:nth-child(3),
+.tabla-incidencias td:nth-child(3) {
+  width: 12rem;
+}
+
+.tabla-incidencias th:nth-child(4),
+.tabla-incidencias td:nth-child(4) {
+  width: 9rem;
+}
+
+.tabla-incidencias th:nth-child(5),
+.tabla-incidencias td:nth-child(5) {
+  width: 5rem;
+}
+
+.tabla-incidencias th:nth-child(6),
+.tabla-incidencias td:nth-child(6) {
+  width: 7rem;
+}
+
+.tabla-incidencias th:nth-child(7),
+.tabla-incidencias td:nth-child(7) {
+  width: 14rem;
+}
+
+.tabla-incidencias th:nth-child(8),
+.tabla-incidencias td:nth-child(8) {
+  width: 8rem;
+}
+
+.celda-asunto {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.8rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 0.4rem;
+  font-size: 0.76rem;
+}
+
+.estado--resuelta {
+  background-color: #bfe8b8;
+  color: #416d37;
+}
+
+.estado--pendiente {
+  background-color: #f2caca;
+  color: #8b4b4b;
+}
+
+.estado--leida {
+  background-color: #f3df8c;
+  color: #806a16;
+}
+
+.estado--ninguno {
+  background-color: transparent;
+  color: var(--color-texto-secundario);
+  min-width: auto;
+  padding: 0;
+}

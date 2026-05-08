@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Incidencia seleccionada</title>
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="incidenciaSeleccionada.css" />
+  <script src="incidenciaSeleccionada.js" defer></script>
+</head>
+<body>
+  <aside class="panel-incidencia" aria-labelledby="titulo-incidencia">
+    <div class="panel-incidencia__cabecera">
+      <h1 id="titulo-incidencia" class="panel-incidencia__titulo">
+        Lorem ipsum dolor sit amet conse
+      </h1>
+
+      <button
+        id="btn-cerrar-panel"
+        class="panel-incidencia__cerrar"
+        type="button"
+        aria-label="Cerrar panel"
+        title="Cerrar panel"
+      >
+        X
+      </button>
+    </div>
+
+    <div class="panel-incidencia__contenido">
+      <section class="panel-incidencia__bloque">
+        <p class="panel-incidencia__linea">
+          <span class="panel-incidencia__etiqueta">Reportado por:</span>
+          <span id="detalle-reportado-por" class="panel-incidencia__valor">
+            Mariana Olmo Jiménez
+          </span>
+        </p>
+      </section>
+
+      <section class="panel-incidencia__bloque panel-incidencia__bloque--doble">
+        <div class="panel-incidencia__dato">
+          <span class="panel-incidencia__etiqueta">ID:</span>
+          <span id="detalle-id" class="panel-incidencia__valor">000719</span>
+        </div>
+
+        <div class="panel-incidencia__dato">
+          <span class="panel-incidencia__etiqueta">Estado:</span>
+          <span id="detalle-estado" class="panel-incidencia__valor panel-incidencia__valor--estado">
+            Pendiente
+          </span>
+        </div>
+      </section>
+
+      <section class="panel-incidencia__bloque">
+        <p class="panel-incidencia__linea">
+          <span class="panel-incidencia__etiqueta">Cargo:</span>
+        </p>
+        <p id="detalle-cargo" class="panel-incidencia__texto">
+          Responsable de entidad (UMA)
+        </p>
+      </section>
+
+      <section class="panel-incidencia__bloque">
+        <p class="panel-incidencia__linea">
+          <span class="panel-incidencia__etiqueta">Contacto:</span>
+        </p>
+        <p id="detalle-telefono" class="panel-incidencia__texto">
+          Teléfono: 600 00 00 00
+        </p>
+        <p id="detalle-email" class="panel-incidencia__texto">
+          Dirección de correo: marianaolj41@gmail.com
+        </p>
+      </section>
+
+      <section class="panel-incidencia__bloque">
+        <p class="panel-incidencia__linea">
+          <span class="panel-incidencia__etiqueta">Fecha y hora:</span>
+        </p>
+        <p id="detalle-fecha-hora" class="panel-incidencia__texto">
+          7 de Febrero de 2023 a las 15:00 horas.
+        </p>
+      </section>
+
+      <section class="panel-incidencia__bloque panel-incidencia__bloque--descripcion">
+        <p class="panel-incidencia__linea">
+          <span class="panel-incidencia__etiqueta">Descripción de la incidencia:</span>
+        </p>
+
+        <div id="detalle-descripcion" class="panel-incidencia__descripcion">
+          Descripción no disponible.
+        </div>
+      </section>
+    </div>
+  </aside>
+</body>
+</html>
