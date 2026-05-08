@@ -3,6 +3,9 @@ package com.bancosol.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "\"Cadena\"", schema = "public")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -24,4 +27,8 @@ public class Cadena {
         if (this.nombre != null) this.nombre = this.nombre.toUpperCase();
         if (this.codigo != null) this.codigo = this.codigo.toUpperCase();
     }
+
+    //Refactorización de Cadena
+    @OneToMany(mappedBy = "cadena", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CampaniaCadena> campaniaCadenas = new ArrayList<>();
 }

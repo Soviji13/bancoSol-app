@@ -3,6 +3,9 @@ package com.bancosol.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "\"Entidad_colaboradora\"", schema = "public")
 @Getter
@@ -47,4 +50,15 @@ public class EntidadColaboradora {
     private void asegurarMayusculas() {
         if (this.nombre != null) this.nombre = this.nombre.toUpperCase();
     }
+
+    //Refactorización de entidadColaboradora
+
+    @OneToMany(mappedBy = "entidad_colaboradora", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiendaColaborador> tiendaColaboradores = new ArrayList<>();
+
+    @OneToMany(mappedBy = "entidad_colaboradora", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResponsableEntidad> responsableEntidades = new ArrayList<>();
+
+    @OneToMany(mappedBy = "entidad_colaboradora", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
 }

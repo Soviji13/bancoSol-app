@@ -3,6 +3,9 @@ package com.bancosol.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "\"Coordinador\"", schema = "public")
 @Getter
@@ -40,4 +43,7 @@ public class Coordinador {
     private void asegurarMayusculas() {
         if (this.area != null) this.area = this.area.toUpperCase();
     }
+
+    @OneToMany(mappedBy = "coordinador", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CoordinadorCampania> coordinadorCampanias = new ArrayList<>();
 }

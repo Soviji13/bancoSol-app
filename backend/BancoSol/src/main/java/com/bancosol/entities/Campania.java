@@ -3,6 +3,8 @@ package com.bancosol.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "\"Campania\"", schema = "public")
@@ -39,4 +41,22 @@ public class Campania {
     private void asegurarMayusculas() {
         if (this.nombre != null) this.nombre = this.nombre.toUpperCase();
     }
+
+    // Refactorización de campania
+
+    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CampaniaCadena> campaniaCadenas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiendaCampania> tiendaCampanias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ColaboradorCampania> colaboradorCampanias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CoordinadorCampania> coordinadorCampanias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiendaResponsable> tiendaResponsables = new ArrayList<>();
+
 }

@@ -5,6 +5,9 @@ import com.bancosol.entities.enums.TurnoFranja;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "\"Turno\"", schema = "public")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -23,4 +26,7 @@ public class Turno {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campania_id", nullable = false)
     private Campania campania;
+
+    @OneToMany(mappedBy = "turno", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
 }
