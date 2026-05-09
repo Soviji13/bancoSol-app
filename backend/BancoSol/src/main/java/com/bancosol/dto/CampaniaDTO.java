@@ -11,12 +11,14 @@ import java.util.List;
 public class CampaniaDTO {
     private Long id;
     private String nombre;
-    private Integer anio;
+    private Short anio;
     private Boolean activa;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
-    private List<Long> idsCadenas;       // Para CampaniaCadena
-    private List<Long> idsTiendas;       // Para TiendaCampania
-    private List<Long> idsCoordinadores; // Para CoordinadorCampania
+    private List<Long> idsCadenas;       // Sustituye a CampaniaCadena
+    private List<Long> idsTiendas;       // Sustituye a TiendaCampania
+    private List<Long> idsColaboradores; // Sustituye a ColaboradorCampania
+    private List<Long> idsCoordinadores; // Sustituye a CoordinadorCampania
+    private List<Long> idsResponsables;  // Sustituye a TiendaResponsable
 }

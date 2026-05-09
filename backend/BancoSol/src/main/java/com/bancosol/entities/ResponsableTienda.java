@@ -32,10 +32,15 @@ public class ResponsableTienda {
     }
 
 
-    @OneToMany(mappedBy = "responsable_tienda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaResponsable> tiendaResponsables = new ArrayList<>();
+    // ... resto de atributos ...
 
-    @OneToMany(mappedBy = "responsable_tienda", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "responsables")
+    private List<Tienda> tiendas = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "responsables")
+    private List<Campania> campanias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "responsable", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
 
 

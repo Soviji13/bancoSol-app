@@ -1,9 +1,9 @@
 package com.bancosol.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+        import lombok.*;
 
-import java.util.ArrayList;
+        import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -53,12 +53,17 @@ public class EntidadColaboradora {
 
     //Refactorización de entidadColaboradora
 
-    @OneToMany(mappedBy = "entidad_colaboradora", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaColaborador> tiendaColaboradores = new ArrayList<>();
+    @ManyToMany(mappedBy = "colaboradores")
+    private List<Campania> campanias = new ArrayList<>();
 
-    @OneToMany(mappedBy = "entidad_colaboradora", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ResponsableEntidad> responsableEntidades = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "tienda_entidad",
+            joinColumns = @JoinColumn(name = "entidad_id"),
+            inverseJoinColumns = @JoinColumn(name = "tienda_id")
+    )
+    private List<Tienda> tiendas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "entidad_colaboradora", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "colaborador", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
 }

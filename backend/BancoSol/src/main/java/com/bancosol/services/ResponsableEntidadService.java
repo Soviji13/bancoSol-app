@@ -20,7 +20,7 @@ public class ResponsableEntidadService {
         return ResponsableEntidadDTO.builder()
                 .id(re.getId())
                 .esContactoPrincipal(re.getEsContactoPrincipal())
-                .entidadId(re.getEntidad().getId())
+                .entidadId(re.getColaborador().getId())
                 .usuarioId(re.getUsuario().getId())
                 .contactoId(re.getContacto() != null ? re.getContacto().getId() : null)
                 .build();

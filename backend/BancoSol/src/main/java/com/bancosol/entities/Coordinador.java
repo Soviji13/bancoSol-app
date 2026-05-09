@@ -44,6 +44,7 @@ public class Coordinador {
         if (this.area != null) this.area = this.area.toUpperCase();
     }
 
-    @OneToMany(mappedBy = "coordinador", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CoordinadorCampania> coordinadorCampanias = new ArrayList<>();
+    // Refactorización: Relación directa con Campania
+    @ManyToMany(mappedBy = "coordinadores")
+    private List<Campania> campanias = new ArrayList<>();
 }

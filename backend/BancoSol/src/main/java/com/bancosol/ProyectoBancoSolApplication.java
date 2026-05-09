@@ -1,4 +1,4 @@
-package bancosol.gr21.proyectobancosol;
+package com.bancosol;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.SpringApplication;

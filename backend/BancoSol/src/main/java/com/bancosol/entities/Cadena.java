@@ -29,6 +29,6 @@ public class Cadena {
     }
 
     //Refactorización de Cadena
-    @OneToMany(mappedBy = "cadena", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CampaniaCadena> campaniaCadenas = new ArrayList<>();
+    @ManyToMany(mappedBy = "cadenas")
+    private List<Campania> campanias = new ArrayList<>();
 }

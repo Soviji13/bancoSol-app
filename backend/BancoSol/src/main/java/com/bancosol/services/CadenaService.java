@@ -3,6 +3,7 @@ package com.bancosol.services;
 import com.bancosol.dao.CadenaRepository;
 import com.bancosol.dto.CadenaDTO;
 import com.bancosol.entities.Cadena;
+import com.bancosol.entities.Campania;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,11 @@ public class CadenaService {
                 .id(c.getId())
                 .nombre(c.getNombre())
                 .codigo(c.getCodigo())
+                // REFACTORIZADO: Acceso directo a la lista de campanias (ManyToMany)
+                .idsCampanias(c.getCampanias() == null ? List.of() :
+                        c.getCampanias().stream()
+                                .map(Campania::getId)
+                                .collect(Collectors.toList()))
                 .build();
     }
 }

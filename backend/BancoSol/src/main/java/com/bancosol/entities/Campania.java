@@ -44,19 +44,43 @@ public class Campania {
 
     // Refactorización de campania
 
-    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CampaniaCadena> campaniaCadenas = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "campania_cadena",
+            joinColumns = @JoinColumn(name = "campania_id"),
+            inverseJoinColumns = @JoinColumn(name = "cadena_id")
+    )
+    private List<Cadena> cadenas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaCampania> tiendaCampanias = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "tienda_campania",
+            joinColumns = @JoinColumn(name = "campania_id"),
+            inverseJoinColumns = @JoinColumn(name = "tienda_id")
+    )
+    private List<Tienda> tiendas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ColaboradorCampania> colaboradorCampanias = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "colaborador_campania",
+            joinColumns = @JoinColumn(name = "id_campania"),
+            inverseJoinColumns = @JoinColumn(name = "id_colaborador")
+    )
+    private List<EntidadColaboradora> colaboradores = new ArrayList<>();
 
-    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CoordinadorCampania> coordinadorCampanias = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "coordinador_campania",
+            joinColumns = @JoinColumn(name = "campania_id"),
+            inverseJoinColumns = @JoinColumn(name = "coordinador_id")
+    )
+    private List<Coordinador> coordinadores = new ArrayList<>();
 
-    @OneToMany(mappedBy = "campania", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaResponsable> tiendaResponsables = new ArrayList<>();
-
+    @ManyToMany
+    @JoinTable(
+            name = "tienda_responsable",
+            joinColumns = @JoinColumn(name = "campania_id"),
+            inverseJoinColumns = @JoinColumn(name = "responsable_id")
+    )
+    private List<ResponsableTienda> responsables = new ArrayList<>();
 }

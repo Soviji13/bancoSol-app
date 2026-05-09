@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "\"Tienda\"", schema = "public")
+@Table(name = "tienda", schema = "public")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,13 +29,16 @@ public class Tienda {
     private Boolean esFranquicia = false;
 
     // Relaciones (Foreign Keys)
+    /*
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cadena_id", nullable = false)
     private Cadena cadena;
 
+     */
+
     // Relación 1 a 1 porque una tienda tiene una única dirección exclusiva
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "direccion_id", nullable = false, unique = true)
+    @JoinColumn(name = "ubicacion_id", nullable = false, unique = true)
     private Direccion direccion;
 
     @PrePersist
@@ -45,13 +48,32 @@ public class Tienda {
     }
 
     //Refactorizacion de tienda
-    @OneToMany(mappedBy = "tienda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaResponsable> tiendaResponsables = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "tienda_responsable",
+            schema = "public",
+            joinColumns = @JoinColumn(name = "tienda_id"),
+            inverseJoinColumns = @JoinColumn(name = "responsable_id")
+    )
+    private List<ResponsableTienda> responsables = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tienda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaCampania> tiendaCampanias = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "tienda_campania",
+            schema = "public",
+            joinColumns = @JoinColumn(name = "tienda_id"),
+            inverseJoinColumns = @JoinColumn(name = "campania_id")
+    )
+    private List<Campania> campanias = new ArrayList<>();
 
-    @OneToMany(mappedBy = "tienda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaColaborador> tiendaColaboradores = new ArrayList<>();
-
+    @ManyToMany
+    @JoinTable(
+            name = "tienda_entidad",
+            schema = "public",
+            joinColumns = @JoinColumn(name = "tienda_id"),
+            inverseJoinColumns = @JoinColumn(name = "entidad_id")
+    )
+    private List<EntidadColaboradora> colaboradores = new ArrayList<>();
 }
+
+

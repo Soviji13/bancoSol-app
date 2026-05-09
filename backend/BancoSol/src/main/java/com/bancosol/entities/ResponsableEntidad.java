@@ -16,7 +16,7 @@ public class ResponsableEntidad {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entidad_id", nullable = false)
-    private EntidadColaboradora entidad;
+    private EntidadColaboradora colaborador;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)

@@ -18,7 +18,15 @@ public class TurnoService {
 
     private TurnoDTO toDTO(Turno t) {
         return TurnoDTO.builder()
-                .id(t.getId()).dia(t.getDia()).franjaHoraria(t.getFranjaHoraria())
-                .campaniaId(t.getCampania().getId()).build();
+                .id(t.getId())
+                .dia(t.getDia())
+                .franjaHoraria(t.getFranjaHoraria())
+                .campaniaId(t.getCampania() != null ? t.getCampania().getId() : null)
+                .idsTiendas(t.getTiendaTurnos() == null ? List.of() :
+                        t.getTiendaTurnos().stream()
+                                .map(rel -> rel.getTienda().getId())
+                                .distinct() // Evita IDs de tienda repetidos en la lista
+                                .collect(Collectors.toList()))
+                .build();
     }
 }

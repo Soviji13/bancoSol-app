@@ -16,8 +16,8 @@ public class EntidadColaboradoraDTO {
     private Long coordinadorId;
     private Long direccionId;
 
-    // Relaciones por ID
-    private List<Long> idsTiendasAsignadas; // Para TiendaColaborador
-    private List<Long> idsCampanias;        // Para ColaboradorCampania
-    private List<Long> idsResponsables;     // Para ResponsableEntidad
+
+    private List<Long> idsTiendas;       // Sustituye a TiendaColaborador
+    private List<Long> idsContactos;     // Sustituye a ResponsableEntidad
+    private List<Long> idsTurnos;        // Sustituye a TiendaTurno
 }

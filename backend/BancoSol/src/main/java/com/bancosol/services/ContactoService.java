@@ -18,7 +18,18 @@ public class ContactoService {
 
     private ContactoDTO toDTO(Contacto c) {
         return ContactoDTO.builder()
-                .id(c.getId()).nombre(c.getNombre()).email(c.getEmail()).telefono(c.getTelefono())
+                .id(c.getId())
+
+                // Datos básicos
+                .nombre(c.getNombre())
+                .email(c.getEmail())
+                .telefono(c.getTelefono())
+                .idsEntidades(c.getResponsableEntidad() == null ? List.of() :
+                        c.getResponsableEntidad().stream()
+                                .map(rel -> rel.getColaborador().getId())
+                                .distinct()
+                                .collect(Collectors.toList()))
                 .build();
+
     }
 }

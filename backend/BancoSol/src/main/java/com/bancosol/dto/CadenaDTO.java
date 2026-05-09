@@ -13,5 +13,6 @@ public class CadenaDTO {
     private String nombre;
     private String codigo;
 
-    private List<Long> idCampanias
+
+    private List<Long> idsCampanias;     // Sustituye a CampaniaCadena
 }

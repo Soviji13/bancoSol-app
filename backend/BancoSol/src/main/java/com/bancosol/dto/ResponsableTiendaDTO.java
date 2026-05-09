@@ -14,4 +14,7 @@ public class ResponsableTiendaDTO {
     // Relaciones por ID
     private List<Long> idsTiendas;   // Para TiendaResponsable
     private List<Long> idsCampanias; // Para saber en qué campañas ha sido responsable
+
+    // Nota: Como TiendaResponsable es ternaria e incluye Campania,
+    // también podrías añadir private List<Long> idsCampanias;
 }

@@ -2,6 +2,7 @@ package com.bancosol.services;
 
 import com.bancosol.dao.CoordinadorRepository;
 import com.bancosol.dto.CoordinadorDTO;
+import com.bancosol.entities.Campania;
 import com.bancosol.entities.Coordinador;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -18,9 +19,16 @@ public class CoordinadorService {
 
     private CoordinadorDTO toDTO(Coordinador c) {
         return CoordinadorDTO.builder()
-                .id(c.getId()).area(c.getArea()).tiendas(c.getTiendas())
-                .permisoModificar(c.getPermisoModificar()).usuarioId(c.getUsuario().getId())
+                .id(c.getId())
+                .area(c.getArea())
+                .tiendas(c.getTiendas())
+                .permisoModificar(c.getPermisoModificar())
+                .usuarioId(c.getUsuario() != null ? c.getUsuario().getId() : null)
                 .contactoId(c.getContacto() != null ? c.getContacto().getId() : null)
+                .idsCampanias(c.getCampanias() == null ? List.of() :
+                        c.getCampanias().stream()
+                                .map(Campania::getId)
+                                .collect(Collectors.toList()))
                 .build();
     }
 }
