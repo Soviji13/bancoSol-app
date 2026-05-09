@@ -46,7 +46,7 @@ public class Campania {
 
     @ManyToMany
     @JoinTable(
-            name = "campania_cadena",
+            name = "\"Campania_cadena\"",
             joinColumns = @JoinColumn(name = "campania_id"),
             inverseJoinColumns = @JoinColumn(name = "cadena_id")
     )
@@ -54,7 +54,7 @@ public class Campania {
 
     @ManyToMany
     @JoinTable(
-            name = "tienda_campania",
+            name = "\"Tienda_campania\"",
             joinColumns = @JoinColumn(name = "campania_id"),
             inverseJoinColumns = @JoinColumn(name = "tienda_id")
     )
@@ -62,15 +62,16 @@ public class Campania {
 
     @ManyToMany
     @JoinTable(
-            name = "colaborador_campania",
-            joinColumns = @JoinColumn(name = "id_campania"),
-            inverseJoinColumns = @JoinColumn(name = "id_colaborador")
+            name = "\"Colaborador_campania\"",
+            schema = "public", // <-- ESTO ES VITAL para que PostgreSQL la encuentre
+            joinColumns = @JoinColumn(name = "campania_id"), // <-- Revisa si en tu DB es así o id_campania
+            inverseJoinColumns = @JoinColumn(name = "entidad_id") // <-- Revisa si en DB es entidad_id o colaborador_id
     )
     private List<EntidadColaboradora> colaboradores = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
-            name = "coordinador_campania",
+            name = "\"Coordinador_campania\"",
             joinColumns = @JoinColumn(name = "campania_id"),
             inverseJoinColumns = @JoinColumn(name = "coordinador_id")
     )
@@ -78,9 +79,9 @@ public class Campania {
 
     @ManyToMany
     @JoinTable(
-            name = "tienda_responsable",
+            name = "\"Tienda_responsable\"",
             joinColumns = @JoinColumn(name = "campania_id"),
-            inverseJoinColumns = @JoinColumn(name = "responsable_id")
+            inverseJoinColumns = @JoinColumn(name = "responsable_entidad_id")
     )
     private List<ResponsableTienda> responsables = new ArrayList<>();
 }

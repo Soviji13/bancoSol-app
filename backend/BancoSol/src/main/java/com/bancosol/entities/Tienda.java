@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tienda", schema = "public")
+@Table(name = "\"Tienda\"", schema = "public")
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,16 +30,16 @@ public class Tienda {
     private Boolean esFranquicia = false;
 
     // Relaciones (Foreign Keys)
-    /*
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cadena_id", nullable = false)
     private Cadena cadena;
 
-     */
+
 
     // Relación 1 a 1 porque una tienda tiene una única dirección exclusiva
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ubicacion_id", nullable = false, unique = true)
+    @JoinColumn(name = "direccion_id", nullable = false, unique = true)
     private Direccion direccion;
 
     @PrePersist
@@ -50,16 +51,16 @@ public class Tienda {
     //Refactorizacion de tienda
     @ManyToMany
     @JoinTable(
-            name = "tienda_responsable",
+            name = "\"Tienda_responsable\"",
             schema = "public",
             joinColumns = @JoinColumn(name = "tienda_id"),
-            inverseJoinColumns = @JoinColumn(name = "responsable_id")
+            inverseJoinColumns = @JoinColumn(name = "responsable_entidad_id")
     )
     private List<ResponsableTienda> responsables = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
-            name = "tienda_campania",
+            name = "\"Tienda_campania\"",
             schema = "public",
             joinColumns = @JoinColumn(name = "tienda_id"),
             inverseJoinColumns = @JoinColumn(name = "campania_id")
@@ -68,10 +69,10 @@ public class Tienda {
 
     @ManyToMany
     @JoinTable(
-            name = "tienda_entidad",
+            name = "\"Tienda_colaborador\"",
             schema = "public",
             joinColumns = @JoinColumn(name = "tienda_id"),
-            inverseJoinColumns = @JoinColumn(name = "entidad_id")
+            inverseJoinColumns = @JoinColumn(name = "colaborador_id")
     )
     private List<EntidadColaboradora> colaboradores = new ArrayList<>();
 }

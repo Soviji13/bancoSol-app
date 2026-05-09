@@ -58,8 +58,8 @@ public class EntidadColaboradora {
 
     @ManyToMany
     @JoinTable(
-            name = "tienda_entidad",
-            joinColumns = @JoinColumn(name = "entidad_id"),
+            name = "\"Tienda_colaborador\"",
+            joinColumns = @JoinColumn(name = "colaborador_id"),
             inverseJoinColumns = @JoinColumn(name = "tienda_id")
     )
     private List<Tienda> tiendas = new ArrayList<>();

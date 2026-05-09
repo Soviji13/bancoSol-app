@@ -32,7 +32,7 @@ public class ResponsableTienda {
     }
 
 
-    // ... resto de atributos ...
+
 
     @ManyToMany(mappedBy = "responsables")
     private List<Tienda> tiendas = new ArrayList<>();
