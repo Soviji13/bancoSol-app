@@ -64,6 +64,5 @@ public class EntidadColaboradora {
     )
     private List<Tienda> tiendas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "colaborador", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
+
 }

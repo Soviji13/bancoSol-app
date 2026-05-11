@@ -5,6 +5,7 @@ import com.bancosol.dto.CadenaDTO;
 import com.bancosol.entities.Cadena;
 import com.bancosol.entities.Campania;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,18 @@ public class CadenaService {
 
     public List<CadenaDTO> listarTodas() {
         return repo.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public CadenaDTO findById(Long id) {
+        return repo.findById(id)
+                .map(this::convertToDTO)
+                .orElse(null);
+    }
+
+    public List<CadenaDTO> findAllById(List<Long> ids) {
+        return repo.findAllById(ids).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

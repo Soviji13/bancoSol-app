@@ -40,12 +40,6 @@ public class EntidadColaboradoraService {
                 // Si borraste ResponsableEntidad, aquí mapeas la relación directa que hayas dejado
                 .idsContactos(List.of()) // Ajustar según la nueva relación directa en la Entity
 
-                // 3. IDs de Turnos (Mantenemos TiendaTurno como entidad intermedia)
-                .idsTurnos(e.getTiendaTurnos() == null ? List.of() :
-                        e.getTiendaTurnos().stream()
-                                .map(tt -> tt.getTurno() != null ? tt.getTurno().getId() : null)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList()))
                 .build();
     }
 }

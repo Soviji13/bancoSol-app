@@ -40,8 +40,7 @@ public class ResponsableTienda {
     @ManyToMany(mappedBy = "responsables")
     private List<Campania> campanias = new ArrayList<>();
 
-    @OneToMany(mappedBy = "responsable", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
+
 
 
 }

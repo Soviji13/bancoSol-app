@@ -23,11 +23,5 @@ public class TiendaTurno {
     @JoinColumn(name = "turno_id")
     private Turno turno;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "entidad_id")
-    private EntidadColaboradora colaborador;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsable_id")
-    private ResponsableTienda responsable;
 }

@@ -5,16 +5,36 @@ import com.bancosol.dto.CoordinadorDTO;
 import com.bancosol.entities.Campania;
 import com.bancosol.entities.Coordinador;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class CoordinadorService {
+
     private final CoordinadorRepository repo;
-    public CoordinadorService(CoordinadorRepository repo) { this.repo = repo; }
+
+    public CoordinadorService(CoordinadorRepository repo) {
+        this.repo = repo;
+    }
 
     public List<CoordinadorDTO> listarTodos() {
-        return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+        return repo.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
+    public CoordinadorDTO findById(Long id) {
+        return repo.findById(id)
+                .map(this::toDTO)
+                .orElse(null);
+    }
+
+    public List<CoordinadorDTO> findAllById(List<Long> ids) {
+        return repo.findAllById(ids).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     private CoordinadorDTO toDTO(Coordinador c) {

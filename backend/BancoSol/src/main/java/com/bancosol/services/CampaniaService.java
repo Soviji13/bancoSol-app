@@ -16,6 +16,10 @@ public class CampaniaService {
         return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    public CampaniaDTO findById(Long id) {
+        return repo.findById(id).stream().map(this::toDTO).findFirst().orElse(null);
+    }
+
     private CampaniaDTO toDTO(Campania c) {
         return CampaniaDTO.builder()
                 .id(c.getId())
