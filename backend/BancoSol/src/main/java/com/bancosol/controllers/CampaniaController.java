@@ -1,6 +1,7 @@
 package com.bancosol.controllers;
 
 import com.bancosol.dto.CampaniaDTO;
+import com.bancosol.dto.CoordinadorDTO;
 import com.bancosol.services.CadenaService;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.CoordinadorService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +34,7 @@ public class CampaniaController {
 
     @GetMapping("/campanias")
     public String verCampania(Model model, HttpSession session) {
-        List<CampaniaDTO> campaniasOrdenadas = campaniaService.listarTodas().stream()
-
+        List<CampaniaDTO> campaniasOrdenadas = campaniaService.listarTodas().stream() //Revisar JPQL?
                 .sorted(Comparator.comparing(CampaniaDTO::getFechaInicio).reversed())
                 .collect(Collectors.toList());
 
@@ -42,11 +43,11 @@ public class CampaniaController {
         return "campanias";
     }
 
-    @GetMapping("/campania/gestion")
+    @GetMapping("/campanias/gestion")
     public String verGestionCampania(@RequestParam("id") Long id,HttpSession session ,Model model) {
         CampaniaDTO campania = campaniaService.findById(id);
         if (campania == null) {
-            return "redirect:/campania";
+            return "redirect:/campanias";
         }else{
             model.addAttribute("cadenas", cadenaService.listarTodas());
             model.addAttribute("coordinadores", coordinadorService.findAllById(campania.getIdsCoordinadores()));
@@ -56,4 +57,23 @@ public class CampaniaController {
         }
 
     }
+
+    @GetMapping("/campanias/gestion/coordinador")
+    public String verGestionCampaniaCoordinador(@RequestParam("id") Long id,HttpSession session ,Model model) {
+        CoordinadorDTO coordinador = coordinadorService.findById(id);
+        if (coordinador == null) {
+            return "redirect:/campanias";
+        }else{
+            List<CampaniaDTO> campanias = new ArrayList<>();
+            for(Long idCampania : coordinador.getIdsCampanias()){
+                campanias.add(campaniaService.findById(idCampania));
+            }
+            model.addAttribute("campanias", campanias);
+            model.addAttribute("coordinador", coordinador);
+            model.addAttribute("usuario", session);
+            return "detalles-coordinador";
+        }
+    }
+
+
 }

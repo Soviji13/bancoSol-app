@@ -25,11 +25,20 @@
     }
 </style>
 
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    // Capturamos la ruta actual de la URL (ej: "/campanias/gestion")
+    String uri = request.getRequestURI();
+%>
+<style>
+    /* ... (tu CSS se queda exactamente igual) ... */
+</style>
+
 <div class="menu-lateral">
-    <a href="/campanias" class="btn-menu activo">Gestionar campañas</a>
-    <a href="#" class="btn-menu">Gestionar coordinadores</a>
-    <a href="#" class="btn-menu">Gestionar tiendas</a>
-    <a href="#" class="btn-menu">Gestionar colaboradores</a>
-    <a href="#" class="btn-menu">Gestionar voluntarios</a>
-    <a href="#" class="btn-menu">Incidencias y movimientos</a>
+    <a href="/campanias" class="btn-menu <%= uri.contains("/campanias") ? "activo" : "" %>">Gestionar campañas</a>
+    <a href="/coordinadores" class="btn-menu <%= uri.contains("/coordinadores") ? "activo" : "" %>">Gestionar coordinadores</a>
+    <a href="/tiendas" class="btn-menu <%= uri.contains("/tiendas") ? "activo" : "" %>">Gestionar tiendas</a>
+    <a href="/colaboradores" class="btn-menu <%= uri.contains("/colaboradores") ? "activo" : "" %>">Gestionar colaboradores</a>
+    <a href="/voluntarios" class="btn-menu <%= uri.contains("/voluntarios") ? "activo" : "" %>">Gestionar voluntarios</a>
+    <a href="/incidencias" class="btn-menu <%= uri.contains("/incidencias") ? "activo" : "" %>">Incidencias y movimientos</a>
 </div>

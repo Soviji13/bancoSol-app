@@ -35,7 +35,7 @@
 
 
                         <%for(CampaniaDTO c : campanias){%>
-                        <a href="/campania/gestion?id=<%=c.getId()%>"><%=c.getNombre()%></a>
+                        <a href="/campanias/gestion?id=<%=c.getId()%>"><%=c.getNombre()%></a>
                         <br><br>
                         <%}%>
                     </div>

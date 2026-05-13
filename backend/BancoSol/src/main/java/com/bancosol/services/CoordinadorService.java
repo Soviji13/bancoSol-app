@@ -45,6 +45,9 @@ public class CoordinadorService {
                 .permisoModificar(c.getPermisoModificar())
                 .usuarioId(c.getUsuario() != null ? c.getUsuario().getId() : null)
                 .contactoId(c.getContacto() != null ? c.getContacto().getId() : null)
+
+                .nombreContacto(c.getContacto() != null ? c.getContacto().getNombre() : "Sin nombre")
+
                 .idsCampanias(c.getCampanias() == null ? List.of() :
                         c.getCampanias().stream()
                                 .map(Campania::getId)

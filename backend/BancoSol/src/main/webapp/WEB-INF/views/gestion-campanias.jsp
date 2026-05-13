@@ -63,7 +63,7 @@
                                             <%
                                                 int contador = 0;
                                                 for(CadenaDTO c : cadenas) {
-                                                    // Verifica si el ID de esta cadena está en la lista de IDs de la campaña
+
                                                     boolean asignada = campania.getIdsCadenas() != null && campania.getIdsCadenas().contains(c.getId());
                                             %>
                                             <td width="50%">
@@ -71,7 +71,7 @@
                                             </td>
                                             <%
                                                     contador++;
-                                                    // Si es par, cierra la fila y abre una nueva para mantener las 2 columnas
+
                                                     if(contador % 2 == 0) {
                                                         out.print("</tr><tr>");
                                                     }
@@ -91,7 +91,7 @@
                             <tr>
                                 <td height="100" valign="top">
                                     <% for(CoordinadorDTO coord : coordinadores) { %>
-                                    <a href="/campania/gestion/coordinador?id=<%= coord.getId() %>"> <%= coord.getContactoId().getClass().getName() %></a> <br>
+                                    <a href="/campanias/gestion/coordinador?id=<%= coord.getId() %>"> <%= coord.getNombreContacto() %></a> <br>
                                     <% } %>
                                 </td>
                             </tr>
@@ -102,21 +102,21 @@
                         <table width="95%" align="center">
                             <tr>
                                 <td align="center">
-                                    <a href="/campania/gestion/modificar?id=<%= campania.getId() %>">
+                                    <a href="/campanias/gestion/modificar?id=<%= campania.getId() %>">
                                         <button type="button" style="width: 100%; padding: 5px;">Modificar Campaña</button>
                                     </a>
                                 </td>
                             </tr>
                             <tr>
                                 <td align="center">
-                                    <a href="/campania/gestion/cadenas?id=<%= campania.getId() %>">
+                                    <a href="/campanias/gestion/cadenas?id=<%= campania.getId() %>">
                                         <button type="button" style="width: 100%; padding: 5px;">Gestionar cadenas</button>
                                     </a>
                                 </td>
                             </tr>
                             <tr>
                                 <td align="center">
-                                    <a href="/campania/gestion/coordinadores?id=<%= campania.getId() %>">
+                                    <a href="/campanias/gestion/coordinadores?id=<%= campania.getId() %>">
                                         <button type="button" style="width: 100%; padding: 5px;">Gestionar Coordinadores</button>
                                     </a>
                                 </td>

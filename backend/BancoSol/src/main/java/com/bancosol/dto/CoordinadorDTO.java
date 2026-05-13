@@ -12,6 +12,7 @@ public class CoordinadorDTO {
     private Boolean permisoModificar;
     private Long usuarioId;  // Clave para el login y gestión de cuenta
     private Long contactoId; // Referencia al contacto personal
+    private String nombreContacto;
 
     private List<Long> idsCampanias;     // Sustituye a CoordinadorCampania
 }
