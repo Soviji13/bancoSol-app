@@ -1,0 +1,154 @@
+/* Reseteo básico para el panel */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background-color: #fff; color: #333; }
+
+.panel-colaborador {
+  display: flex; flex-direction: column; height: 100vh;
+  border-left: 2px solid #333;
+}
+
+.panel-cabecera {
+  display: flex; 
+  justify-content: space-between; 
+  padding: 15px 10px; 
+  border-bottom: 2px solid #333;
+  align-items: flex-start;
+}
+
+.btn-cerrar {
+  background: none; border: none; font-size: 20px; font-weight: bold;
+  cursor: pointer; padding: 5px 10px; border-left: 2px solid #333; height: 100%;
+}
+
+.panel-contenido {
+  display: flex; flex-direction: column; overflow-y: auto;
+  padding: 10px 20px; /* NUEVO: Más aire por la izquierda y derecha */
+}
+
+.bloque-seccion { padding: 15px 0; width: 100%; }
+.border-bottom { border-bottom: 1px solid #e5e7eb; }
+.p-0 { padding: 0; }
+
+/* --- NUEVO LAYOUT FLEX PARA ETIQUETA + VALOR --- */
+.fila-flex {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    width: 100%;
+    min-height: 35px;
+}
+
+.etiqueta {
+    font-weight: 600; /* MÁS NEGRITA */
+    color: #1e3a8a; /* Azul oscuro */
+    min-width: 110px; /* Ancho fijo para que alineen como una tabla */
+    display: inline-block;
+}
+
+.etiqueta-tabla {
+    font-weight: 600; 
+    color: #1e3a8a; 
+    min-width: 50px; /* Reducimos la etiqueta para dar más espacio al valor */
+    display: inline-block;
+}
+.input-linea {
+    border: none; 
+    background-color: transparent; 
+    font-family: inherit;
+    font-size: 15px; 
+    color: #1e3a8a; 
+    flex: 1; /* Ocupa el espacio restante */
+    min-width: 0; /* MAGIA: Evita que el input empuje a otros elementos fuera de la pantalla */
+    padding: 4px 5px; 
+    outline: none; 
+    transition: all 0.2s;
+}
+
+/* --- MODO LECTURA --- */
+.modo-lectura .input-linea { pointer-events: none; border-bottom: 1px solid transparent; }
+.modo-lectura .btn-eliminar-contacto, .modo-lectura #btn-add-contacto-container,
+.modo-lectura #btn-guardar-container { display: none !important; }
+
+/* --- MODO EDICIÓN --- */
+.modo-edicion .input-linea { border-bottom: 1px dashed #7a7a7a; pointer-events: auto; background-color: #fcfcfc; }
+.modo-edicion .input-linea:focus { border-bottom: 1.5px solid #2563eb; background-color: #fff; }
+.modo-edicion .btn-eliminar-contacto { display: block !important; }
+
+/* Tabla de contactos */
+.tabla-contactos { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 10px; 
+  
+}
+
+.tabla-contactos td { 
+    padding: 6px 8px; /* Reducimos padding para ganar espacio */
+    border: 1px solid #ccc; 
+    word-wrap: break-word; /* Permite que los emails largos bajen de línea */
+    white-space: normal; /* Asegura que el texto fluya hacia abajo */
+    font-size: 14px; /* Un pelín más pequeño para que quepa todo */
+}
+
+.caja-id { border: 2px solid #333; padding: 8px 12px; font-weight: bold; background: white; white-space: nowrap; }
+.flex-row-between { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+
+.btn-guardar-lateral {
+    width: 100%; padding: 12px; background-color: #2563eb; color: white;
+    border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s;
+}
+.btn-guardar-lateral:hover { background-color: #1d4ed8; }
+
+/* Estados para los botones del pie de página */
+.desactivado {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none; /* Esto evita que se pueda hacer click */
+    filter: grayscale(100%);
+}
+
+.activado {
+    opacity: 1;
+    cursor: pointer !important;
+    pointer-events: auto; /* Vuelve a ser clickeable */
+    filter: none;
+}
+
+input {
+    width: 100%; /* Ocupa todo el ancho disponible */
+    box-sizing: border-box; /* Importante para incluir padding en el ancho */
+}
+
+.scroll-checks-panel {
+    max-height: 120px; /* Altura fija con scroll */
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+    background-color: #f9fafb;
+    border-radius: 4px;
+}
+
+.scroll-checks-panel label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #333;
+}
+
+/* En modo lectura (estático), quitamos el fondo gris para que quede más limpio */
+.modo-lectura .scroll-checks-panel {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.badge-id {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #475569;
+    display: inline-block;
+}

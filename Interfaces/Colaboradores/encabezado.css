@@ -1,0 +1,131 @@
+.encabezado
+{
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    border-bottom: var(--color-principal) 1px solid;
+    justify-content: center;
+    padding: 10px;
+    height: 20%;
+    gap: 10px;
+    position: fixed;
+    top: 0;
+    background-color: var(--color-fondo);
+    z-index: 1;
+}
+
+body
+{
+padding-top: 20vh;
+}
+
+.help-container {
+    box-sizing: border-box;
+    display: flex;
+    margin-right: 20px;
+    width: 40%; 
+    justify-content: flex-end; 
+    
+    align-items: center; 
+
+}
+
+.help-container p {
+    color: var(--color-texto-secundario);
+    text-align: right;
+    margin-right: 10px;
+    font-size: clamp(0.5rem, 1.5vw, 1rem);
+    flex: 1; 
+    margin: 0; 
+}
+
+.help-container .simbolo {
+    box-sizing: border-box;
+    width: 10%;
+    aspect-ratio: 1/1; 
+    border: 1px solid var(--color-texto-secundario);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    margin-left: 20px;
+    padding: 2px;
+    
+}
+
+.help-container .simbolo p {
+    margin: 0;
+    font-size: clamp(0.5rem, 2vw, 3rem);
+    flex: none; 
+}
+
+.encabezado h1
+{
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    width: 50%;
+    color: var(--color-principal);
+}
+
+.cambiar-campania
+{
+    flex: 0 0 70%;
+}
+
+.cambiar-campania button {
+    font-size: clamp(0.5rem, 1.5vw, 3rem);
+    width: 100%;
+    height: 100%; 
+    margin: 0;
+    padding: 10px; 
+    border: 1px solid var(--color-principal);
+    border-radius: 10px;
+    background-color: transparent;
+    cursor: pointer;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.boton-filtro
+{
+    margin-right: 20px;
+    width: 30%;
+    aspect-ratio: 1/1;
+}
+
+.boton-filtro button
+{
+    width: 100%;
+    height: 100%;
+
+    border: 1px solid var(--color-principal);
+    border-radius: 10px;
+    background-color: transparent;
+
+    background-image: url("assets/filter_alt.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+
+    padding: 5px;
+    background-size: 70%;
+    background-origin:padding-box;
+}
+
+.filtro-campania-container
+{
+    box-sizing: border-box;
+    display: flex;
+    width: clamp(100px, 30%, 400px);
+    padding: 20px;
+    align-items: stretch;
+    justify-content: left;
+}
+

@@ -1,0 +1,48 @@
+/* Contenedor de cabecera de la tarjeta */
+.card-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+/* Badges (Etiquetas) */
+.badge {
+    font-size: 0.7em;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    margin-left: 5px;
+    border: 1px solid transparent;
+}
+
+.badge-activa {
+    background-color: #e6fffa;
+    color: #2c7a7b;
+    border-color: #2c7a7b;
+}
+
+.badge-inactiva {
+    background-color: #fff5f5;
+    color: #c53030;
+    border-color: #c53030;
+}
+
+.badge-viendo {
+    background-color: #ebf8ff;
+    color: #2b6cb0;
+    border-color: #2b6cb0;
+}
+
+/* Resaltar la tarjeta seleccionada */
+.campania-card.seleccionada {
+    background-color: #f0f7ff;
+    border: 2px solid #2b3a8cb3 !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.anio-info {
+    margin-top: 8px;
+    font-style: italic;
+    font-size: 0.85em;
+}

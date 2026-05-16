@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Filtro de coordinadores</title>
+
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="panelFiltro.css" />
+
+  <script src="panelFiltro.js" defer></script>
+</head>
+<body>
+  <aside class="panel-filtro" aria-label="Filtro de coordinadores">
+    <header class="panel-filtro__cabecera">
+      <div>
+        <h1>Filtros de búsqueda</h1>
+        <p>Coordinadores</p>
+      </div>
+
+      <button
+        id="btn-cerrar-filtro"
+        class="panel-filtro__cerrar"
+        type="button"
+        aria-label="Cerrar filtros"
+      >
+        ←
+      </button>
+    </header>
+
+    <form id="form-filtro" class="panel-filtro__form">
+      <div class="panel-filtro__campo">
+        <label for="filtro-nombre">Nombre</label>
+        <input
+          id="filtro-nombre"
+          name="nombre"
+          type="text"
+          placeholder="Buscar por nombre..."
+        />
+      </div>
+
+      <div class="panel-filtro__campo">
+        <label for="filtro-campania">Campaña</label>
+        <select id="filtro-campania" name="campaniaId">
+          <option value="">Todas las campañas</option>
+        </select>
+      </div>
+
+      <div class="panel-filtro__campo">
+        <label for="filtro-tiendas">Nº tiendas</label>
+        <input
+          id="filtro-tiendas"
+          name="tiendas"
+          type="number"
+          min="0"
+          placeholder="Ej: 3"
+        />
+      </div>
+
+      <div class="panel-filtro__acciones">
+        <button class="panel-filtro__aplicar" type="submit">
+          Aplicar filtros
+        </button>
+
+        <button id="btn-limpiar-filtro" class="panel-filtro__limpiar" type="button">
+          Limpiar filtros
+        </button>
+      </div>
+    </form>
+  </aside>
+</body>
+</html>

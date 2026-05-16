@@ -1,0 +1,122 @@
+.pie-pagina
+{
+    bottom: 0;
+    position: fixed;
+    display: flex;
+    width: 100%;
+
+    border-top: 1px solid var(--color-principal);
+
+    align-items: stretch;
+
+    z-index: 1;
+
+    background-color: white;
+}
+
+.container-interactuar div
+{
+    border-right: 1px solid var(--color-principal);
+    box-sizing: border-box;
+    flex: 1;
+    width: auto;
+    text-align: center;
+    padding: 20px 0;
+
+}
+
+
+.container-interactuar
+{
+    flex: 1;
+    display: flex;
+}
+
+.activado 
+{
+    color: var(--color-principal);
+}
+
+.activado:hover
+{
+    cursor: pointer;
+    background-color: var(--color-hover);
+}
+
+.desactivado:hover
+{
+    cursor: not-allowed;
+    background-color: #f7bdbd;
+    color: var(--color-error)
+}
+
+.desactivado
+{
+    color: var(--color-deshabilitado);
+}
+
+.csv
+{
+
+    background-image: url("assets/file_export.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+
+    cursor:pointer;
+
+    padding: 20px 0;
+
+    width: 60px;
+    flex-shrink: 0;
+    margin-left: 0;
+
+    background-size: 40%;
+    background-origin:padding-box;
+
+}
+
+.csv:hover
+{
+    cursor: pointer;
+    background-color: var(--color-hover);
+}
+
+
+.aviso-flotante {
+    background-color: #ffebeb;
+    color: #d93025;
+    border: 1px solid #d93025;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Efecto para que el usuario sepa que puede hacer click en las filas */
+.modo-borrado-activo tr:hover {
+    background-color: #ffcccc !important;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text y="15">🗑️</text></svg>'), auto;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+/* Estados para los botones del pie de página */
+.desactivado {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none; /* Esto evita que se pueda hacer click */
+    filter: grayscale(100%);
+}
+
+.activado {
+    opacity: 1;
+    cursor: pointer !important;
+    pointer-events: auto; /* Vuelve a ser clickeable */
+    filter: none;
+}
+
+

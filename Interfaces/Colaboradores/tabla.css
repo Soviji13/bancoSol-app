@@ -1,0 +1,67 @@
+table
+{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead td
+{
+    color: var(--color-principal);
+    font-weight: bold;
+    background-color: #f8f9ff;
+}
+
+td
+{
+    text-align: center;
+    border: 1px solid var(--color-borde-suave);
+    padding: 15px 20px;
+    background-color: var(--color-fondo);
+}
+
+tbody tr:hover td
+{
+    background-color: var(--color-hover);
+    cursor: pointer;
+}
+
+.desplegar
+{
+    width: 20px;
+    height: 20px;
+
+    background-image: url("assets/keyboard_double_arrow_down.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+
+    background-size: 20px;
+
+    cursor:pointer;
+}
+
+.desplegar:hover
+{
+    background-color: #e2e7fe;
+}
+
+/* Estilo del Modal */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white; padding: 20px; border-radius: 8px; width: 500px;
+    max-height: 80vh; overflow-y: auto; border: 2px solid #333;
+}
+.modal-header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+
+/* Estilo de las Tarjetas de Campaña */
+.campania-card {
+    border: 1px solid #333; padding: 15px; margin-bottom: 10px;
+    cursor: pointer; transition: background 0.3s;
+}
+.campania-card:hover { background: #f0f4ff; border-color: #2b3a8cb3; }
+.campania-card h3 { color: #2b3a8cb3; margin-bottom: 5px; }
+.campania-card p { font-size: 0.9em; color: #666; }
+.campania-card.activa { border-left: 5px solid #2b3a8cb3; background: #f9f9f9; }

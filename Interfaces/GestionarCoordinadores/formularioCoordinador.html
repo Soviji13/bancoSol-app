@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Formulario coordinador</title>
+
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="formularioCoordinador.css" />
+
+  <script src="formularioCoordinador.js" defer></script>
+</head>
+<body>
+  <main class="pagina-formulario">
+    <header class="pagina-formulario__header">
+      <div>
+        <h1 id="titulo-formulario">Registrar Nuevo Coordinador</h1>
+        <p>Complete los datos del coordinador y sus campañas asociadas</p>
+      </div>
+
+      <button id="btn-volver" class="btn-volver" type="button">
+        Volver
+      </button>
+    </header>
+
+    <section class="tarjeta-formulario">
+      <form id="form-registro-coordinador">
+        <input type="hidden" name="id" id="coordinador-id" />
+        <input type="hidden" name="contactoId" id="contacto-id" />
+
+        <fieldset>
+          <legend>Información general</legend>
+
+          <div class="form-group">
+            <label for="nombre">Nombre del coordinador:</label>
+            <input id="nombre" type="text" name="nombre" required placeholder="Ej: Ana García" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Correo:</label>
+              <input id="email" type="email" name="email" required placeholder="coordinador@bancosol.es" />
+            </div>
+
+            <div class="form-group">
+              <label for="telefono">Teléfono:</label>
+              <input id="telefono" type="tel" name="telefono" placeholder="600 00 00 00" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Asignación</legend>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="select-zonas">Área asignada:</label>
+              <select name="area" id="select-zonas" required>
+                <option value="">Seleccione un área...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="tiendas">Número de tiendas:</label>
+              <input id="tiendas" type="number" name="tiendas" min="0" value="0" required />
+            </div>
+          </div>
+
+          <div class="form-check">
+            <label>
+              <input type="checkbox" name="permisoModificar" checked />
+              ¿Puede modificar datos?
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Campañas</legend>
+          <div id="check-campanias" class="scroll-checks"></div>
+        </fieldset>
+
+        <footer class="formulario-acciones">
+          <button type="button" id="btn-cancelar" class="btn-cancelar">
+            Cancelar
+          </button>
+
+          <button id="btn-guardar-coordinador" type="submit" class="btn-guardar">
+            Guardar Coordinador
+          </button>
+        </footer>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

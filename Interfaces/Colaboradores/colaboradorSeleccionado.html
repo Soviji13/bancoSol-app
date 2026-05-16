@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colaborador seleccionado</title>
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="colaboradorSeleccionado.css" />
+    <script src="colaboradorSeleccionado.js" defer></script>
+</head>
+<body>
+    <aside class="panel-colaborador">
+        <header class="panel-cabecera">
+            <div style="flex: 1;">
+                <input type="text" id="titulo-colaborador" name="nombre" class="input-linea" readonly 
+                    style="font-size: 15px; font-weight: bold; color: #2e1065; width: 100%;">
+                <div style="margin-top: 5px;">
+                    <span class="badge-id">ID Sistema: <span id="detalle-id-display">---</span></span>
+                </div>
+            </div>
+            <button id="btn-cerrar-panel" class="btn-cerrar" type="button">X</button>
+        </header>
+
+        <form id="form-edicion-lateral" class="panel-contenido modo-lectura">
+            <input type="hidden" name="id" id="colaborador-id">
+
+            <section class="bloque-seccion border-bottom">
+                <div class="fila-flex">
+                    <span class="etiqueta">Calle/Av:</span> 
+                    <input type="text" id="edit-calle" name="calle" class="input-linea" required readonly>
+                </div>
+                <div class="fila-flex">
+                    <span class="etiqueta">Número:</span> 
+                    <input type="number" id="edit-numero" name="numero" class="input-linea" required readonly>
+                </div>
+                <div class="fila-flex">
+                    <span class="etiqueta">Localidad:</span> 
+                    <input list="lista-locs-panel" id="edit-localidad" name="nombreLocalidad" class="input-linea" required readonly>
+                </div>
+                <div class="fila-flex">
+                    <span class="etiqueta">Cód. postal:</span> 
+                    <input list="lista-cps-panel" id="edit-cp" name="numeroCP" class="input-linea" required readonly>
+                </div>
+            
+                <div class="fila-flex">
+                    <span class="etiqueta">Zona Geo:</span> 
+                    <input list="lista-zonas-panel" id="edit-zona" name="nombreZonaGeografica" class="input-linea" readonly>
+                </div>
+
+                <div class="fila-flex">
+                    <label style="cursor:pointer; display: flex; align-items: center;">
+                        <span class="etiqueta" style="width: auto; margin-right: 10px;">¿Es Capital?</span>
+                        <input type="checkbox" id="check-es-capital-panel" name="esCapital" class="check-inline" disabled>
+                    </label>
+                </div>
+                <div class="fila-flex" id="campo-distrito-panel" style="display: none;">
+                    <span class="etiqueta">Distrito:</span> 
+                    <input list="lista-distritos-panel" id="edit-distrito" name="nombreDistrito" class="input-linea" readonly>
+                </div>
+            
+                <datalist id="lista-locs-panel"></datalist>
+                <datalist id="lista-cps-panel"></datalist>
+                <datalist id="lista-zonas-panel"></datalist>
+                <datalist id="lista-distritos-panel"></datalist>
+            </section>
+
+            <section class="bloque-seccion border-bottom p-0">
+                <table class="tabla-contactos">
+                    <tbody id="tabla-contactos-dinamica"></tbody>
+                </table>
+                <div id="btn-add-contacto-container" style="padding: 10px; text-align: center;">
+                    <button type="button" id="btn-add-contacto" style="background: none; border: 1px dashed #ccc; padding: 5px 10px; cursor: pointer; width: 100%;">+ Añadir Contacto</button>
+                </div>
+            </section>
+
+            <section class="bloque-seccion border-bottom">
+                <span class="etiqueta" style="display: block; margin-bottom: 10px;">Tiendas Asignadas:</span>
+                <div id="check-tiendas-panel" class="scroll-checks-panel"></div>
+            </section>
+
+            <section class="bloque-seccion border-bottom">
+                <span class="etiqueta" style="display: block; margin-bottom: 10px;">Historial de Campañas:</span>
+                <div id="check-campanias-panel" class="scroll-checks-panel"></div>
+            </section>
+
+            <section class="bloque-seccion border-bottom">
+                <div class="fila-flex" style="margin-bottom: 15px;">
+                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Participa en campaña actual:</span> 
+                    <input type="checkbox" id="check-campania" name="estadoActivo" class="check-inline" disabled>
+                </div>
+                <div>
+                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Observaciones:</span>
+                    <textarea id="edit-observaciones" name="observations" class="input-linea" readonly 
+                            style="width: 100%; min-height: 80px; padding: 10px; background: #f8fafc;"></textarea>
+                </div>
+            </section>
+
+            <section class="bloque-seccion" id="btn-guardar-container">
+                <button type="submit" class="btn-guardar-lateral">Guardar Cambios</button>
+            </section>
+        </form>
+    </aside>
+</body>
+</html>

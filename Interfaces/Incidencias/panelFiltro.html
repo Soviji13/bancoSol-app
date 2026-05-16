@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Filtro de incidencias</title>
+
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="panelFiltro.css" />
+
+  <script src="panelFiltro.js" defer></script>
+</head>
+
+<body>
+  <aside class="panel-filtro" aria-label="Filtro de incidencias">
+    <header class="panel-filtro__cabecera">
+      <div>
+        <h1>Filtros de búsqueda</h1>
+        <p>Incidencias</p>
+      </div>
+
+      <button
+        id="btn-cerrar-filtro"
+        class="panel-filtro__cerrar"
+        type="button"
+        aria-label="Cerrar filtros"
+      >
+        ←
+      </button>
+    </header>
+
+    <form id="form-filtro" class="panel-filtro__form">
+      <div class="panel-filtro__campo">
+        <label for="filtro-reportado-por">Reportado por</label>
+        <input
+          id="filtro-reportado-por"
+          name="reportadoPor"
+          type="text"
+          placeholder="Buscar responsable..."
+        />
+      </div>
+
+      <div class="panel-filtro__campo">
+        <label for="filtro-estado">Estado</label>
+        <select id="filtro-estado" name="estado">
+          <option value="">Todos los estados</option>
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="LEIDA">Leída</option>
+          <option value="RESUELTA">Resuelta</option>
+        </select>
+      </div>
+
+      <div class="panel-filtro__campo">
+        <label for="filtro-cargo">Tipo responsable</label>
+        <select id="filtro-cargo" name="cargo">
+          <option value="">Todos los tipos</option>
+          <option value="RESPONSABLE_TIENDA">Responsable tienda</option>
+          <option value="RESPONSABLE_ENTIDAD">Responsable entidad</option>
+        </select>
+      </div>
+
+      <div class="panel-filtro__campo">
+        <label for="filtro-asunto">Asunto</label>
+        <input
+          id="filtro-asunto"
+          name="asunto"
+          type="text"
+          placeholder="Buscar por asunto..."
+        />
+      </div>
+
+      <div class="panel-filtro__acciones">
+        <button class="panel-filtro__aplicar" type="submit">
+          Aplicar filtros
+        </button>
+
+        <button
+          id="btn-limpiar-filtro"
+          class="panel-filtro__limpiar"
+          type="button"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </form>
+  </aside>
+</body>
+</html>

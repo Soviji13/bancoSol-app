@@ -3,156 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nuevo parte de incidencias</title>
+
+  <title>Nueva incidencia</title>
+
   <link rel="stylesheet" href="../global.css" />
   <link rel="stylesheet" href="formIncidencia.css" />
+
+  <script src="formIncidencia.js" defer></script>
 </head>
+
 <body>
-  <section class="contenido" aria-labelledby="titulo-form-incidencia">
-    <div class="contenido__topbar">
-      <div class="contenido__topbar-espacio"></div>
-
-      <div class="contenido__cabecera-formulario">
-        <h1 id="titulo-form-incidencia" class="contenido__titulo">
-          Nuevo parte de incidencias
-        </h1>
+  <main class="pagina-formulario" aria-labelledby="titulo-formulario">
+    <header class="pagina-formulario__header">
+      <div>
+        <h1 id="titulo-formulario">Nueva incidencia</h1>
+        <p>Registre una incidencia asociada a un responsable de tienda o de entidad.</p>
       </div>
 
-      <div class="seccion-ayuda">
-        <p class="contenido__ayuda">
-          Rellene el formulario para reportar la incidencia ocurrida
-        </p>
-        <button class="boton-ayuda" type="button" aria-label="Ayuda">?</button>
-      </div>
-    </div>
+      <button id="btn-volver" class="btn-volver" type="button">
+        Volver
+      </button>
+    </header>
 
-    <div class="formulario-contenedor">
-      <form class="formulario-incidencia" action="#" method="post">
-        <div class="formulario-incidencia__fila formulario-incidencia__fila--reportado">
-          <label class="formulario-incidencia__label" for="reportadoPor">
-            Reportado por (Nombre y apellidos)
-          </label>
-          <input
-            id="reportadoPor"
-            name="reportadoPor"
-            class="formulario-incidencia__input formulario-incidencia__input--linea"
-            type="text"
-            value="Juan García Sánchez"
-          />
-        </div>
+    <section class="tarjeta-formulario">
+      <form id="form-incidencia">
+        <input type="hidden" id="incidencia-id" name="id" />
 
-        <div class="formulario-incidencia__grid">
-          <div class="formulario-incidencia__columna">
-            <fieldset class="formulario-incidencia__grupo">
-              <legend class="formulario-incidencia__label formulario-incidencia__label--requerida">
-                Cargo
-              </legend>
+        <fieldset>
+          <legend>Información de la incidencia</legend>
 
-              <label class="opcion-radio">
-                <input type="radio" name="cargo" value="administrador" />
-                <span>Administrador</span>
-              </label>
-
-              <label class="opcion-radio">
-                <input type="radio" name="cargo" value="coordinador" checked />
-                <span>Coordinador</span>
-              </label>
-
-              <label class="opcion-radio">
-                <input type="radio" name="cargo" value="responsable-entidad" />
-                <span>Responsable de entidad colaboradora</span>
-              </label>
-
-              <label class="opcion-radio">
-                <input type="radio" name="cargo" value="responsable-tienda" />
-                <span>Responsable de tienda</span>
-              </label>
-            </fieldset>
-          </div>
-
-          <div class="formulario-incidencia__columna formulario-incidencia__columna--contacto">
-            <div class="campo-texto-inline">
-              <label class="formulario-incidencia__label" for="telefono">Teléfono</label>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="asunto">Asunto:</label>
               <input
-                id="telefono"
-                name="telefono"
-                class="formulario-incidencia__input formulario-incidencia__input--linea"
+                id="asunto"
+                name="asunto"
                 type="text"
-                value="600 00 00 00"
+                required
+                maxlength="120"
+                placeholder="Ej: Falta material en el punto de recogida"
               />
             </div>
 
-            <div class="campo-texto-inline">
-              <label class="formulario-incidencia__label" for="correo">Correo</label>
-              <input
-                id="correo"
-                name="correo"
-                class="formulario-incidencia__input formulario-incidencia__input--linea"
-                type="email"
-                value="jugasachz898@gmail.com"
-              />
+            <div class="form-group">
+              <label for="estado">Estado:</label>
+              <select id="estado" name="estado" required>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="LEIDA">Leída</option>
+                <option value="RESUELTA">Resuelta</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        <div class="formulario-incidencia__fila">
-          <label class="formulario-incidencia__label formulario-incidencia__label--requerida" for="asunto">
-            Asunto
-          </label>
-          <input
-            id="asunto"
-            name="asunto"
-            class="formulario-incidencia__input formulario-incidencia__input--linea"
-            type="text"
-            required
-          />
-          <span class="formulario-incidencia__texto-secundario">
-            Resuma la incidencia en una oración
-          </span>
-        </div>
-
-        <div class="formulario-incidencia__fila formulario-incidencia__fila--descripcion">
-          <div class="formulario-incidencia__cabecera-descripcion">
-            <label
-              class="formulario-incidencia__label formulario-incidencia__label--requerida"
-              for="descripcion"
-            >
-              Descripción de la incidencia
-            </label>
-
-            <label class="opcion-check opcion-check--mini">
-              <input type="checkbox" name="incluyeLugar" />
-              <span>Incluir el lugar o tienda donde ocurrió la incidencia</span>
-            </label>
+          <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea
+              id="descripcion"
+              name="descripcion"
+              rows="6"
+              placeholder="Describa la incidencia con el mayor detalle posible..."
+            ></textarea>
           </div>
+        </fieldset>
 
-          <textarea
-            id="descripcion"
-            name="descripcion"
-            class="formulario-incidencia__textarea"
-          ></textarea>
-        </div>
+        <fieldset>
+          <legend>Responsable asociado</legend>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tipo-responsable">Tipo de responsable:</label>
+              <select id="tipo-responsable" name="tipoResponsable" required>
+                <option value="">Seleccione un tipo...</option>
+                <option value="RESPONSABLE_TIENDA">Responsable de tienda</option>
+                <option value="RESPONSABLE_ENTIDAD">Responsable de entidad</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="responsable-id">Responsable:</label>
+              <select id="responsable-id" name="responsableId" required disabled>
+                <option value="">Seleccione primero un tipo...</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <footer class="formulario-acciones">
+          <button id="btn-cancelar" class="btn-cancelar" type="button">
+            Cancelar
+          </button>
+
+          <button id="btn-guardar" class="btn-guardar" type="submit">
+            Guardar incidencia
+          </button>
+        </footer>
       </form>
-    </div>
-
-    <div class="acciones-tabla">
-      <button class="acciones-tabla__btn" type="reset" form="form-incidencia-falso">
-        Reiniciar formulario
-      </button>
-      <button class="acciones-tabla__btn acciones-tabla__btn--primario" type="submit" form="form-incidencia-falso">
-        Enviar
-      </button>
-    </div>
-  </section>
-
-  <script>
-    const formulario = document.querySelector(".formulario-incidencia");
-    formulario.id = "form-incidencia-falso";
-
-    formulario.addEventListener("submit", (evento) => {
-      evento.preventDefault();
-      alert("Incidencia enviada.");
-    });
-  </script>
+    </section>
+  </main>
 </body>
 </html>

@@ -1,0 +1,55 @@
+.pie-pagina {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 4.5rem;
+  border-top: var(--borde-principal, 1px solid #ddd);
+  background-color: #fff;
+  min-height: 4rem;
+}
+
+.container-interactuar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.container-interactuar > div,
+.csv {
+  display: grid;
+  place-items: center;
+  border-right: var(--borde-principal, 1px solid #ddd);
+  color: var(--color-principal, #4c1d95);
+  font-weight: 700;
+  user-select: none;
+}
+
+.container-interactuar > div:hover,
+.csv:hover {
+  background-color: #f5f3ff;
+}
+
+.csv {
+  background: #fff url("assets/file_export.svg") center / 42% no-repeat;
+}
+
+.activado { opacity: 1; }
+.desactivado { opacity: 0.45; cursor: not-allowed !important; }
+
+.aviso-flotante {
+  position: fixed;
+  left: 50%;
+  bottom: 5.2rem;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding: 0.85rem 1.2rem;
+  border-radius: 0.8rem;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+body { padding-bottom: 4.5rem; }
