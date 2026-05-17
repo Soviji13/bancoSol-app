@@ -3,10 +3,12 @@ package com.bancosol.mapper;
 import com.bancosol.dto.CadenaDTO;
 import com.bancosol.entities.Cadena;
 import com.bancosol.entities.Campania;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CadenaMapper extends MapperDTO<CadenaDTO, Cadena> {
 
     public CadenaDTO toDTO(Cadena cadena) {

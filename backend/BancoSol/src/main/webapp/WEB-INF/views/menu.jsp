@@ -36,7 +36,7 @@
 
 <div class="menu-lateral">
     <a href="/campanias" class="btn-menu <%= uri.contains("/campanias") ? "activo" : "" %>">Gestionar campañas</a>
-    <a href="/coordinadores" class="btn-menu <%= uri.contains("/coordinadores") ? "activo" : "" %>">Gestionar coordinadores</a>
+    <a href="/coordinadores" class="btn-menu <%= uri.contains("/coordinador") ? "activo" : "" %>">Gestionar coordinadores</a>
     <a href="/tiendas" class="btn-menu <%= uri.contains("/tiendas") ? "activo" : "" %>">Gestionar tiendas</a>
     <a href="/colaboradores" class="btn-menu <%= uri.contains("/colaboradores") ? "activo" : "" %>">Gestionar colaboradores</a>
     <a href="/voluntarios" class="btn-menu <%= uri.contains("/voluntarios") ? "activo" : "" %>">Gestionar voluntarios</a>

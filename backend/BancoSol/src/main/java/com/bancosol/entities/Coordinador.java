@@ -47,4 +47,8 @@ public class Coordinador {
     // Refactorización: Relación directa con Campania
     @ManyToMany(mappedBy = "coordinadores")
     private List<Campania> campanias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "coordinador", fetch = FetchType.LAZY)
+    private List<EntidadColaboradora> entidades = new ArrayList<>();
+
 }
