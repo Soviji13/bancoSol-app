@@ -1,0 +1,160 @@
+:root {
+  --color-etiqueta-azul: #2c398b; 
+  --color-borde-panel: #a0a0a0; 
+  --color-borde-suave: #d0d0d0; 
+  --texto-general: #333333;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--texto-general);
+  background-color: #ffffff;
+}
+
+.panel-tienda {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-left: 1px solid var(--color-borde-panel);
+}
+
+.panel-tienda__scroll {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 0; /* CERO PADDING: Así la tabla toca los bordes del iframe */
+}
+
+/* --- CABECERA --- */
+.panel-tienda__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-borde-panel);
+}
+
+.panel-tienda__info-principal {
+  padding: 1rem 1.5rem;
+  flex-grow: 1;
+}
+
+.panel-tienda__titulo {
+  color: var(--color-etiqueta-azul);
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0 0 0.3rem 0;
+}
+
+.panel-tienda__subtitulo {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #777;
+}
+
+.panel-tienda__acciones {
+  display: flex;
+  align-items: center;
+}
+
+.panel-tienda__cerrar {
+  width: 50px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--color-borde-panel);
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.panel-tienda__cerrar:hover { background-color: #f0f0f0; }
+
+/* --- ESTRUCTURA GRID 100% ANCHO --- */
+.caja-datos {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Ocupa todo el espacio sin borde externo */
+}
+
+.fila {
+  display: flex;
+  width: 100%; /* Va de borde a borde */
+  border-bottom: 1px solid var(--color-borde-panel);
+}
+
+.fila:last-child {
+  border-bottom: none;
+}
+
+.col-mitad {
+  flex: 1 1 50%;
+  border-right: 1px solid var(--color-borde-panel);
+  box-sizing: border-box;
+  min-width: 0; /* Evita que el texto largo rompa el 50% */
+}
+
+.col-mitad:last-child {
+  border-right: none;
+}
+
+.col-completa {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.celda {
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; 
+  gap: 8px;
+}
+
+/* --- UTILIDADES COMUNES --- */
+.etiqueta-azul {
+  color: var(--color-etiqueta-azul);
+  font-weight: 500;
+}
+
+.valor-dato {
+  color: var(--texto-general);
+  word-break: break-word;
+}
+
+.checkbox-personalizado {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-etiqueta-azul);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* --- SECCIÓN CAMPAÑA --- */
+.fila-campana {
+  flex-direction: column;
+  padding: 1.2rem 0;
+}
+
+.titulo-seccion {
+  color: var(--color-etiqueta-azul);
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+}
+
+.tabla-turnos {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-turnos td {
+  padding: 0.8rem 1.5rem;
+  border-top: 1px solid var(--color-borde-suave);
+  font-size: 0.9rem;
+}
+
+.tabla-turnos tr:first-child td { border-top: none; }
+.turno-id { width: 80px; color: #555; }

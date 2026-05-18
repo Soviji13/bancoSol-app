@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modificar Tienda</title>
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="tienda-seleccionada.css" /> 
+  <link rel="stylesheet" href="tienda-modificar.css" /> 
+  <script src="tienda-modificar.js" defer></script>
+</head>
+<body>
+  <aside class="panel-tienda panel-edicion" aria-labelledby="input-nombre">
+    <header class="panel-tienda__cabecera">
+      <div class="panel-tienda__info-principal">
+        <input type="text" id="input-nombre" class="input-linea-discontinua input-titulo" value="">
+        <p class="panel-tienda__subtitulo">Puntuación: <input type="number" id="input-puntuacion" class="input-linea-discontinua input-puntuacion" value="2"></p>
+      </div>
+      <div class="panel-tienda__acciones">
+        <button id="btn-cerrar-panel" class="panel-tienda__cerrar" type="button" aria-label="Cerrar panel">X</button>
+      </div>
+    </header>
+
+    <div class="panel-tienda__scroll">
+      <div class="caja-datos">
+        <div class="fila">
+          <div class="col-mitad celda"><span class="etiqueta-azul">CP:</span> <select id="select-cp" class="select-editable"><option value="">Cargando...</option></select></div>
+          <div class="col-mitad celda"><span class="etiqueta-azul">Localidad:</span> <select id="select-localidad" class="select-editable"><option value="">Cargando...</option></select></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda">
+            <span class="etiqueta-azul">Distrito:</span> 
+            <select id="select-distrito" class="select-editable oculto"><option value="">Cargando...</option></select>
+            <span id="texto-distrito" class="texto-no-editable">No se ubica en capital.</span>
+          </div>
+        </div>
+        <div class="fila">
+          <div class="col-calle celda">
+            <span class="etiqueta-azul">Calle:</span> 
+            <input type="text" id="input-calle" class="input-linea-discontinua" value="">
+          </div>
+          <div class="col-numero celda">
+            <span class="etiqueta-azul">Nº:</span> 
+            <input type="number" id="input-numero" class="input-linea-discontinua" value="">
+          </div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Zona geográfica:</span> <span id="texto-zona" class="texto-no-editable">Cargando...</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda check-container">
+            <span class="etiqueta-azul" id="label-participa">Participa en la campaña actual:</span> 
+            <span id="texto-participa" class="texto-no-editable">---</span>
+          </div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Entidad colaboradora:</span> <span id="texto-entidad" class="texto-no-editable">Cargando...</span></div>
+        </div>
+
+        <div class="fila">
+          <div class="col-completa celda">
+            <span class="etiqueta-azul">Responsable de tienda:</span>
+            <div style="display: flex; align-items: center; width: 100%; gap: 0.5rem; margin-top: 4px;">
+              <select id="select-responsable" class="select-editable" style="flex: 1;"><option value="">Cargando...</option></select>
+              <button type="button" id="btn-abrir-modal-resp" class="btn-nuevo-inline" style="padding: 2px 8px; background: var(--color-principal); color: white; border-radius: var(--radio-sm); font-size: 0.8rem; font-weight: bold; cursor:pointer;">+ Nuevo</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="modal-nuevo-responsable" class="modal-overlay oculto">
+          <div class="modal-caja">
+            <header class="modal-cabecera">
+              <h3>Nuevo Encargado de Tienda</h3>
+              <button type="button" id="btn-cerrar-modal" class="modal-cerrar-x">X</button>
+            </header>
+            <div class="modal-cuerpo">
+              <div class="modal-campo">
+                <label>Nombre Completo:</label>
+                <input type="text" id="modal-nombre" placeholder="Ej. Juan Pérez">
+              </div>
+              <div class="modal-campo">
+                <label>Email Corporativo:</label>
+                <input type="email" id="modal-email" placeholder="ejemplo@bancosol.com">
+              </div>
+              <div class="modal-campo">
+                <label>Teléfono Móvil:</label>
+                <input type="text" id="modal-telefono" placeholder="600111222">
+              </div>
+              <div class="modal-campo">
+                <label>Contraseña Acceso:</label>
+                <input type="password" id="modal-password">
+              </div>
+            </div>
+            <footer class="modal-pie">
+              <button type="button" id="btn-guardar-responsable" class="btn-modal-guardar">Guardar Responsable</button>
+            </footer>
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="col-mitad celda"><span class="etiqueta-azul">ID_Cadena / Cadena:</span> <select id="select-cadena" class="select-editable"><option value="">Cargando...</option></select></div>
+          <div class="col-mitad celda"><span class="etiqueta-azul">ID_Tienda:</span> <span id="detalle-id-tienda" class="texto-no-editable">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Franq.:</span> <input type="checkbox" id="input-franquicia" class="checkbox-personalizado"></div>
+        </div>
+        <div class="fila fila-campana">
+          <h2 class="titulo-seccion" id="label-turnos">Turnos de la campaña</h2>
+          <table class="tabla-turnos">
+            <tbody id="tabla-turnos-body">
+              <tr><td colspan="2" style="text-align:center; color:#777;" class="texto-no-editable">Cargando turnos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</body>
+</html>

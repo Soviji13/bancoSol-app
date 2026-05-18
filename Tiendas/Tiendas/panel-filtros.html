@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../global.css">
+    <link rel="stylesheet" href="panel-filtros.css"> 
+    <script src="panel-filtros.js" defer></script>
+</head>
+<body>
+    <aside class="panel-tienda">
+        <header class="panel-tienda__cabecera">
+            <div class="panel-tienda__info-principal">
+                <h2 class="panel-tienda__titulo">Filtros de tiendas</h2>
+                <p class="panel-tienda__subtitulo">Búsqueda avanzada</p>
+            </div>
+            <div class="panel-tienda__acciones">
+                <button id="btn-cerrar-filtros" class="panel-tienda__cerrar" type="button">X</button>
+            </div>
+        </header>
+
+        <div class="panel-tienda__scroll">
+            <div class="caja-datos">
+                
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Nombre:</span>
+                            <input type="text" id="filtro-nombre" class="input-datos" placeholder="Escribe el nombre...">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Cadena:</span>
+                            <select id="filtro-cadena" class="select-datos">
+                                <option value="">Todas las cadenas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Localidad:</span>
+                            <select id="filtro-localidad" class="select-datos">
+                                <option value="">Todas las localidades</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila oculto" id="bloque-distrito">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Distrito:</span>
+                            <select id="filtro-distrito" class="select-datos">
+                                <option value="">Todos los distritos</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Zona Geográfica:</span>
+                            <select id="filtro-zona" class="select-datos">
+                                <option value="">Todas las zonas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Colaborador:</span>
+                            <select id="filtro-colaborador" class="select-datos">
+                                <option value="">Todas las entidades</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Responsable:</span>
+                            <select id="filtro-responsable" class="select-datos">
+                                <option value="">Todos los responsables</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">Campaña activa:</span>
+                            <div class="radio-grupo-filtros">
+                                <label class="radio-label-filtros"><input type="radio" name="filtro-campania-activa" value="TODAS" checked> Todas</label>
+                                <label class="radio-label-filtros"><input type="radio" name="filtro-campania-activa" value="SI"> Sí</label>
+                                <label class="radio-label-filtros"><input type="radio" name="filtro-campania-activa" value="NO"> No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila">
+                    <div class="col-completa">
+                        <div class="celda">
+                            <span class="etiqueta-azul">¿Es Franquicia?:</span>
+                            <div class="radio-grupo-filtros">
+                                <label class="radio-label-filtros"><input type="radio" name="filtro-franquicia" value="TODAS" checked> Todas</label>
+                                <label class="radio-label-filtros"><input type="radio" name="filtro-franquicia" value="SI"> Sí</label>
+                                <label class="radio-label-filtros"><input type="radio" name="filtro-franquicia" value="NO"> No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fila-campana">
+                    <button id="btn-aplicar-filtros" class="btn-filtrar-principal">Aplicar Filtros</button>
+                    <button id="btn-limpiar-filtros" class="btn-filtrar-limpiar">Limpiar filtros</button>
+                </div>
+
+            </div>
+        </div>
+    </aside>
+</body>
+</html>

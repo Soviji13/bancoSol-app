@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="tiendas.css">
+    <link rel="stylesheet" href="../global.css">
+    <script src="tiendas.js" defer></script>
+    <script src="exportar-csv.js" defer></script> 
+    <title>Tiendas</title>
+</head>
+<body>
+    <section class="contenido" aria-labelledby="historial_titulo">
+    <div class="contenido__topbar">
+      <div class="filtro">
+        <button class="boton-icono" type="button" aria-label="Filtrar">
+          <img src="../assets/embudo.png" alt="Filtro" />
+          <span class="boton-icono__contador">3</span>
+        </button>
+      </div>
+      
+      <div class="seleccionar-campania">
+        <button id="btn-seleccionar-campania" class="boton-secundario" type="button">
+          Seleccionar otra campaña
+        </button>
+      </div>
+
+      <div class="historial-tiendas">
+        <span><h1 id="historial_titulo" class="historial_titulo">Listado de Tiendas</h1></span>
+      </div>
+      <div class="seccion-ayuda">
+        <p class="contenido__ayuda">
+          Para ver más información sobre la tienda, haga click sobre su fila correspondiente.
+        </p>
+        <button class="boton-ayuda" type="button" aria-label="Ayuda">?</button>
+      </div>
+    </div>
+    
+    <div class="tabla-contenedor">
+      <table class="tabla-tiendas">
+        <thead>
+          <tr>
+            <th scope="col">Tienda</th>
+            <th scope="col">Domicilio</th>
+            <th scope="col">Localidad</th>
+            <th scope="col" colspan="2">Resp. Entidad</th>
+            <th scope="col">Participa</th>
+            <th scope="col">Puntuación</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-tiendas-body">
+          </tbody>
+      </table>
+    </div>
+
+    <div class="alerta-edicion oculto" id="alerta-edicion">
+      <img src="../assets/triangulo_danger.svg" alt="Aviso" style="width: 1.2rem; filter: invert();">
+      <span id="alerta-texto">Modifique en el menú lateral los datos de la tienda</span>
+    </div>
+
+    <div class="acciones-tabla" id="acciones-normales">
+      <button class="acciones-tabla__btn" id="btn-eliminar" type="button">Eliminar tienda</button>
+      <button class="acciones-tabla__btn" id="btn-modificar" type="button">Modificar tienda</button>
+      <button class="acciones-tabla__btn" id="btn-anadir" type="button">Añadir tienda</button>
+      <button class="acciones-tabla__btn" id="btn-exportar" type="button"><img src="../assets/simbolo_exportar.png"></button>
+    </div>
+
+    <div class="acciones-tabla acciones-edicion oculto" id="acciones-edicion">
+      <button class="acciones-tabla__btn btn-descartar" id="btn-descartar" type="button">Descartar cambios</button>
+      <button class="acciones-tabla__btn btn-confirmar" id="btn-confirmar" type="button">Confirmar cambios</button>
+    </div>
+
+    <div class="acciones-tabla acciones-eliminar oculto" id="acciones-eliminar">
+      <button class="acciones-tabla__btn btn-confirmar" id="btn-cancelar-eliminar" type="button">Cancelar</button>
+      <button class="acciones-tabla__btn btn-descartar" id="btn-confirmar-eliminar" type="button">Eliminar</button>
+    </div>
+
+    <div id="modal-campanias" class="modal-overlay oculto">
+      <div class="modal-caja modal-caja-campanias">
+        <header class="modal-cabecera">
+          <h3 style="margin:0; font-size:1.2rem;">Seleccionar Campaña</h3>
+          <button type="button" id="btn-cerrar-campanias" class="modal-cerrar-x">X</button>
+        </header>
+        <div class="modal-cuerpo" id="lista-campanias">
+          </div>
+      </div>
+    </div>
+
+    </section>
+</body>
+</html>

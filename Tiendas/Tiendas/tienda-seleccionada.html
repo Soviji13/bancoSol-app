@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tienda seleccionada</title>
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="tienda-seleccionada.css" />
+  <script src="tienda-seleccionada.js" defer></script>
+</head>
+<body>
+  <aside class="panel-tienda" aria-labelledby="titulo-tienda">
+    <header class="panel-tienda__cabecera">
+      <div class="panel-tienda__info-principal">
+        <h1 id="titulo-tienda" class="panel-tienda__titulo">Nombre de la Tienda</h1>
+        <p class="panel-tienda__subtitulo">Puntuación: <span id="detalle-puntuacion">--</span></p>
+      </div>
+      <div class="panel-tienda__acciones">
+        <button id="btn-cerrar-panel" class="panel-tienda__cerrar" type="button" aria-label="Cerrar panel" title="Cerrar panel">X</button>
+      </div>
+    </header>
+
+    <div class="panel-tienda__scroll">
+      <div class="caja-datos">
+        <div class="fila">
+          <div class="col-mitad celda"><span class="etiqueta-azul">CP:</span> <span id="detalle-cp" class="valor-dato">--</span></div>
+          <div class="col-mitad celda"><span class="etiqueta-azul">Localidad:</span> <span id="detalle-localidad" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Distrito:</span> <span id="detalle-distrito" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Domicilio:</span> <span id="detalle-domicilio" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Zona geográfica:</span> <span id="detalle-zona" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul" id="label-participa">Participa en la campaña actual:</span> <input type="checkbox" id="detalle-participa" class="checkbox-personalizado" disabled></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Entidad colaboradora:</span> <span id="detalle-entidad" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Responsable de tienda:</span> <span id="detalle-responsable" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-mitad celda"><span class="etiqueta-azul">ID_Cadena / Cadena:</span> <span id="detalle-cadena" class="valor-dato">--</span></div>
+          <div class="col-mitad celda"><span class="etiqueta-azul">ID_Tienda:</span> <span id="detalle-id-tienda" class="valor-dato">--</span></div>
+        </div>
+        <div class="fila">
+          <div class="col-completa celda"><span class="etiqueta-azul">Franq.:</span> <input type="checkbox" id="detalle-franquicia" class="checkbox-personalizado" disabled></div>
+        </div>
+        <div class="fila fila-campana">
+          <h2 class="titulo-seccion" id="label-turnos">Turnos de la campaña</h2>
+          <table class="tabla-turnos">
+            <tbody id="tabla-turnos-body">
+              <tr><td colspan="2" style="text-align:center; color:#777;">Cargando turnos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </aside>
+</body>
+</html>
