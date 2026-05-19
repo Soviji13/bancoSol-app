@@ -1,4 +1,30 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String uri = (String) request.getAttribute("jakarta.servlet.forward.request_uri");
+    if (uri == null) {
+        uri = request.getRequestURI();
+    }
+
+    String menuActivo = "";
+
+    if (uri != null) {
+        if (uri.contains("/coordinador")) {
+            menuActivo = "coordinadores";
+        } else if (uri.contains("/tiendas")) {
+            menuActivo = "tiendas";
+        } else if (uri.contains("/colaboradores")) {
+            menuActivo = "colaboradores";
+        } else if (uri.contains("/voluntarios")) {
+            menuActivo = "voluntarios";
+        } else if (uri.contains("/incidencias")) {
+            menuActivo = "incidencias";
+        } else if (uri.contains("/campanias")) {
+            // Campañas va al final. Si la URL tiene "campanias" Y "coordinador",
+            // entrará en el primer 'if' y nunca llegará aquí.
+            menuActivo = "campanias";
+        }
+    }
+%>
 <style>
     .menu-lateral {
         display: flex;
@@ -25,20 +51,11 @@
     }
 </style>
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    // Capturamos la ruta actual de la URL (ej: "/campanias/gestion")
-    String uri = request.getRequestURI();
-%>
-<style>
-    /* ... (tu CSS se queda exactamente igual) ... */
-</style>
-
 <div class="menu-lateral">
-    <a href="/campanias" class="btn-menu <%= uri.contains("/campanias") ? "activo" : "" %>">Gestionar campañas</a>
-    <a href="/coordinadores" class="btn-menu <%= uri.contains("/coordinador") ? "activo" : "" %>">Gestionar coordinadores</a>
-    <a href="/tiendas" class="btn-menu <%= uri.contains("/tiendas") ? "activo" : "" %>">Gestionar tiendas</a>
-    <a href="/colaboradores" class="btn-menu <%= uri.contains("/colaboradores") ? "activo" : "" %>">Gestionar colaboradores</a>
-    <a href="/voluntarios" class="btn-menu <%= uri.contains("/voluntarios") ? "activo" : "" %>">Gestionar voluntarios</a>
-    <a href="/incidencias" class="btn-menu <%= uri.contains("/incidencias") ? "activo" : "" %>">Incidencias y movimientos</a>
+    <a href="/campanias" class="btn-menu <%= "campanias".equals(menuActivo) ? "activo" : "" %>">Gestionar campañas</a>
+    <a href="/coordinadores" class="btn-menu <%= "coordinadores".equals(menuActivo) ? "activo" : "" %>">Gestionar coordinadores</a>
+    <a href="/tiendas" class="btn-menu <%= "tiendas".equals(menuActivo) ? "activo" : "" %>">Gestionar tiendas</a>
+    <a href="/colaboradores" class="btn-menu <%= "colaboradores".equals(menuActivo) ? "activo" : "" %>">Gestionar colaboradores</a>
+    <a href="/voluntarios" class="btn-menu <%= "voluntarios".equals(menuActivo) ? "activo" : "" %>">Gestionar voluntarios</a>
+    <a href="/incidencias" class="btn-menu <%= "incidencias".equals(menuActivo) ? "activo" : "" %>">Incidencias y movimientos</a>
 </div>

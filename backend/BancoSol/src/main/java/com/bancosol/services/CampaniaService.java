@@ -56,34 +56,76 @@ public class CampaniaService {
         }
     }
 
-    // Añade esto a tus inyecciones (si no lo tenías)
-    // private final CadenaRepository cadenaRepo;
 
-    @Transactional
-    public void guardar(CampaniaDTO dto) {
-        Campania campania = repo.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Campaña no encontrada"));
-
-        // 1. Actualizar textos y fechas
-        campania.setNombre(dto.getNombre());
-        campania.setFechaInicio(dto.getFechaInicio());
-        campania.setFechaFin(dto.getFechaFin());
-
-        // 2. Actualizar las cadenas seleccionadas
-        // Limpiamos la lista actual y la rellenamos con las que vienen del formulario
-        campania.getCadenas().clear();
-        if (dto.getIdsCadenas() != null && !dto.getIdsCadenas().isEmpty()) {
-            List<Cadena> cadenasSeleccionadas = cadenaRepo.findAllById(dto.getIdsCadenas());
-            campania.getCadenas().addAll(cadenasSeleccionadas);
-        }
-
-        // El Dirty Checking de @Transactional se encarga del UPDATE
-        repo.save(campania);
-    }
 
     @Transactional
     public void eliminar(Long id) {
         repo.deleteById(id);
+    }
+
+    @Transactional
+    public CampaniaDTO guardar(CampaniaDTO dto) {
+        Campania campania;
+        boolean esNuevo = (dto.getId() == null);
+
+        if (!esNuevo) {
+            campania = repo.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("Campaña no encontrada"));
+        } else {
+            campania = new Campania();
+            campania.setActiva(false); // Sigue naciendo desactivada por defecto
+
+            if (dto.getFechaInicio() != null) {
+                campania.setAnio((short) dto.getFechaInicio().getYear());
+            }
+        }
+
+        // Datos básicos
+        campania.setNombre(dto.getNombre());
+        campania.setFechaInicio(dto.getFechaInicio());
+        campania.setFechaFin(dto.getFechaFin());
+
+        if (dto.getIdsCadenas() != null) {
+            campania.getCadenas().clear();
+            if (!dto.getIdsCadenas().isEmpty()) {
+                List<Cadena> cadenasSeleccionadas = cadenaRepo.findAllById(dto.getIdsCadenas());
+                campania.getCadenas().addAll(cadenasSeleccionadas);
+            }
+        } else if (!esNuevo) {
+            campania.getCadenas().clear();
+        }
+
+        if (dto.getIdsCoordinadores() != null) {
+            campania.getCoordinadores().clear();
+            if (!dto.getIdsCoordinadores().isEmpty()) {
+                List<Coordinador> coordsSeleccionados = coordinadorRepo.findAllById(dto.getIdsCoordinadores());
+                campania.getCoordinadores().addAll(coordsSeleccionados);
+            }
+        } else if (!esNuevo) {
+            campania.getCoordinadores().clear();
+        }
+
+        Campania saved = repo.save(campania);
+        return campaniaMapper.toDTO(saved);
+    }
+
+    @Transactional
+    public void cambiarEstado(Long id, boolean nuevoEstado) {
+        Campania campaniaObjetivo = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Campaña no encontrada"));
+
+        if (nuevoEstado) {
+            repo.findByActivaTrue().ifPresent(activaAnterior -> {
+                if (!activaAnterior.getId().equals(campaniaObjetivo.getId())) {
+                    activaAnterior.setActiva(false);
+                    // El Flush obliga a la BD a registrar el 'false' YA de forma prioritaria
+                    repo.saveAndFlush(activaAnterior);
+                }
+            });
+        }
+
+        campaniaObjetivo.setActiva(nuevoEstado);
+        repo.save(campaniaObjetivo);
     }
 
 

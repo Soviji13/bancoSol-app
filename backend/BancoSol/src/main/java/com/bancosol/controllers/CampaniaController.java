@@ -50,6 +50,28 @@ public class CampaniaController {
         return "campanias";
     }
 
+    // ==========================================
+    // CREACIÓN Y MODIFICACIÓN DE CAMPAÑA
+    // ==========================================
+
+    @GetMapping("/campanias/generar")
+    public String verGenerarCampania(Model model, HttpSession session) {
+        // Pasamos el DTO vacío para el formulario
+        model.addAttribute("campania", new CampaniaDTO());
+
+        model.addAttribute("cadenas", cadenaService.listarTodas());
+        model.addAttribute("coordinadores", coordinadorService.listarTodos());
+
+        model.addAttribute("usuario", session);
+        return "generar-campania";
+    }
+
+    @PostMapping("/campanias/guardar")
+    public String guardarCampania(@ModelAttribute CampaniaDTO campaniaDTO) {
+        CampaniaDTO guardada = campaniaService.guardar(campaniaDTO);
+        return "redirect:/campanias/gestion?id=" + guardada.getId();
+    }
+
     @GetMapping("/campanias/gestion")
     public String verGestionCampania(@RequestParam("id") Long id, HttpSession session, Model model) {
         CampaniaDTO campania = campaniaService.findById(id);
@@ -60,13 +82,65 @@ public class CampaniaController {
             model.addAttribute("coordinadores", coordinadorService.findAllById(campania.getIdsCoordinadores()));
             model.addAttribute("campania", campania);
             model.addAttribute("usuario", session);
-            return "gestion-campanias";
+            return "gestionar-campanias";
         }
     }
 
-    // ==========================================
-    // SECCIÓN COORDINADORES
-    // ==========================================
+    @PostMapping("/campanias/cambiar-estado")
+    public String cambiarEstadoCampania(@RequestParam("id") Long id,
+                                        @RequestParam("nuevoEstado") boolean nuevoEstado) {
+
+        campaniaService.cambiarEstado(id, nuevoEstado);
+
+        // Recargamos la vista de detalles para ver el cambio
+        return "redirect:/campanias/gestion?id=" + id;
+    }
+
+    @GetMapping("/campanias/gestion/coordinadores")
+    public String verGestionCoordinadoresCampania(@RequestParam("id") Long id, HttpSession session, Model model) {
+        CampaniaDTO campania = campaniaService.findById(id);
+        if (campania == null) return "redirect:/campanias";
+
+        // 1. Obtenemos absolutamente todos los coordinadores del sistema
+        List<CoordinadorDTO> todosLosCoordinadores = coordinadorService.listarTodos();
+
+        // 2. Filtramos los que YA están asignados a esta campaña
+        List<Long> idsAsignados = campania.getIdsCoordinadores() != null ? campania.getIdsCoordinadores() : List.of();
+
+        List<CoordinadorDTO> asignados = todosLosCoordinadores.stream()
+                .filter(c -> idsAsignados.contains(c.getId()))
+                .collect(Collectors.toList());
+
+        // 3. Filtramos los que AÚN NO están asignados (para el desplegable)
+        List<CoordinadorDTO> noAsignados = todosLosCoordinadores.stream()
+                .filter(c -> !idsAsignados.contains(c.getId()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("campania", campania);
+        model.addAttribute("asignados", asignados);
+        model.addAttribute("noAsignados", noAsignados);
+        model.addAttribute("usuario", session);
+
+        return "gestionar-coordinadores";
+    }
+
+    @PostMapping("/campanias/gestion/coordinadores/vincular")
+    public String vincularCoordinadorCampania(@RequestParam("campaniaId") Long campaniaId,
+                                              @RequestParam("coordinadorId") Long coordinadorId) {
+        // Usamos el método que ya tienes en tu CampaniaService
+        campaniaService.vincularCoordinador(campaniaId, coordinadorId);
+        return "redirect:/campanias/gestion/coordinadores?id=" + campaniaId;
+    }
+
+    @PostMapping("/campanias/gestion/coordinadores/desvincular")
+    public String desvincularCoordinadorCampania(@RequestParam("campaniaId") Long campaniaId,
+                                                 @RequestParam("coordinadorId") Long coordinadorId) {
+        // Usamos el método que ya tienes en tu CampaniaService
+        campaniaService.desvincularCoordinador(campaniaId, coordinadorId);
+        return "redirect:/campanias/gestion/coordinadores?id=" + campaniaId;
+    }
+
+
     @GetMapping("/campanias/gestion/coordinador")
     public String verGestionCampaniaCoordinador(@RequestParam("id") Long id, HttpSession session, Model model) {
         CoordinadorDTO coordinador = coordinadorService.findById(id);
@@ -112,9 +186,6 @@ public class CampaniaController {
         }
     }
 
-    // ==========================================
-    // SECCIÓN MODIFICACIÓN DE CAMPAÑA
-    // ==========================================
     @GetMapping("/campanias/gestion/modificar")
     public String verModificarCampania(@RequestParam("id") Long id, HttpSession session, Model model) {
         CampaniaDTO campania = campaniaService.findById(id);
@@ -127,11 +198,7 @@ public class CampaniaController {
         return "modificar-campania";
     }
 
-    @PostMapping("/campanias/guardar")
-    public String guardarCampania(@ModelAttribute CampaniaDTO campaniaDTO) {
-        campaniaService.guardar(campaniaDTO);
-        return "redirect:/campanias/gestion?id=" + campaniaDTO.getId();
-    }
+
 
     @GetMapping("/campanias/eliminar")
     public String eliminarCampania(@RequestParam("id") Long id) {
