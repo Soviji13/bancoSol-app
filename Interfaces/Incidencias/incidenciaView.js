@@ -1,30 +1,58 @@
-// ==============================
-// VIEW INCIDENCIAS
-// ==============================
+/* ==========================================================
+   Vista de incidencias
+   ----------------------------------------------------------
+   Este módulo contiene las funciones de representación visual
+   de la tabla de incidencias, la gestión de selección de filas,
+   el estado de los botones de acción y la apertura del panel
+   lateral de detalle.
+   ========================================================== */
 
 import {
   obtenerClaseEstado
 } from "./incidenciaMapper.js";
 
-// ==============================
-// SELECTORES
-// ==============================
+/* ==============================
+   SELECTORES DE LA INTERFAZ
+   ============================== */
 
-const SELECTORES = {
+const SELECTORES = Object.freeze({
   tablaBody: "#tabla-incidencias-body",
   tituloCampania: "#titulo-campania",
   mensaje: "#mensaje-incidencias",
+
   btnFiltro: "#btn-filtro",
   btnAyuda: "#btn-ayuda",
   btnAnadir: "#btn-anadir",
   btnConfirmarLectura: "#btn-confirmar-lectura",
-  btnConfirmarResolucion: "#btn-confirmar-resolucion"
-};
+  btnConfirmarResolucion: "#btn-confirmar-resolucion",
 
-// ==============================
-// ELEMENTOS
-// ==============================
+  iframeMenuLateral: ".menu-lateral-iframe"
+});
 
+const RUTAS = Object.freeze({
+  panelDetalleIncidencia: "../Incidencias/incidenciaSeleccionada.html"
+});
+
+const STORAGE_KEYS = Object.freeze({
+  incidenciaSeleccionada: "incidenciaSeleccionada"
+});
+
+const ESTADO_INCIDENCIA = Object.freeze({
+  LEIDA: "LEIDA",
+  RESUELTA: "RESUELTA"
+});
+
+/* ==============================
+   OBTENCIÓN DE ELEMENTOS
+   ============================== */
+
+/**
+ * Obtiene las referencias principales de la interfaz de incidencias.
+ * Centralizar esta operación permite que el controlador de la vista
+ * trabaje con un único objeto de elementos DOM.
+ *
+ * @returns {object} Elementos principales de la interfaz.
+ */
 export function obtenerElementos() {
   return {
     cuerpoTabla: document.querySelector(SELECTORES.tablaBody),
@@ -39,78 +67,185 @@ export function obtenerElementos() {
   };
 }
 
-// ==============================
-// TABLA
-// ==============================
+/* ==============================
+   RENDERIZADO DE TABLA
+   ============================== */
 
+/**
+ * Representa en la tabla el conjunto de incidencias recibido.
+ * En caso de no existir registros, se muestra una fila informativa.
+ *
+ * @param {object} parametros Parámetros de renderizado.
+ * @param {HTMLTableSectionElement} parametros.cuerpoTabla Cuerpo de la tabla.
+ * @param {Array<object>} parametros.incidencias Incidencias que se van a representar.
+ * @param {Function} parametros.onSeleccionarFila Función ejecutada al seleccionar una fila.
+ * @param {Function} parametros.onDobleClickFila Función ejecutada al abrir el detalle.
+ */
 export function pintarIncidencias({
   cuerpoTabla,
   incidencias,
   onSeleccionarFila,
   onDobleClickFila
 }) {
-  cuerpoTabla.innerHTML = "";
-
-  if (!incidencias || incidencias.length === 0) {
-    const filaVacia = document.createElement("tr");
-
-    filaVacia.innerHTML = `
-      <td colspan="8">No hay incidencias registradas.</td>
-    `;
-
-    cuerpoTabla.appendChild(filaVacia);
+  if (!cuerpoTabla) {
     return;
   }
 
+  cuerpoTabla.replaceChildren();
+
+  if (!incidencias || incidencias.length === 0) {
+    cuerpoTabla.appendChild(crearFilaVacia());
+    return;
+  }
+
+  const fragmento = document.createDocumentFragment();
+
   incidencias.forEach((incidencia) => {
-    const fila = document.createElement("tr");
+    fragmento.appendChild(
+      crearFilaIncidencia({
+        incidencia,
+        onSeleccionarFila,
+        onDobleClickFila
+      })
+    );
+  });
 
-    fila.tabIndex = 0;
-    fila.dataset.id = incidencia.id;
-    fila.setAttribute("aria-selected", "false");
+  cuerpoTabla.appendChild(fragmento);
+}
 
-    fila.innerHTML = crearHTMLFila(incidencia);
+/**
+ * Crea una fila informativa para los casos en los que no existan
+ * incidencias disponibles.
+ *
+ * @returns {HTMLTableRowElement} Fila vacía.
+ */
+function crearFilaVacia() {
+  const fila = document.createElement("tr");
+  const celda = document.createElement("td");
 
-    fila.addEventListener("click", () => {
+  celda.colSpan = 7;
+  celda.className = "estado-vacio";
+  celda.textContent = "No hay incidencias registradas.";
+
+  fila.appendChild(celda);
+  return fila;
+}
+
+/**
+ * Crea una fila de tabla correspondiente a una incidencia.
+ * Los datos dinámicos se insertan mediante textContent para evitar
+ * inyección de HTML.
+ *
+ * @param {object} parametros Parámetros de creación de fila.
+ * @param {object} parametros.incidencia Incidencia representada.
+ * @param {Function} parametros.onSeleccionarFila Manejador de selección.
+ * @param {Function} parametros.onDobleClickFila Manejador de doble click.
+ * @returns {HTMLTableRowElement} Fila de incidencia.
+ */
+function crearFilaIncidencia({
+  incidencia,
+  onSeleccionarFila,
+  onDobleClickFila
+}) {
+  const fila = document.createElement("tr");
+
+  fila.tabIndex = 0;
+  fila.dataset.id = incidencia.id;
+  fila.setAttribute("aria-selected", "false");
+
+  fila.appendChild(crearCelda(incidencia.id));
+  fila.appendChild(crearCelda(incidencia.reportadoPorNombre));
+  fila.appendChild(crearCelda(incidencia.cargoTexto));
+  fila.appendChild(crearCelda(incidencia.horaTexto));
+  fila.appendChild(crearCelda(incidencia.fechaTexto));
+  fila.appendChild(crearCeldaAsunto(incidencia.asunto));
+  fila.appendChild(crearCeldaEstado(incidencia));
+
+  registrarEventosFila({
+    fila,
+    incidencia,
+    onSeleccionarFila,
+    onDobleClickFila
+  });
+
+  return fila;
+}
+
+/**
+ * Registra los eventos de interacción de una fila.
+ * Se admite selección mediante click, doble click y teclado.
+ *
+ * @param {object} parametros Parámetros de registro.
+ */
+function registrarEventosFila({
+  fila,
+  incidencia,
+  onSeleccionarFila,
+  onDobleClickFila
+}) {
+  fila.addEventListener("click", () => {
+    onSeleccionarFila(fila, incidencia);
+  });
+
+  fila.addEventListener("dblclick", () => {
+    onSeleccionarFila(fila, incidencia);
+    onDobleClickFila(incidencia);
+  });
+
+  fila.addEventListener("keydown", (evento) => {
+    if (evento.key === "Enter" || evento.key === " ") {
+      evento.preventDefault();
       onSeleccionarFila(fila, incidencia);
-    });
-
-    fila.addEventListener("dblclick", () => {
-      onSeleccionarFila(fila, incidencia);
-      onDobleClickFila(incidencia);
-    });
-
-    fila.addEventListener("keydown", (evento) => {
-      if (evento.key === "Enter" || evento.key === " ") {
-        evento.preventDefault();
-        onSeleccionarFila(fila, incidencia);
-      }
-    });
-
-    cuerpoTabla.appendChild(fila);
+    }
   });
 }
 
-function crearHTMLFila(incidencia) {
-  return `
-    <td>${escaparHTML(incidencia.tipo)}</td>
-    <td>${escaparHTML(incidencia.reportadoPorNombre)}</td>
-    <td>${escaparHTML(incidencia.cargoTexto)}</td>
-    <td>${escaparHTML(incidencia.contactoTexto)}</td>
-    <td>${escaparHTML(incidencia.horaTexto)}</td>
-    <td>${escaparHTML(incidencia.fechaTexto)}</td>
-    <td class="celda-asunto" title="${escaparHTML(incidencia.asunto)}">
-      ${escaparHTML(incidencia.asunto)}
-    </td>
-    <td>
-      <span class="estado ${obtenerClaseEstado(incidencia.estado)}">
-        ${escaparHTML(incidencia.estadoTexto)}
-      </span>
-    </td>
-  `;
+function crearCelda(texto) {
+  const celda = document.createElement("td");
+
+  celda.textContent = texto ?? "";
+
+  return celda;
 }
 
+function crearCeldaAsunto(asunto) {
+  const celda = document.createElement("td");
+
+  celda.className = "celda-asunto";
+  celda.title = asunto ?? "";
+  celda.textContent = asunto ?? "";
+
+  return celda;
+}
+
+function crearCeldaEstado(incidencia) {
+  const celda = document.createElement("td");
+  const estado = document.createElement("span");
+
+  estado.className = `estado ${obtenerClaseEstado(incidencia.estado)}`;
+  estado.textContent = incidencia.estadoTexto ?? "";
+
+  celda.appendChild(estado);
+
+  return celda;
+}
+
+/* ==============================
+   SELECCIÓN DE FILAS
+   ============================== */
+
+/**
+ * Marca una fila como seleccionada y elimina previamente cualquier
+ * selección activa en el cuerpo de la tabla.
+ *
+ * @param {HTMLTableSectionElement} cuerpoTabla Cuerpo de la tabla.
+ * @param {HTMLTableRowElement} fila Fila que debe quedar seleccionada.
+ */
 export function marcarFilaSeleccionada(cuerpoTabla, fila) {
+  if (!cuerpoTabla || !fila) {
+    return;
+  }
+
   limpiarSeleccionFilas(cuerpoTabla);
 
   fila.classList.add("seleccionada");
@@ -118,72 +253,101 @@ export function marcarFilaSeleccionada(cuerpoTabla, fila) {
   fila.setAttribute("aria-selected", "true");
 }
 
+/**
+ * Elimina la selección visual de todas las filas de la tabla.
+ *
+ * @param {HTMLTableSectionElement} cuerpoTabla Cuerpo de la tabla.
+ */
 export function limpiarSeleccionFilas(cuerpoTabla) {
-  const filas = cuerpoTabla.querySelectorAll("tr");
+  if (!cuerpoTabla) {
+    return;
+  }
 
-  filas.forEach((fila) => {
+  cuerpoTabla.querySelectorAll("tr").forEach((fila) => {
     fila.classList.remove("seleccionada");
     fila.classList.remove("tabla-incidencias__fila--seleccionada");
     fila.setAttribute("aria-selected", "false");
   });
 }
 
-// ==============================
-// BOTONES
-// ==============================
+/* ==============================
+   ESTADO DE BOTONES
+   ============================== */
 
+/**
+ * Habilita o deshabilita los botones de cambio de estado según la
+ * incidencia seleccionada.
+ *
+ * @param {object} parametros Parámetros de actualización.
+ * @param {HTMLButtonElement} parametros.botonConfirmarLectura Botón de lectura.
+ * @param {HTMLButtonElement} parametros.botonConfirmarResolucion Botón de resolución.
+ * @param {object|null} parametros.incidenciaSeleccionada Incidencia seleccionada.
+ */
 export function actualizarEstadoBotones({
   botonConfirmarLectura,
   botonConfirmarResolucion,
   incidenciaSeleccionada
 }) {
+  if (!botonConfirmarLectura || !botonConfirmarResolucion) {
+    return;
+  }
+
   const haySeleccion = Boolean(incidenciaSeleccionada);
+  const estado = incidenciaSeleccionada?.estado;
 
-  botonConfirmarLectura.disabled = !haySeleccion ||
-    incidenciaSeleccionada?.estado === "LEIDA" ||
-    incidenciaSeleccionada?.estado === "RESUELTA";
+  botonConfirmarLectura.disabled =
+    !haySeleccion ||
+    estado === ESTADO_INCIDENCIA.LEIDA ||
+    estado === ESTADO_INCIDENCIA.RESUELTA;
 
-  botonConfirmarResolucion.disabled = !haySeleccion ||
-    incidenciaSeleccionada?.estado === "RESUELTA";
+  botonConfirmarResolucion.disabled =
+    !haySeleccion ||
+    estado === ESTADO_INCIDENCIA.RESUELTA;
 }
 
-// ==============================
-// PANEL LATERAL
-// ==============================
+/* ==============================
+   PANEL LATERAL
+   ============================== */
 
+/**
+ * Guarda la incidencia seleccionada y solicita la apertura del panel
+ * lateral de detalle cuando la vista se ejecuta dentro de un iframe.
+ *
+ * @param {object} incidencia Incidencia seleccionada.
+ */
 export function abrirPanelLateral(incidencia) {
   sessionStorage.setItem(
-    "incidenciaSeleccionada",
+    STORAGE_KEYS.incidenciaSeleccionada,
     JSON.stringify(incidencia)
   );
 
-  if (window.parent && window.parent !== window) {
-    const iframeMenu = window.parent.document.querySelector(".menu-lateral-iframe");
-
-    if (iframeMenu) {
-      iframeMenu.src = "../Incidencias/incidenciaSeleccionada.html";
-    }
+  if (!window.parent || window.parent === window) {
+    return;
   }
+
+  const iframeMenu = window.parent.document.querySelector(SELECTORES.iframeMenuLateral);
+
+  if (!iframeMenu) {
+    return;
+  }
+
+  iframeMenu.src = RUTAS.panelDetalleIncidencia;
 }
 
-// ==============================
-// MENSAJES
-// ==============================
+/* ==============================
+   MENSAJES DE LA INTERFAZ
+   ============================== */
 
+/**
+ * Muestra un mensaje informativo en la zona correspondiente de la vista.
+ *
+ * @param {HTMLElement|null} elementoMensaje Elemento de mensaje.
+ * @param {string} texto Texto que debe mostrarse.
+ */
 export function mostrarMensaje(elementoMensaje, texto) {
   if (!elementoMensaje) {
     return;
   }
 
   elementoMensaje.textContent = texto ?? "";
-}
-
-// ==============================
-// UTILS
-// ==============================
-
-function escaparHTML(texto) {
-  const span = document.createElement("span");
-  span.textContent = texto ?? "";
-  return span.innerHTML;
 }

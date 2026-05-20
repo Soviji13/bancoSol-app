@@ -32,7 +32,7 @@
 }
 
 .csv {
-  background: #fff url("assets/file_export.svg") center / 42% no-repeat;
+  background: #fff url("../assets/file_export.svg") center / 42% no-repeat;
 }
 
 .activado { opacity: 1; }

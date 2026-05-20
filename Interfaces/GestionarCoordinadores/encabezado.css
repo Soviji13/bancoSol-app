@@ -19,7 +19,7 @@
   aspect-ratio: 1 / 1;
   border: var(--borde-principal, 1px solid #ddd);
   border-radius: 22%;
-  background: #fff url("assets/filter_alt.svg") center / 48% no-repeat;
+  background: #fff url("../assets/filter_alt.svg") center / 48% no-repeat;
   cursor: pointer;
 }
 

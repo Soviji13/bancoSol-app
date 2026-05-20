@@ -1,619 +1,421 @@
-// VARIABLES GLOBALES Y CACHÉ
-let coordinadoresCache = [];
-let coordinadoresOriginales = [];
-let campaniasCache = [];
-let modoEliminarActivo = false;
-let idCampaniaVisualizada = null;
-let coordinadorSeleccionadoId = null;
+/* ==========================================================
+   Controlador de coordinadores
+   ----------------------------------------------------------
+   Este módulo coordina la carga, filtrado, selección, detalle,
+   eliminación y exportación CSV de coordinadores.
+   ========================================================== */
 
-const API_BASE = "http://localhost:8080/api";
-const canalComunicacion = new BroadcastChannel("bancosol_channel");
+import {
+  listarCoordinadores,
+  listarCampanias,
+  eliminarCoordinadorPorId
+} from "./coordinadorApi.js";
 
-const endpoints = {
-  coordinadores: `${API_BASE}/coordinadores`,
-  campanias: `${API_BASE}/campanias`
-};
+import {
+  mapearCoordinadorDesdeAPI,
+  obtenerCabecerasCSVCoordinadores,
+  mapearCoordinadoresParaCSV
+} from "./coordinadorMapper.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarDatosIniciales();
-  registrarEventosInterfaz();
+import {
+  obtenerElementos,
+  pintarCoordinadores,
+  marcarFilaSeleccionada,
+  pintarDetalleCoordinador,
+  pintarSelectorCampanias,
+  activarModoEliminar,
+  desactivarModoEliminar as desactivarModoEliminarVista,
+  activarBotonModificar,
+  resetearBotonModificar as resetearBotonModificarVista,
+  mostrarModal,
+  cerrarModal,
+  mostrarLoader,
+  cambiarTitulo
+} from "./coordinadorView.js";
+
+import {
+  exportarCSV
+} from "../utils/csvUtils.js";
+
+/*
+ * Convención de rutas:
+ * - Utilidades globales: ../utils/
+ * - Assets globales: ../assets/
+ */
+
+/* ==============================
+   CONFIGURACIÓN
+   ============================== */
+
+const CANAL_BANCOSOL = "bancosol_channel";
+
+const MENSAJES_CANAL = Object.freeze({
+  recargarCoordinadores: "recargar-tabla-coordinadores",
+  recargarTabla: "recargar-tabla"
 });
 
-function registrarEventosInterfaz() {
-  const tbody = document.querySelector("#tabla-body");
-  const btnEliminar = document.getElementById("btn-eliminar-coordinador");
-  const aviso = document.getElementById("aviso-borrado");
-  const tabla = document.querySelector("table");
+const MENSAJES_PARENT = Object.freeze({
+  abrirFiltro: "ABRIR_FILTRO_COORDINADORES",
+  aplicarFiltros: "APLICAR_FILTROS_COORDINADORES",
+  limpiarFiltros: "LIMPIAR_FILTROS_COORDINADORES",
+  pedirCampanias: "PEDIR_CAMPANIAS_COORDINADORES",
+  campaniasCargadas: "COORDINADORES_CAMPANIAS_CARGADAS"
+});
 
-  tbody?.addEventListener("click", (event) => seleccionarFila(event));
-  tbody?.addEventListener("dblclick", (event) => abrirDetalleDesdeFila(event));
+/* ==============================
+   ESTADO
+   ============================== */
 
-  if (btnEliminar) {
-    btnEliminar.addEventListener("click", () => {
-      modoEliminarActivo = !modoEliminarActivo;
+const estado = {
+  coordinadoresOriginales: [],
+  coordinadoresVisibles: [],
+  campanias: [],
+  modoEliminarActivo: false,
+  idCampaniaVisualizada: null,
+  coordinadorSeleccionadoId: null
+};
 
-      if (modoEliminarActivo) {
-        aviso.style.display = "block";
-        tabla.classList.add("modo-borrado-activo");
-        btnEliminar.style.backgroundColor = "#e02424";
-        btnEliminar.style.color = "white";
-      } else {
-        desactivarModoEliminar(aviso, tabla, btnEliminar);
-      }
-    });
-  }
+const canalComunicacion = new BroadcastChannel(CANAL_BANCOSOL);
+let elementos = null;
 
-  document.getElementById("btn-abrir-registro")?.addEventListener("click", irAFormularioCreacion);
-  document.getElementById("btn-modificar-coordinador")?.addEventListener("click", irAFormularioEdicion);
-  document.querySelector(".csv")?.addEventListener("click", () => exportarACsv(coordinadoresCache));
+/* ==============================
+   INICIALIZACIÓN
+   ============================== */
 
-  document.getElementById("filtrar")?.addEventListener("click", abrirFiltroEnMenuLateral);
+document.addEventListener("DOMContentLoaded", inicializarVista);
 
-  document.getElementById("btn-seleccionar-campania")?.addEventListener("click", abrirSelectorCampanias);
-  document.getElementById("cerrar-selector")?.addEventListener("click", () => cerrarModal("modal-campanias"));
-  document.getElementById("btn-cerrar-detalle")?.addEventListener("click", () => cerrarModal("modal-detalle"));
-  document.getElementById("btn-ayuda")?.addEventListener("click", mostrarAyuda);
-
-  canalComunicacion.onmessage = (event) => {
-    if (event.data === "recargar-tabla-coordinadores" || event.data === "recargar-tabla") {
-      cargarDatosIniciales();
-      resetearBotonModificar();
-    }
-  };
+function inicializarVista() {
+  elementos = obtenerElementos();
+  registrarEventosInterfaz();
+  cargarDatosIniciales();
 }
 
-// ==============================
-// NAVEGACIÓN A FORMULARIO
-// ==============================
+/* ==============================
+   EVENTOS
+   ============================== */
+
+function registrarEventosInterfaz() {
+  elementos.botonEliminar?.addEventListener("click", alternarModoEliminar);
+  elementos.botonAbrirRegistro?.addEventListener("click", irAFormularioCreacion);
+  elementos.botonModificar?.addEventListener("click", irAFormularioEdicion);
+  elementos.botonCsv?.addEventListener("click", exportarCoordinadoresVisibles);
+  elementos.botonFiltro?.addEventListener("click", abrirFiltroEnMenuLateral);
+  elementos.botonSeleccionarCampania?.addEventListener("click", abrirSelectorCampanias);
+  elementos.botonCerrarSelector?.addEventListener("click", () => cerrarModal("modal-campanias"));
+  elementos.botonCerrarDetalle?.addEventListener("click", () => cerrarModal("modal-detalle"));
+  elementos.botonAyuda?.addEventListener("click", mostrarAyuda);
+
+  canalComunicacion.addEventListener("message", gestionarMensajeCanal);
+  window.addEventListener("message", gestionarMensajeDocumentoPadre);
+}
+
+function gestionarMensajeCanal(evento) {
+  if (
+    evento.data === MENSAJES_CANAL.recargarCoordinadores ||
+    evento.data === MENSAJES_CANAL.recargarTabla
+  ) {
+    cargarDatosIniciales();
+    resetearSeleccion();
+  }
+}
+
+function gestionarMensajeDocumentoPadre(evento) {
+  const mensaje = evento.data;
+
+  if (!mensaje || typeof mensaje !== "object") {
+    return;
+  }
+
+  if (mensaje.tipo === MENSAJES_PARENT.aplicarFiltros) {
+    aplicarFiltros(mensaje.filtros);
+    return;
+  }
+
+  if (mensaje.tipo === MENSAJES_PARENT.limpiarFiltros) {
+    mostrarTodosLosCoordinadores();
+    return;
+  }
+
+  if (mensaje.tipo === MENSAJES_PARENT.pedirCampanias) {
+    notificarCampaniasAlPadre();
+  }
+}
+
+/* ==============================
+   CARGA DE DATOS
+   ============================== */
+
+async function cargarDatosIniciales() {
+  mostrarLoader(true);
+
+  try {
+    const [coordinadoresAPI, campaniasAPI] = await Promise.all([
+      listarCoordinadores(),
+      listarCampanias()
+    ]);
+
+    estado.campanias = normalizarColeccion(campaniasAPI);
+    estado.coordinadoresOriginales = normalizarColeccion(coordinadoresAPI)
+      .map((coordinador) => mapearCoordinadorDesdeAPI(coordinador, estado.campanias));
+
+    sessionStorage.setItem("coordinadoresCache", JSON.stringify(estado.coordinadoresOriginales));
+
+    notificarCampaniasAlPadre();
+    aplicarVistaInicial();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "No se pudieron cargar los datos de coordinadores.");
+  } finally {
+    mostrarLoader(false);
+  }
+}
+
+function normalizarColeccion(datos) {
+  return Array.isArray(datos) ? datos : [];
+}
+
+function aplicarVistaInicial() {
+  cambiarTitulo("Coordinadores");
+  mostrarTodosLosCoordinadores();
+}
+
+function mostrarTodosLosCoordinadores() {
+  renderizarCoordinadores(estado.coordinadoresOriginales);
+  resetearSeleccion();
+}
+
+/* ==============================
+   RENDERIZADO
+   ============================== */
+
+function renderizarCoordinadores(coordinadores) {
+  estado.coordinadoresVisibles = coordinadores;
+
+  pintarCoordinadores({
+    cuerpoTabla: elementos.cuerpoTabla,
+    coordinadores,
+    onSeleccionarFila: seleccionarFila,
+    onDobleClickFila: abrirDetalleDesdeFila
+  });
+}
+
+/* ==============================
+   SELECCIÓN Y DETALLE
+   ============================== */
+
+function seleccionarFila(evento, fila, coordinador) {
+  if (estado.modoEliminarActivo) {
+    eliminarCoordinador(coordinador);
+    return;
+  }
+
+  marcarFilaSeleccionada(elementos.cuerpoTabla, fila);
+  estado.coordinadorSeleccionadoId = Number(coordinador.id);
+  activarBotonModificar(elementos.botonModificar);
+}
+
+function abrirDetalleDesdeFila(evento, fila, coordinador) {
+  if (estado.modoEliminarActivo) {
+    return;
+  }
+
+  pintarDetalleCoordinador(coordinador);
+  mostrarModal("modal-detalle");
+}
+
+function resetearSeleccion() {
+  estado.coordinadorSeleccionadoId = null;
+  resetearBotonModificarVista(elementos.botonModificar);
+}
+
+/* ==============================
+   NAVEGACIÓN
+   ============================== */
 
 function irAFormularioCreacion() {
   window.location.href = "formularioCoordinador.html?modo=crear";
 }
 
 function irAFormularioEdicion() {
-  if (!coordinadorSeleccionadoId) {
+  if (!estado.coordinadorSeleccionadoId) {
     alert("Debes seleccionar primero un coordinador.");
     return;
   }
 
-  window.location.href = `formularioCoordinador.html?modo=editar&id=${coordinadorSeleccionadoId}`;
+  window.location.href = `formularioCoordinador.html?modo=editar&id=${estado.coordinadorSeleccionadoId}`;
 }
 
-// ==============================
-// COMUNICACIÓN CON DOCUMENTO PADRE
-// ==============================
+/* ==============================
+   COMUNICACIÓN CON DOCUMENTO PADRE
+   ============================== */
 
 function abrirFiltroEnMenuLateral() {
-  window.parent.postMessage({
-    tipo: "ABRIR_FILTRO_COORDINADORES"
-  }, "*");
+  window.parent.postMessage(
+    {
+      tipo: MENSAJES_PARENT.abrirFiltro
+    },
+    "*"
+  );
 }
 
 function notificarCampaniasAlPadre() {
-  window.parent.postMessage({
-    tipo: "COORDINADORES_CAMPANIAS_CARGADAS",
-    campanias: campaniasCache
-  }, "*");
+  window.parent.postMessage(
+    {
+      tipo: MENSAJES_PARENT.campaniasCargadas,
+      campanias: estado.campanias
+    },
+    "*"
+  );
 }
 
-window.addEventListener("message", (evento) => {
-  const mensaje = evento.data;
+/* ==============================
+   ELIMINACIÓN
+   ============================== */
 
-  if (!mensaje || typeof mensaje !== "object") return;
+function alternarModoEliminar() {
+  estado.modoEliminarActivo = !estado.modoEliminarActivo;
 
-  if (mensaje.tipo === "APLICAR_FILTROS_COORDINADORES") {
-    aplicarFiltros(mensaje.filtros);
-  }
-
-  if (mensaje.tipo === "LIMPIAR_FILTROS_COORDINADORES") {
-    renderizarFilas(coordinadoresOriginales);
-    resetearBotonModificar();
-  }
-
-  if (mensaje.tipo === "PEDIR_CAMPANIAS_COORDINADORES") {
-    notificarCampaniasAlPadre();
-  }
-});
-
-// ==============================
-// CARGA DE DATOS
-// ==============================
-
-async function cargarDatosIniciales() {
-  toggleLoader(true);
-
-  try {
-    const [coordinadores, campanias] = await Promise.all([
-      pedirJSON(endpoints.coordinadores, "No se pudieron cargar los coordinadores"),
-      pedirJSON(endpoints.campanias, "No se pudieron cargar las campañas")
-    ]);
-
-    campaniasCache = Array.isArray(campanias) ? campanias : [];
-    notificarCampaniasAlPadre();
-
-    coordinadoresOriginales = (Array.isArray(coordinadores) ? coordinadores : []).map(mapearCoordinador);
-
-    sessionStorage.setItem("coordinadoresCache", JSON.stringify(coordinadoresOriginales));
-
-    aplicarCampaniaInicial();
-  } catch (error) {
-    console.error(error);
-    alert(error.message || "No se pudieron cargar los datos de coordinadores.");
-  } finally {
-    toggleLoader(false);
-  }
-}
-
-async function pedirJSON(url, mensajeError) {
-  const respuesta = await fetch(url);
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
-
-  if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
-  }
-
-  return cuerpo;
-}
-
-function intentarParsearJSON(texto) {
-  try {
-    return JSON.parse(texto);
-  } catch {
-    return texto;
-  }
-}
-
-// ==============================
-// MAPEO DE DATOS
-// ==============================
-
-function mapearCoordinador(coordinadorAPI) {
-  const contacto = coordinadorAPI.contacto || {};
-  const campanias = Array.isArray(coordinadorAPI.campanias) ? coordinadorAPI.campanias : [];
-  const idsCampanias = obtenerIdsCampanias(coordinadorAPI, campanias);
-
-  return {
-    id: coordinadorAPI.id,
-    nombre: coordinadorAPI.nombre || contacto.nombre || "Sin nombre",
-    contactoId: contacto.id || coordinadorAPI.contactoId || null,
-    email: contacto.email || coordinadorAPI.email || "",
-    telefono: contacto.telefono || coordinadorAPI.telefono || "",
-    area: coordinadorAPI.area || coordinadorAPI.zonaGeografica || coordinadorAPI.nombreZonaGeografica || "",
-    tiendas: coordinadorAPI.tiendas ?? coordinadorAPI.numeroTiendas ?? 0,
-    permisoModificar: coordinadorAPI.permisoModificar === true,
-    campanias,
-    idsCampanias,
-    nombresCampanias: obtenerNombresCampanias(campanias, idsCampanias),
-    raw: coordinadorAPI
-  };
-}
-
-function obtenerIdsCampanias(coordinadorAPI, campanias) {
-  if (Array.isArray(coordinadorAPI.idsCampanias)) {
-    return coordinadorAPI.idsCampanias.map(Number).filter(Number.isFinite);
-  }
-
-  if (Array.isArray(campanias)) {
-    return campanias.map((campania) => Number(campania.id)).filter(Number.isFinite);
-  }
-
-  return [];
-}
-
-function obtenerNombresCampanias(campanias, idsCampanias) {
-  if (campanias.length > 0) {
-    return campanias.map((campania) => campania.nombre || `Campaña ${campania.id}`);
-  }
-
-  return idsCampanias.map((id) => {
-    const campania = campaniasCache.find((c) => Number(c.id) === Number(id));
-    return campania ? campania.nombre : `Campaña ${id}`;
-  });
-}
-
-// ==============================
-// TABLA
-// ==============================
-
-function aplicarCampaniaInicial() {
-  const titulo = document.querySelector(".encabezado h1");
-
-  if (titulo) {
-    titulo.textContent = "Coordinadores";
-  }
-
-  renderizarFilas(coordinadoresOriginales);
-  resetearBotonModificar();
-}
-
-function renderizarFilas(datos) {
-  coordinadoresCache = datos;
-
-  const tbody = document.querySelector("#tabla-body");
-
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  if (!datos || datos.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6" class="estado-vacio">No hay coordinadores registrados.</td>
-      </tr>
-    `;
-
-    resetearBotonModificar();
+  if (estado.modoEliminarActivo) {
+    activarModoEliminar({
+      aviso: elementos.avisoBorrado,
+      tabla: elementos.tabla,
+      botonEliminar: elementos.botonEliminar
+    });
     return;
   }
 
-  datos.forEach((coordinador) => {
-    const fila = document.createElement("tr");
-    fila.dataset.id = coordinador.id;
-
-    const campaniasHtml = coordinador.nombresCampanias.length > 1
-      ? `<ul class="lista-entidades">${coordinador.nombresCampanias.map((nombre) => `<li>${escaparHTML(nombre)}</li>`).join("")}</ul>`
-      : escaparHTML(coordinador.nombresCampanias[0] || "Sin campañas");
-
-    fila.innerHTML = `
-      <td>${escaparHTML(coordinador.nombre)}</td>
-      <td>${campaniasHtml}</td>
-      <td>${Number(coordinador.tiendas) || 0} tiendas</td>
-      <td>${escaparHTML(coordinador.area || "---")}</td>
-      <td>${crearContactoHTML(coordinador)}</td>
-      <td>${coordinador.permisoModificar ? '<span class="badge badge-si">SÍ</span>' : '<span class="badge badge-no">NO</span>'}</td>
-    `;
-
-    tbody.appendChild(fila);
-  });
+  desactivarModoEliminar();
 }
 
-function crearContactoHTML(coordinador) {
-  const partes = [];
-
-  if (coordinador.email) {
-    partes.push(`<small>${escaparHTML(coordinador.email)}</small>`);
-  }
-
-  if (coordinador.telefono) {
-    partes.push(`<small>${escaparHTML(coordinador.telefono)}</small>`);
-  }
-
-  return partes.length ? partes.join("<br>") : "Sin contacto";
-}
-
-function seleccionarFila(event) {
-  const fila = event.target.closest("tr");
-
-  if (!fila || !fila.dataset.id) return;
-
-  if (modoEliminarActivo) {
-    eliminarCoordinador(fila);
+async function eliminarCoordinador(coordinador) {
+  if (!coordinador) {
     return;
   }
-
-  document.querySelectorAll("#tabla-body tr").forEach((tr) => {
-    tr.classList.remove("fila-seleccionada");
-  });
-
-  fila.classList.add("fila-seleccionada");
-  coordinadorSeleccionadoId = Number(fila.dataset.id);
-  activarBotonModificar();
-}
-
-function abrirDetalleDesdeFila(event) {
-  if (modoEliminarActivo) return;
-
-  const fila = event.target.closest("tr");
-
-  if (!fila || !fila.dataset.id) return;
-
-  const coordinador = buscarCoordinadorPorId(fila.dataset.id);
-
-  if (!coordinador) return;
-
-  pintarDetalle(coordinador);
-  document.getElementById("modal-detalle").style.display = "flex";
-}
-
-function buscarCoordinadorPorId(id) {
-  return coordinadoresOriginales.find((coordinador) => Number(coordinador.id) === Number(id));
-}
-
-// ==============================
-// DETALLE
-// ==============================
-
-function pintarDetalle(coordinador) {
-  document.getElementById("detalle-nombre").textContent = coordinador.nombre;
-  document.getElementById("detalle-id").textContent = coordinador.id;
-  document.getElementById("detalle-email").textContent = coordinador.email || "---";
-  document.getElementById("detalle-telefono").textContent = coordinador.telefono || "---";
-  document.getElementById("detalle-area").textContent = coordinador.area || "---";
-  document.getElementById("detalle-tiendas").textContent = `${Number(coordinador.tiendas) || 0} tiendas`;
-  document.getElementById("detalle-permiso").textContent = coordinador.permisoModificar ? "Sí" : "No";
-
-  const contenedor = document.getElementById("detalle-campanias");
-  contenedor.innerHTML = "";
-
-  const nombres = coordinador.nombresCampanias.length ? coordinador.nombresCampanias : ["Sin campañas"];
-
-  nombres.forEach((nombre) => {
-    const div = document.createElement("div");
-    div.className = "check-item";
-    div.textContent = nombre;
-    contenedor.appendChild(div);
-  });
-}
-
-// ==============================
-// ELIMINAR
-// ==============================
-
-async function eliminarCoordinador(fila) {
-  const coordinador = buscarCoordinadorPorId(fila.dataset.id);
-
-  if (!coordinador) return;
 
   const confirma = confirm(`⚠️ ¿ELIMINAR PERMANENTEMENTE? \nSe borrará "${coordinador.nombre}".`);
 
-  if (!confirma) return;
+  if (!confirma) {
+    return;
+  }
 
   try {
-    const respuesta = await fetch(`${endpoints.coordinadores}/${coordinador.id}`, {
-      method: "DELETE"
-    });
-
-    if (!respuesta.ok) {
-      const texto = await respuesta.text();
-      throw new Error(texto || `Error HTTP ${respuesta.status}`);
-    }
+    await eliminarCoordinadorPorId(coordinador.id);
 
     alert("Coordinador eliminado correctamente.");
     await cargarDatosIniciales();
-
-    desactivarModoEliminar(
-      document.getElementById("aviso-borrado"),
-      document.querySelector("table"),
-      document.getElementById("btn-eliminar-coordinador")
-    );
+    desactivarModoEliminar();
   } catch (error) {
     console.error(error);
     alert("No se pudo eliminar el coordinador.");
   }
 }
 
-function desactivarModoEliminar(aviso, tabla, btn) {
-  modoEliminarActivo = false;
+function desactivarModoEliminar() {
+  estado.modoEliminarActivo = false;
 
-  if (aviso) aviso.style.display = "none";
-  if (tabla) tabla.classList.remove("modo-borrado-activo");
-
-  if (btn) {
-    btn.style.backgroundColor = "";
-    btn.style.color = "";
-  }
+  desactivarModoEliminarVista({
+    aviso: elementos.avisoBorrado,
+    tabla: elementos.tabla,
+    botonEliminar: elementos.botonEliminar
+  });
 }
 
-// ==============================
-// BOTÓN MODIFICAR
-// ==============================
-
-function activarBotonModificar() {
-  const btnModificar = document.getElementById("btn-modificar-coordinador");
-
-  if (!btnModificar) return;
-
-  btnModificar.classList.replace("desactivado", "activado");
-  btnModificar.title = "Modificar coordinador seleccionado";
-}
-
-function resetearBotonModificar() {
-  coordinadorSeleccionadoId = null;
-
-  const btnModificar = document.getElementById("btn-modificar-coordinador");
-
-  if (!btnModificar) return;
-
-  btnModificar.classList.replace("activado", "desactivado");
-  btnModificar.title = "Debes primero seleccionar un coordinador";
-}
-
-// ==============================
-// FILTROS RECIBIDOS DESDE panelFiltro.html
-// ==============================
+/* ==============================
+   FILTROS
+   ============================== */
 
 function aplicarFiltros(filtros) {
-  const filtrosNormalizados = {
-    nombre: normalizarTexto(filtros?.nombre || ""),
-    campaniaId: filtros?.campaniaId || "",
-    tiendas: filtros?.tiendas || ""
-  };
+  const filtrosNormalizados = normalizarFiltros(filtros);
 
-  let filtrados = [...coordinadoresOriginales];
+  const filtrados = estado.coordinadoresOriginales.filter((coordinador) => {
+    return cumpleFiltroNombre(coordinador, filtrosNormalizados.nombre) &&
+      cumpleFiltroCampania(coordinador, filtrosNormalizados.campaniaId) &&
+      cumpleFiltroTiendas(coordinador, filtrosNormalizados.tiendas);
+  });
 
-  if (filtrosNormalizados.nombre) {
-    filtrados = filtrados.filter((coordinador) => {
-      return normalizarTexto(coordinador.nombre).includes(filtrosNormalizados.nombre);
-    });
-  }
-
-  if (filtrosNormalizados.campaniaId) {
-    const idBusqueda = Number(filtrosNormalizados.campaniaId);
-
-    filtrados = filtrados.filter((coordinador) => {
-      return coordinador.idsCampanias.includes(idBusqueda);
-    });
-  }
-
-  if (
-    filtrosNormalizados.tiendas !== "" &&
-    filtrosNormalizados.tiendas !== null &&
-    filtrosNormalizados.tiendas !== undefined
-  ) {
-    filtrados = filtrados.filter((coordinador) => {
-      return Number(coordinador.tiendas) === Number(filtrosNormalizados.tiendas);
-    });
-  }
-
-  renderizarFilas(filtrados);
-  resetearBotonModificar();
+  renderizarCoordinadores(filtrados);
+  resetearSeleccion();
 }
 
-// ==============================
-// SELECTOR DE CAMPAÑAS
-// ==============================
+function normalizarFiltros(filtros = {}) {
+  return {
+    nombre: normalizarTexto(filtros.nombre || ""),
+    campaniaId: filtros.campaniaId || "",
+    tiendas: filtros.tiendas || ""
+  };
+}
+
+function cumpleFiltroNombre(coordinador, filtroNombre) {
+  return !filtroNombre || normalizarTexto(coordinador.nombre).includes(filtroNombre);
+}
+
+function cumpleFiltroCampania(coordinador, filtroCampaniaId) {
+  if (!filtroCampaniaId) {
+    return true;
+  }
+
+  return coordinador.idsCampanias.includes(Number(filtroCampaniaId));
+}
+
+function cumpleFiltroTiendas(coordinador, filtroTiendas) {
+  if (filtroTiendas === "" || filtroTiendas === null || filtroTiendas === undefined) {
+    return true;
+  }
+
+  return Number(coordinador.tiendas) === Number(filtroTiendas);
+}
+
+/* ==============================
+   SELECTOR DE CAMPAÑAS
+   ============================== */
 
 function abrirSelectorCampanias() {
-  const grid = document.getElementById("lista-campanias");
-
-  if (!grid) return;
-
-  grid.innerHTML = "";
-
-  document.getElementById("modal-campanias").style.display = "flex";
-
-  campaniasCache.forEach((campania) => {
-    const card = document.createElement("div");
-    const esSeleccionada = Number(campania.id) === Number(idCampaniaVisualizada);
-
-    card.className = `campania-card ${esSeleccionada ? "seleccionada" : ""}`;
-
-    const inicio = campania.fechaInicio ? new Date(campania.fechaInicio).toLocaleDateString() : "---";
-    const fin = campania.fechaFin ? new Date(campania.fechaFin).toLocaleDateString() : "---";
-
-    const labelActiva = campania.activa
-      ? '<span class="badge badge-activa">ACTIVA</span>'
-      : '<span class="badge badge-inactiva">INACTIVA</span>';
-
-    const labelSeleccionada = esSeleccionada
-      ? '<span class="badge badge-viendo">VIENDO AHORA</span>'
-      : "";
-
-    card.innerHTML = `
-      <div class="card-header-flex">
-        <h3>${escaparHTML(campania.nombre || `Campaña ${campania.id}`)}</h3>
-        <div class="badges-container">${labelActiva} ${labelSeleccionada}</div>
-      </div>
-      <p><strong>Inicio:</strong> ${inicio} | <strong>Fin:</strong> ${fin}</p>
-      <p>Año fiscal: ${campania.anio || "---"}</p>
-    `;
-
-    card.addEventListener("click", () => seleccionarCampania(campania));
-    grid.appendChild(card);
+  pintarSelectorCampanias({
+    campanias: estado.campanias,
+    idCampaniaVisualizada: estado.idCampaniaVisualizada,
+    onSeleccionarCampania: seleccionarCampania
   });
 }
 
 function seleccionarCampania(campania) {
-  idCampaniaVisualizada = Number(campania.id);
+  estado.idCampaniaVisualizada = Number(campania.id);
 
-  const titulo = document.querySelector(".encabezado h1");
-
-  if (titulo) {
-    titulo.textContent = campania.nombre || `Campaña ${campania.id}`;
-  }
-
+  cambiarTitulo(campania.nombre || `Campaña ${campania.id}`);
   cerrarModal("modal-campanias");
   actualizarTablaPorCampania(campania.id);
 }
 
 function actualizarTablaPorCampania(idCampania) {
-  const filtrados = coordinadoresOriginales.filter((coordinador) => {
+  const filtrados = estado.coordinadoresOriginales.filter((coordinador) => {
     return coordinador.idsCampanias.includes(Number(idCampania));
   });
 
-  renderizarFilas(filtrados);
-  resetearBotonModificar();
+  renderizarCoordinadores(filtrados);
+  resetearSeleccion();
 }
 
-// ==============================
-// CSV
-// ==============================
+/* ==============================
+   CSV
+   ============================== */
 
-function exportarACsv(datos) {
-  if (!datos || datos.length === 0) {
+function exportarCoordinadoresVisibles() {
+  if (!estado.coordinadoresVisibles || estado.coordinadoresVisibles.length === 0) {
     alert("No hay datos cargados en la tabla para exportar.");
     return;
   }
 
-  const cabeceras = [
-    "ID",
-    "Nombre",
-    "Email",
-    "Teléfono",
-    "Área asignada",
-    "Número de tiendas",
-    "Campañas",
-    "Permiso modificar"
-  ];
-
-  const filasCsv = datos.map((coordinador) => [
-    coordinador.id,
-    limpiarCsv(coordinador.nombre),
-    limpiarCsv(coordinador.email),
-    limpiarCsv(coordinador.telefono),
-    limpiarCsv(coordinador.area),
-    coordinador.tiendas,
-    limpiarCsv(coordinador.nombresCampanias.join(" | ")),
-    coordinador.permisoModificar ? "Sí" : "No"
-  ].join(","));
-
-  const contenidoFinal = "\uFEFF" + cabeceras.join(",") + "\n" + filasCsv.join("\n");
-  const blob = new Blob([contenidoFinal], {
-    type: "text/csv;charset=utf-8;"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
   const fecha = new Date().toISOString().slice(0, 10);
 
-  link.href = url;
-  link.download = `bancosol_coordinadores_${fecha}.csv`;
-  link.style.visibility = "hidden";
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
+  exportarCSV({
+    cabeceras: obtenerCabecerasCSVCoordinadores(),
+    filas: mapearCoordinadoresParaCSV(estado.coordinadoresVisibles),
+    nombreArchivo: `bancosol_coordinadores_${fecha}`
+  });
 }
 
-function limpiarCsv(texto) {
-  return `"${String(texto ?? "").replaceAll('"', '""')}"`;
-}
-
-// ==============================
-// MODALES, LOADER Y AYUDA
-// ==============================
-
-function cerrarModal(idModal) {
-  const modal = document.getElementById(idModal);
-
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
-
-function toggleLoader(mostrar) {
-  let loader = document.getElementById("loading-overlay");
-
-  if (mostrar && !loader) {
-    loader = document.createElement("div");
-    loader.id = "loading-overlay";
-    loader.className = "loading-overlay";
-
-    loader.innerHTML = `
-      <div class="spinner"></div>
-      <div class="loading-text">Cargando datos... Por favor, espere</div>
-    `;
-
-    document.body.appendChild(loader);
-  }
-
-  if (loader) {
-    loader.style.display = mostrar ? "flex" : "none";
-  }
-}
+/* ==============================
+   AYUDA Y UTILIDADES
+   ============================== */
 
 function mostrarAyuda() {
   alert(
@@ -623,16 +425,6 @@ function mostrarAyuda() {
     "- Eliminar coordinador: activa el modo borrado y después se pulsa la fila.\n" +
     "- El botón de filtro sustituye el menú lateral por el panel de filtros."
   );
-}
-
-// ==============================
-// UTILIDADES
-// ==============================
-
-function escaparHTML(texto) {
-  const span = document.createElement("span");
-  span.textContent = texto ?? "";
-  return span.innerHTML;
 }
 
 function normalizarTexto(texto) {

@@ -1,379 +1,325 @@
-// ==============================
-// VARIABLES GLOBALES Y CACHÉ
-// ==============================
+/* ==========================================================
+   Controlador de incidencias
+   ----------------------------------------------------------
+   Este módulo coordina la carga de datos, el filtrado, la
+   selección de filas, la actualización de estado y la
+   comunicación con el menú lateral. La comunicación HTTP, el
+   mapeo de datos y el renderizado se delegan en módulos
+   especializados.
+   ========================================================== */
 
-let incidenciasCache = [];
-let incidenciasOriginales = [];
-let incidenciaSeleccionada = null;
-let filtrosActivos = {
-  reportadoPor: "",
-  estado: "",
-  cargo: "",
-  asunto: ""
-};
+import {
+  listarIncidencias,
+  actualizarIncidencia
+} from "./incidenciaApi.js";
 
-const API_BASE = "http://localhost:8080/api";
-const canalComunicacion = new BroadcastChannel("bancosol_channel");
+import {
+  mapearIncidenciaDesdeAPI,
+  mapearIncidenciaConNuevoEstado
+} from "./incidenciaMapper.js";
 
-const endpoints = {
-  incidencias: `${API_BASE}/incidencias`
-};
+import {
+  obtenerElementos,
+  pintarIncidencias,
+  marcarFilaSeleccionada,
+  limpiarSeleccionFilas,
+  actualizarEstadoBotones,
+  abrirPanelLateral,
+  mostrarMensaje
+} from "./incidenciaView.js";
 
-// ==============================
-// INICIO
-// ==============================
+/* ==============================
+   CONSTANTES DE COMUNICACIÓN
+   ============================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarIncidencias();
-  registrarEventosInterfaz();
+const CANAL_BANCOSOL = "bancosol_channel";
+
+const MENSAJES_CANAL = Object.freeze({
+  recargarIncidencias: "recargar-tabla-incidencias",
+  recargarTabla: "recargar-tabla"
 });
 
-// ==============================
-// EVENTOS
-// ==============================
+const MENSAJES_PARENT = Object.freeze({
+  abrirFiltroIncidencias: "ABRIR_FILTRO_INCIDENCIAS",
+  aplicarFiltrosIncidencias: "APLICAR_FILTROS_INCIDENCIAS",
+  limpiarFiltrosIncidencias: "LIMPIAR_FILTROS_INCIDENCIAS",
+  cerrarFiltroIncidencias: "CERRAR_FILTRO_INCIDENCIAS"
+});
 
+const ESTADO_INCIDENCIA = Object.freeze({
+  LEIDA: "LEIDA",
+  RESUELTA: "RESUELTA"
+});
+
+const STORAGE_KEYS = Object.freeze({
+  incidenciasCache: "incidenciasCache"
+});
+
+const RUTAS = Object.freeze({
+  formularioCreacion: "formIncidencia.html?modo=crear",
+  menuLateral: "../MenuLateral/menu-lateral.html"
+});
+
+const SELECTORES_PARENT = Object.freeze({
+  iframeMenuLateral: ".menu-lateral-iframe"
+});
+
+/* ==============================
+   ESTADO DEL CONTROLADOR
+   ============================== */
+
+const estadoVista = {
+  incidenciasOriginales: [],
+  incidenciasFiltradas: [],
+  incidenciaSeleccionada: null,
+  filtrosActivos: crearFiltrosVacios()
+};
+
+let elementos = null;
+
+const canalComunicacion = new BroadcastChannel(CANAL_BANCOSOL);
+
+/* ==============================
+   INICIALIZACIÓN
+   ============================== */
+
+/**
+ * Inicializa la pantalla de incidencias cuando el DOM está disponible.
+ * Se obtienen las referencias de la vista, se registran los eventos y
+ * se solicita la información inicial al backend.
+ */
+document.addEventListener("DOMContentLoaded", inicializarVistaIncidencias);
+
+function inicializarVistaIncidencias() {
+  elementos = obtenerElementos();
+
+  registrarEventosInterfaz();
+  cargarIncidencias();
+}
+
+/* ==============================
+   REGISTRO DE EVENTOS
+   ============================== */
+
+/**
+ * Registra los eventos principales de la pantalla y de los canales de
+ * comunicación entre iframes.
+ */
 function registrarEventosInterfaz() {
-  const cuerpoTabla = document.querySelector("#tabla-incidencias-body");
+  elementos.botonFiltro?.addEventListener("click", abrirFiltroEnMenuLateral);
+  elementos.botonAyuda?.addEventListener("click", mostrarAyuda);
+  elementos.botonAnadir?.addEventListener("click", irAFormularioCreacion);
+  elementos.botonConfirmarLectura?.addEventListener("click", confirmarLectura);
+  elementos.botonConfirmarResolucion?.addEventListener("click", confirmarResolucion);
 
-  cuerpoTabla?.addEventListener("click", seleccionarFilaDesdeEvento);
-  cuerpoTabla?.addEventListener("dblclick", abrirDetalleDesdeEvento);
-
-  document.getElementById("btn-filtro")?.addEventListener("click", abrirFiltroEnMenuLateral);
-  document.getElementById("btn-ayuda")?.addEventListener("click", mostrarAyuda);
-
-  document.getElementById("btn-anadir")?.addEventListener("click", irAFormularioCreacion);
-  document.getElementById("btn-confirmar-lectura")?.addEventListener("click", confirmarLectura);
-  document.getElementById("btn-confirmar-resolucion")?.addEventListener("click", confirmarResolucion);
-
-  canalComunicacion.onmessage = (event) => {
-    if (event.data === "recargar-tabla-incidencias" || event.data === "recargar-tabla") {
-      cargarIncidencias();
-      resetearSeleccion();
-    }
-  };
+  canalComunicacion.addEventListener("message", gestionarMensajeCanal);
+  window.addEventListener("message", gestionarMensajeDocumentoPadre);
 }
 
-// ==============================
-// COMUNICACIÓN CON DOCUMENTO PADRE
-// ==============================
+/* ==============================
+   COMUNICACIÓN ENTRE VISTAS
+   ============================== */
 
-function abrirFiltroEnMenuLateral() {
-  window.parent.postMessage({
-    tipo: "ABRIR_FILTRO_INCIDENCIAS"
-  }, "*");
-}
-
-function abrirDetalleEnMenuLateral(incidencia) {
-  sessionStorage.setItem("incidenciaSeleccionada", JSON.stringify(incidencia));
-
-  window.parent.postMessage({
-    tipo: "ABRIR_DETALLE_INCIDENCIA"
-  }, "*");
-}
-
-window.addEventListener("message", (evento) => {
+/**
+ * Gestiona los mensajes enviados por otras vistas mediante
+ * BroadcastChannel. Se utiliza para mantener sincronizada la tabla
+ * después de crear o actualizar incidencias.
+ *
+ * @param {MessageEvent} evento Evento recibido desde el canal.
+ */
+function gestionarMensajeCanal(evento) {
   const mensaje = evento.data;
 
-  if (!mensaje || typeof mensaje !== "object") return;
-
-  if (mensaje.tipo === "APLICAR_FILTROS_INCIDENCIAS") {
-    aplicarFiltros(mensaje.filtros);
-  }
-
-  if (mensaje.tipo === "LIMPIAR_FILTROS_INCIDENCIAS") {
-    limpiarFiltros();
-  }
-});
-
-// ==============================
-// CARGA DE DATOS
-// ==============================
-
-async function cargarIncidencias() {
-  mostrarMensaje("Cargando incidencias...");
-
-  try {
-    const incidencias = await pedirJSON(
-      endpoints.incidencias,
-      "No se pudieron cargar las incidencias"
-    );
-
-    incidenciasOriginales = (Array.isArray(incidencias) ? incidencias : []).map(mapearIncidenciaDesdeAPI);
-
-    sessionStorage.setItem("incidenciasCache", JSON.stringify(incidenciasOriginales));
-
-    aplicarFiltros(filtrosActivos, false);
-    mostrarMensaje("");
-  } catch (error) {
-    console.error(error);
-    mostrarMensaje("No se han podido cargar las incidencias.");
-  }
-}
-
-async function pedirJSON(url, mensajeError) {
-  const respuesta = await fetch(url);
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
-
-  if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
-  }
-
-  return cuerpo;
-}
-
-async function enviarJSON(url, method, datos, mensajeError) {
-  const respuesta = await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(datos)
-  });
-
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
-
-  if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
-  }
-
-  return cuerpo;
-}
-
-function intentarParsearJSON(texto) {
-  try {
-    return JSON.parse(texto);
-  } catch {
-    return texto;
-  }
-}
-
-// ==============================
-// MAPEO
-// ==============================
-
-function mapearIncidenciaDesdeAPI(incidenciaAPI) {
-  const fechaHora = incidenciaAPI.fechaHora ?? null;
-
-  return {
-    id: incidenciaAPI.id,
-    fechaHora,
-    fechaTexto: formatearFecha(fechaHora),
-    horaTexto: formatearHora(fechaHora),
-    asunto: incidenciaAPI.asunto ?? "",
-    descripcion: incidenciaAPI.descripcion ?? "",
-    estado: incidenciaAPI.estado ?? "PENDIENTE",
-    estadoTexto: formatearEstado(incidenciaAPI.estado),
-    reportadoPorTipo: incidenciaAPI.reportadoPorTipo ?? "",
-    reportadoPorNombre: incidenciaAPI.reportadoPorNombre ?? "Sin responsable",
-    responsableTiendaId: incidenciaAPI.responsableTiendaId ?? null,
-    responsableTiendaNombre: incidenciaAPI.responsableTiendaNombre ?? null,
-    responsableEntidadId: incidenciaAPI.responsableEntidadId ?? null,
-    responsableEntidadNombre: incidenciaAPI.responsableEntidadNombre ?? null,
-    cargoTexto: formatearCargo(incidenciaAPI.reportadoPorTipo)
-  };
-}
-
-function mapearIncidenciaParaActualizar(incidencia, nuevoEstado) {
-  return {
-    fechaHora: incidencia.fechaHora,
-    asunto: incidencia.asunto,
-    descripcion: incidencia.descripcion,
-    estado: nuevoEstado,
-    responsableTiendaId: incidencia.responsableTiendaId,
-    responsableEntidadId: incidencia.responsableEntidadId
-  };
-}
-
-// ==============================
-// TABLA
-// ==============================
-
-function renderizarFilas(datos) {
-  incidenciasCache = datos;
-
-  const tbody = document.querySelector("#tabla-incidencias-body");
-
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  if (!datos || datos.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="7" class="estado-vacio">No hay incidencias registradas.</td>
-      </tr>
-    `;
+  if (
+    mensaje === MENSAJES_CANAL.recargarIncidencias ||
+    mensaje === MENSAJES_CANAL.recargarTabla
+  ) {
+    cargarIncidencias();
     resetearSeleccion();
+  }
+}
+
+/**
+ * Gestiona los mensajes procedentes del documento padre o del panel de
+ * filtros. Estos mensajes permiten aplicar, limpiar o cerrar filtros.
+ *
+ * @param {MessageEvent} evento Evento recibido por window.postMessage.
+ */
+function gestionarMensajeDocumentoPadre(evento) {
+  const mensaje = evento.data;
+
+  if (!mensaje || typeof mensaje !== "object") {
     return;
   }
 
-  datos.forEach((incidencia) => {
-    const fila = document.createElement("tr");
+  if (mensaje.tipo === MENSAJES_PARENT.aplicarFiltrosIncidencias) {
+    aplicarFiltros(mensaje.filtros);
+    return;
+  }
 
-    fila.dataset.id = incidencia.id;
-    fila.tabIndex = 0;
+  if (mensaje.tipo === MENSAJES_PARENT.limpiarFiltrosIncidencias) {
+    limpiarFiltros();
+    return;
+  }
 
-    fila.innerHTML = `
-      <td>${escaparHTML(incidencia.id)}</td>
-      <td>${escaparHTML(incidencia.reportadoPorNombre)}</td>
-      <td>${escaparHTML(incidencia.cargoTexto)}</td>
-      <td>${escaparHTML(incidencia.horaTexto)}</td>
-      <td>${escaparHTML(incidencia.fechaTexto)}</td>
-      <td class="celda-asunto" title="${escaparHTML(incidencia.asunto)}">
-        ${escaparHTML(incidencia.asunto)}
-      </td>
-      <td>
-        <span class="estado ${obtenerClaseEstado(incidencia.estado)}">
-          ${escaparHTML(incidencia.estadoTexto)}
-        </span>
-      </td>
-    `;
+  if (mensaje.tipo === MENSAJES_PARENT.cerrarFiltroIncidencias) {
+    restaurarMenuLateral();
+  }
+}
 
-    tbody.appendChild(fila);
+function abrirFiltroEnMenuLateral() {
+  window.parent.postMessage(
+    {
+      tipo: MENSAJES_PARENT.abrirFiltroIncidencias
+    },
+    "*"
+  );
+}
+
+function restaurarMenuLateral() {
+  if (!window.parent || window.parent === window) {
+    return;
+  }
+
+  const iframeMenu = window.parent.document.querySelector(SELECTORES_PARENT.iframeMenuLateral);
+
+  if (!iframeMenu) {
+    return;
+  }
+
+  iframeMenu.src = RUTAS.menuLateral;
+}
+
+/* ==============================
+   CARGA DE DATOS
+   ============================== */
+
+/**
+ * Solicita las incidencias al backend, las transforma al modelo de vista
+ * y refresca la tabla respetando los filtros activos.
+ */
+async function cargarIncidencias() {
+  mostrarMensaje(elementos.mensaje, "Cargando incidencias...");
+
+  try {
+    const incidenciasAPI = await listarIncidencias();
+
+    estadoVista.incidenciasOriginales = normalizarColeccion(incidenciasAPI)
+      .map(mapearIncidenciaDesdeAPI);
+
+    guardarIncidenciasEnSesion();
+    aplicarFiltros(estadoVista.filtrosActivos, false);
+    mostrarMensaje(elementos.mensaje, "");
+  } catch (error) {
+    console.error(error);
+    mostrarMensaje(elementos.mensaje, "No se han podido cargar las incidencias.");
+  }
+}
+
+function normalizarColeccion(datos) {
+  return Array.isArray(datos) ? datos : [];
+}
+
+function guardarIncidenciasEnSesion() {
+  sessionStorage.setItem(
+    STORAGE_KEYS.incidenciasCache,
+    JSON.stringify(estadoVista.incidenciasOriginales)
+  );
+}
+
+/* ==============================
+   RENDERIZADO Y SELECCIÓN
+   ============================== */
+
+function renderizarTabla(incidencias) {
+  estadoVista.incidenciasFiltradas = incidencias;
+
+  pintarIncidencias({
+    cuerpoTabla: elementos.cuerpoTabla,
+    incidencias,
+    onSeleccionarFila: seleccionarFila,
+    onDobleClickFila: abrirPanelLateral
   });
 }
 
-function seleccionarFilaDesdeEvento(evento) {
-  const fila = evento.target.closest("tr");
-
-  if (!fila || !fila.dataset.id) return;
-
-  seleccionarFila(fila);
-}
-
-function abrirDetalleDesdeEvento(evento) {
-  const fila = evento.target.closest("tr");
-
-  if (!fila || !fila.dataset.id) return;
-
-  seleccionarFila(fila);
-
-  const incidencia = buscarIncidenciaPorId(fila.dataset.id);
-
-  if (!incidencia) return;
-
-  abrirDetalleEnMenuLateral(incidencia);
-}
-
-function seleccionarFila(fila) {
-  document.querySelectorAll("#tabla-incidencias-body tr").forEach((tr) => {
-    tr.classList.remove("seleccionada");
-    tr.classList.remove("tabla-incidencias__fila--seleccionada");
-  });
-
-  fila.classList.add("seleccionada");
-  fila.classList.add("tabla-incidencias__fila--seleccionada");
-
-  incidenciaSeleccionada = buscarIncidenciaPorId(fila.dataset.id);
-  actualizarBotonesEstado();
-}
-
-function buscarIncidenciaPorId(id) {
-  return incidenciasOriginales.find((incidencia) => Number(incidencia.id) === Number(id));
+function seleccionarFila(fila, incidencia) {
+  marcarFilaSeleccionada(elementos.cuerpoTabla, fila);
+  estadoVista.incidenciaSeleccionada = incidencia;
+  actualizarBotones();
 }
 
 function resetearSeleccion() {
-  incidenciaSeleccionada = null;
-  actualizarBotonesEstado();
+  estadoVista.incidenciaSeleccionada = null;
+  limpiarSeleccionFilas(elementos?.cuerpoTabla);
+  actualizarBotones();
 }
 
-// ==============================
-// ACCIONES DE ESTADO
-// ==============================
-
-async function confirmarLectura() {
-  await cambiarEstadoSeleccionada("LEIDA");
+function actualizarBotones() {
+  actualizarEstadoBotones({
+    botonConfirmarLectura: elementos.botonConfirmarLectura,
+    botonConfirmarResolucion: elementos.botonConfirmarResolucion,
+    incidenciaSeleccionada: estadoVista.incidenciaSeleccionada
+  });
 }
 
-async function confirmarResolucion() {
-  await cambiarEstadoSeleccionada("RESUELTA");
+/* ==============================
+   ACCIONES DE ESTADO
+   ============================== */
+
+function confirmarLectura() {
+  cambiarEstadoSeleccionada(ESTADO_INCIDENCIA.LEIDA);
 }
 
+function confirmarResolucion() {
+  cambiarEstadoSeleccionada(ESTADO_INCIDENCIA.RESUELTA);
+}
+
+/**
+ * Actualiza el estado de la incidencia seleccionada y recarga el listado
+ * para conservar la coherencia entre la interfaz y el backend.
+ *
+ * @param {string} nuevoEstado Estado que debe asignarse.
+ */
 async function cambiarEstadoSeleccionada(nuevoEstado) {
-  if (!incidenciaSeleccionada) {
+  const incidencia = estadoVista.incidenciaSeleccionada;
+
+  if (!incidencia) {
     alert("Debes seleccionar primero una incidencia.");
     return;
   }
 
   try {
-    const datosActualizados = mapearIncidenciaParaActualizar(incidenciaSeleccionada, nuevoEstado);
+    const datosActualizados = mapearIncidenciaConNuevoEstado(incidencia, nuevoEstado);
 
-    await enviarJSON(
-      `${endpoints.incidencias}/${incidenciaSeleccionada.id}`,
-      "PUT",
-      datosActualizados,
-      "No se pudo actualizar la incidencia"
-    );
-
+    await actualizarIncidencia(incidencia.id, datosActualizados);
     await cargarIncidencias();
-    canalComunicacion.postMessage("recargar-tabla-incidencias");
+
+    canalComunicacion.postMessage(MENSAJES_CANAL.recargarIncidencias);
   } catch (error) {
     console.error(error);
     alert("No se ha podido actualizar el estado de la incidencia.");
   }
 }
 
-function actualizarBotonesEstado() {
-  const btnLectura = document.getElementById("btn-confirmar-lectura");
-  const btnResolucion = document.getElementById("btn-confirmar-resolucion");
+/* ==============================
+   FILTRADO
+   ============================== */
 
-  if (!btnLectura || !btnResolucion) return;
-
-  const haySeleccion = Boolean(incidenciaSeleccionada);
-
-  btnLectura.disabled =
-    !haySeleccion ||
-    incidenciaSeleccionada?.estado === "LEIDA" ||
-    incidenciaSeleccionada?.estado === "RESUELTA";
-
-  btnResolucion.disabled =
-    !haySeleccion ||
-    incidenciaSeleccionada?.estado === "RESUELTA";
-}
-
-// ==============================
-// FILTROS
-// ==============================
-
+/**
+ * Aplica los filtros recibidos sobre el conjunto original de incidencias.
+ * Los filtros activos se conservan para permitir recargas sin perder el
+ * criterio de búsqueda actual.
+ *
+ * @param {object} filtros Filtros recibidos desde el panel lateral.
+ * @param {boolean} actualizarContador Indica si debe actualizarse el contador visual.
+ */
 function aplicarFiltros(filtros, actualizarContador = true) {
-  filtrosActivos = {
-    reportadoPor: filtros?.reportadoPor || "",
-    estado: filtros?.estado || "",
-    cargo: filtros?.cargo || "",
-    asunto: filtros?.asunto || ""
-  };
+  estadoVista.filtrosActivos = normalizarFiltros(filtros);
 
-  let filtradas = [...incidenciasOriginales];
+  const incidenciasFiltradas = estadoVista.incidenciasOriginales
+    .filter(cumpleFiltrosActivos);
 
-  if (filtrosActivos.reportadoPor) {
-    filtradas = filtradas.filter((incidencia) => {
-      return normalizarTexto(incidencia.reportadoPorNombre)
-        .includes(normalizarTexto(filtrosActivos.reportadoPor));
-    });
-  }
-
-  if (filtrosActivos.estado) {
-    filtradas = filtradas.filter((incidencia) => {
-      return incidencia.estado === filtrosActivos.estado;
-    });
-  }
-
-  if (filtrosActivos.cargo) {
-    filtradas = filtradas.filter((incidencia) => {
-      return incidencia.reportadoPorTipo === filtrosActivos.cargo;
-    });
-  }
-
-  if (filtrosActivos.asunto) {
-    filtradas = filtradas.filter((incidencia) => {
-      return normalizarTexto(incidencia.asunto)
-        .includes(normalizarTexto(filtrosActivos.asunto));
-    });
-  }
-
-  renderizarFilas(filtradas);
+  renderizarTabla(incidenciasFiltradas);
   resetearSeleccion();
 
   if (actualizarContador) {
@@ -382,47 +328,87 @@ function aplicarFiltros(filtros, actualizarContador = true) {
 }
 
 function limpiarFiltros() {
-  filtrosActivos = {
+  estadoVista.filtrosActivos = crearFiltrosVacios();
+
+  renderizarTabla(estadoVista.incidenciasOriginales);
+  resetearSeleccion();
+  actualizarContadorFiltros();
+}
+
+function crearFiltrosVacios() {
+  return {
     reportadoPor: "",
     estado: "",
     cargo: "",
     asunto: ""
   };
+}
 
-  renderizarFilas(incidenciasOriginales);
-  resetearSeleccion();
-  actualizarContadorFiltros();
+function normalizarFiltros(filtros = {}) {
+  return {
+    reportadoPor: filtros.reportadoPor || "",
+    estado: filtros.estado || "",
+    cargo: filtros.cargo || "",
+    asunto: filtros.asunto || ""
+  };
+}
+
+function cumpleFiltrosActivos(incidencia) {
+  const filtros = estadoVista.filtrosActivos;
+
+  return cumpleFiltroReportadoPor(incidencia, filtros.reportadoPor) &&
+    cumpleFiltroEstado(incidencia, filtros.estado) &&
+    cumpleFiltroCargo(incidencia, filtros.cargo) &&
+    cumpleFiltroAsunto(incidencia, filtros.asunto);
+}
+
+function cumpleFiltroReportadoPor(incidencia, filtroReportadoPor) {
+  if (!filtroReportadoPor) {
+    return true;
+  }
+
+  return normalizarTexto(incidencia.reportadoPorNombre)
+    .includes(normalizarTexto(filtroReportadoPor));
+}
+
+function cumpleFiltroEstado(incidencia, filtroEstado) {
+  return !filtroEstado || incidencia.estado === filtroEstado;
+}
+
+function cumpleFiltroCargo(incidencia, filtroCargo) {
+  return !filtroCargo || incidencia.reportadoPorTipo === filtroCargo;
+}
+
+function cumpleFiltroAsunto(incidencia, filtroAsunto) {
+  if (!filtroAsunto) {
+    return true;
+  }
+
+  return normalizarTexto(incidencia.asunto)
+    .includes(normalizarTexto(filtroAsunto));
 }
 
 function actualizarContadorFiltros() {
-  const contador = document.getElementById("contador-filtros");
+  const contador = document.querySelector("#contador-filtros");
 
-  if (!contador) return;
+  if (!contador) {
+    return;
+  }
 
-  const total = Object.values(filtrosActivos).filter((valor) => valor !== "").length;
+  const totalFiltrosActivos = Object.values(estadoVista.filtrosActivos)
+    .filter((valor) => valor !== "")
+    .length;
 
-  contador.textContent = String(total);
-  contador.hidden = total === 0;
+  contador.textContent = String(totalFiltrosActivos);
+  contador.hidden = totalFiltrosActivos === 0;
 }
 
-// ==============================
-// NAVEGACIÓN
-// ==============================
+/* ==============================
+   NAVEGACIÓN Y AYUDA
+   ============================== */
 
 function irAFormularioCreacion() {
-  window.location.href = "formIncidencia.html?modo=crear";
-}
-
-// ==============================
-// UTILIDADES VISUALES
-// ==============================
-
-function mostrarMensaje(texto) {
-  const mensaje = document.getElementById("mensaje-incidencias");
-
-  if (!mensaje) return;
-
-  mensaje.textContent = texto ?? "";
+  window.location.href = RUTAS.formularioCreacion;
 }
 
 function mostrarAyuda() {
@@ -436,54 +422,9 @@ function mostrarAyuda() {
   );
 }
 
-function formatearEstado(estado) {
-  if (estado === "PENDIENTE") return "Pendiente";
-  if (estado === "LEIDA") return "Leída";
-  if (estado === "RESUELTA") return "Resuelta";
-  return "-";
-}
-
-function obtenerClaseEstado(estado) {
-  if (estado === "PENDIENTE") return "estado--pendiente";
-  if (estado === "LEIDA") return "estado--leida";
-  if (estado === "RESUELTA") return "estado--resuelta";
-  return "estado--ninguno";
-}
-
-function formatearCargo(tipo) {
-  if (tipo === "RESPONSABLE_TIENDA") return "Responsable tienda";
-  if (tipo === "RESPONSABLE_ENTIDAD") return "Responsable entidad";
-  return "-";
-}
-
-function formatearFecha(fechaHora) {
-  if (!fechaHora) return "-";
-
-  const fecha = new Date(fechaHora);
-
-  if (Number.isNaN(fecha.getTime())) return "-";
-
-  return fecha.toLocaleDateString("es-ES");
-}
-
-function formatearHora(fechaHora) {
-  if (!fechaHora) return "-";
-
-  const fecha = new Date(fechaHora);
-
-  if (Number.isNaN(fecha.getTime())) return "-";
-
-  return fecha.toLocaleTimeString("es-ES", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-
-function escaparHTML(texto) {
-  const span = document.createElement("span");
-  span.textContent = texto ?? "";
-  return span.innerHTML;
-}
+/* ==============================
+   UTILIDADES GENERALES
+   ============================== */
 
 function normalizarTexto(texto) {
   return String(texto ?? "")

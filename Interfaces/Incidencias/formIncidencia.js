@@ -1,214 +1,281 @@
-// ==============================
-// VARIABLES GLOBALES
-// ==============================
+/* ==========================================================
+   Formulario de incidencias
+   ----------------------------------------------------------
+   Este módulo gestiona la carga de responsables, la validación
+   del formulario, el envío de incidencias al backend y la
+   comunicación con otras vistas de la aplicación BancoSol.
+   ========================================================== */
 
-const API_BASE = "http://localhost:8080/api";
-const canalComunicacion = new BroadcastChannel("bancosol_channel");
+import {
+  obtenerFechaHoraActualSinZona
+} from "../utils/fechaUtils.js";
 
-const endpoints = {
-  incidencias: `${API_BASE}/incidencias`,
-  responsablesTienda: `${API_BASE}/responsables-tiendas`,
-  responsablesEntidad: `${API_BASE}/responsables-entidades`
-};
+import {
+  crearIncidencia
+} from "./incidenciaApi.js";
 
-let responsablesTiendaCache = [];
-let responsablesEntidadCache = [];
+/* ==============================
+   CONFIGURACIÓN GENERAL
+   ============================== */
 
-// ==============================
-// INICIO
-// ==============================
+const API_BASE_URL = "http://localhost:8080/api";
+const CHANNEL_NAME = "bancosol_channel";
+const REFRESH_INCIDENCIAS_MESSAGE = "recargar-tabla-incidencias";
 
-document.addEventListener("DOMContentLoaded", () => {
-  registrarEventos();
-  cargarDatosFormulario();
+const ENDPOINTS = Object.freeze({
+  responsablesTienda: `${API_BASE_URL}/responsables-tiendas`,
+  responsablesEntidad: `${API_BASE_URL}/responsables-entidades`
 });
 
-// ==============================
-// EVENTOS
-// ==============================
+const TIPO_RESPONSABLE = Object.freeze({
+  TIENDA: "RESPONSABLE_TIENDA",
+  ENTIDAD: "RESPONSABLE_ENTIDAD"
+});
 
-function registrarEventos() {
-  document.getElementById("btn-volver")?.addEventListener("click", volverAIncidencias);
-  document.getElementById("btn-cancelar")?.addEventListener("click", volverAIncidencias);
-  document.getElementById("tipo-responsable")?.addEventListener("change", actualizarSelectResponsables);
-  document.getElementById("form-incidencia")?.addEventListener("submit", guardarIncidencia);
+const SELECTORS = Object.freeze({
+  form: "#form-incidencia",
+  btnVolver: "#btn-volver",
+  btnCancelar: "#btn-cancelar",
+  tipoResponsable: "#tipo-responsable",
+  responsable: "#responsable-id",
+  loader: "#loading-overlay"
+});
+
+const MENSAJES = Object.freeze({
+  asuntoObligatorio: "El asunto es obligatorio.",
+  responsableObligatorio: "Debes seleccionar un responsable.",
+  incidenciaCreada: "Incidencia creada correctamente.",
+  errorCargaResponsables:
+    "No se pudieron cargar los responsables.\n\n" +
+    "Comprueba que existan los endpoints:\n" +
+    "/api/responsables-tiendas\n" +
+    "/api/responsables-entidades",
+  errorGuardadoIncidencia: "No se pudo guardar la incidencia.",
+  opcionTipoPendiente: "Seleccione primero un tipo...",
+  opcionResponsablePendiente: "Seleccione un responsable..."
+});
+
+/* ==============================
+   ESTADO DEL MÓDULO
+   ============================== */
+
+const estado = {
+  responsablesTienda: [],
+  responsablesEntidad: []
+};
+
+const canalComunicacion = new BroadcastChannel(CHANNEL_NAME);
+
+/* ==============================
+   INICIALIZACIÓN
+   ============================== */
+
+document.addEventListener("DOMContentLoaded", inicializarFormulario);
+
+function inicializarFormulario() {
+  registrarEventos();
+  cargarDatosFormulario();
 }
 
-// ==============================
-// CARGA INICIAL
-// ==============================
+/* ==============================
+   REGISTRO DE EVENTOS
+   ============================== */
+
+function registrarEventos() {
+  const btnVolver = document.querySelector(SELECTORS.btnVolver);
+  const btnCancelar = document.querySelector(SELECTORS.btnCancelar);
+  const selectTipoResponsable = document.querySelector(SELECTORS.tipoResponsable);
+  const formIncidencia = document.querySelector(SELECTORS.form);
+
+  btnVolver?.addEventListener("click", volverAIncidencias);
+  btnCancelar?.addEventListener("click", volverAIncidencias);
+  selectTipoResponsable?.addEventListener("change", actualizarSelectResponsables);
+  formIncidencia?.addEventListener("submit", guardarIncidencia);
+}
+
+/* ==============================
+   CARGA DE DATOS INICIALES
+   ============================== */
 
 async function cargarDatosFormulario() {
-  toggleLoader(true);
+  mostrarLoader(true);
 
   try {
     const [responsablesTienda, responsablesEntidad] = await Promise.all([
-      pedirJSON(endpoints.responsablesTienda, "No se pudieron cargar los responsables de tienda"),
-      pedirJSON(endpoints.responsablesEntidad, "No se pudieron cargar los responsables de entidad")
+      solicitarJSON(ENDPOINTS.responsablesTienda, "No se pudieron cargar los responsables de tienda"),
+      solicitarJSON(ENDPOINTS.responsablesEntidad, "No se pudieron cargar los responsables de entidad")
     ]);
 
-    responsablesTiendaCache = Array.isArray(responsablesTienda) ? responsablesTienda : [];
-    responsablesEntidadCache = Array.isArray(responsablesEntidad) ? responsablesEntidad : [];
+    estado.responsablesTienda = normalizarColeccion(responsablesTienda);
+    estado.responsablesEntidad = normalizarColeccion(responsablesEntidad);
 
     actualizarSelectResponsables();
   } catch (error) {
-    console.error(error);
-    alert(
-      "No se pudieron cargar los responsables.\n\n" +
-      "Comprueba que existan los endpoints:\n" +
-      "/api/responsables-tiendas\n" +
-      "/api/responsables-entidades"
-    );
+    gestionarError(error, MENSAJES.errorCargaResponsables);
   } finally {
-    toggleLoader(false);
+    mostrarLoader(false);
   }
 }
 
-// ==============================
-// SELECT DE RESPONSABLES
-// ==============================
+function normalizarColeccion(datos) {
+  return Array.isArray(datos) ? datos : [];
+}
+
+/* ==============================
+   GESTIÓN DEL SELECT DE RESPONSABLES
+   ============================== */
 
 function actualizarSelectResponsables() {
-  const tipo = document.getElementById("tipo-responsable")?.value || "";
-  const selectResponsable = document.getElementById("responsable-id");
+  const tipoSeleccionado = obtenerValorCampo(SELECTORS.tipoResponsable);
+  const selectResponsable = document.querySelector(SELECTORS.responsable);
 
-  if (!selectResponsable) return;
-
-  selectResponsable.innerHTML = "";
-
-  if (!tipo) {
-    selectResponsable.disabled = true;
-    selectResponsable.add(new Option("Seleccione primero un tipo...", ""));
+  if (!selectResponsable) {
     return;
   }
 
-  selectResponsable.disabled = false;
-  selectResponsable.add(new Option("Seleccione un responsable...", ""));
+  limpiarSelect(selectResponsable);
 
-  const responsables = tipo === "RESPONSABLE_TIENDA"
-    ? responsablesTiendaCache
-    : responsablesEntidadCache;
+  if (!tipoSeleccionado) {
+    prepararSelectSinTipo(selectResponsable);
+    return;
+  }
+
+  prepararSelectConResponsables(selectResponsable, tipoSeleccionado);
+}
+
+function prepararSelectSinTipo(selectResponsable) {
+  selectResponsable.disabled = true;
+  agregarOpcion(selectResponsable, MENSAJES.opcionTipoPendiente, "");
+}
+
+function prepararSelectConResponsables(selectResponsable, tipoResponsable) {
+  const responsables = obtenerResponsablesPorTipo(tipoResponsable);
+
+  selectResponsable.disabled = false;
+  agregarOpcion(selectResponsable, MENSAJES.opcionResponsablePendiente, "");
 
   responsables.forEach((responsable) => {
-    const option = new Option(
-      obtenerNombreResponsable(responsable, tipo),
+    agregarOpcion(
+      selectResponsable,
+      obtenerNombreResponsable(responsable, tipoResponsable),
       responsable.id
     );
-
-    selectResponsable.add(option);
   });
 }
 
-function obtenerNombreResponsable(responsable, tipo) {
-  if (!responsable) return "Responsable sin datos";
-
-  if (responsable.nombre) {
-    return responsable.nombre;
-  }
-
-  if (responsable.contactoNombre) {
-    return responsable.contactoNombre;
-  }
-
-  if (responsable.entidadNombre) {
-    return responsable.entidadNombre;
-  }
-
-  if (tipo === "RESPONSABLE_TIENDA") {
-    return `Responsable tienda #${responsable.id}`;
-  }
-
-  return `Responsable entidad #${responsable.id}`;
+function limpiarSelect(select) {
+  select.replaceChildren();
 }
 
-// ==============================
-// GUARDADO
-// ==============================
+function agregarOpcion(select, texto, valor) {
+  select.add(new Option(texto, valor));
+}
+
+function obtenerResponsablesPorTipo(tipoResponsable) {
+  return tipoResponsable === TIPO_RESPONSABLE.TIENDA
+    ? estado.responsablesTienda
+    : estado.responsablesEntidad;
+}
+
+function obtenerNombreResponsable(responsable, tipoResponsable) {
+  if (!responsable) {
+    return "Responsable sin datos";
+  }
+
+  const nombre = responsable.nombre ||
+    responsable.contactoNombre ||
+    responsable.entidadNombre;
+
+  if (nombre) {
+    return nombre;
+  }
+
+  return tipoResponsable === TIPO_RESPONSABLE.TIENDA
+    ? `Responsable tienda #${responsable.id}`
+    : `Responsable entidad #${responsable.id}`;
+}
+
+/* ==============================
+   ENVÍO DEL FORMULARIO
+   ============================== */
 
 async function guardarIncidencia(evento) {
   evento.preventDefault();
 
-  const form = evento.target;
-  const datos = leerFormulario(form);
+  const datosIncidencia = construirIncidenciaDesdeFormulario(evento.target);
+  const errorValidacion = validarIncidencia(datosIncidencia);
 
-  if (!datos.asunto) {
-    alert("El asunto es obligatorio.");
+  if (errorValidacion) {
+    alert(errorValidacion);
     return;
   }
 
-  if (!datos.responsableTiendaId && !datos.responsableEntidadId) {
-    alert("Debes seleccionar un responsable.");
-    return;
-  }
+  mostrarLoader(true);
 
   try {
-    toggleLoader(true);
+    await crearIncidencia(datosIncidencia);
 
-    await enviarJSON(
-      endpoints.incidencias,
-      "POST",
-      datos,
-      "No se pudo crear la incidencia"
-    );
-
-    alert("Incidencia creada correctamente.");
-
-    canalComunicacion.postMessage("recargar-tabla-incidencias");
+    alert(MENSAJES.incidenciaCreada);
+    notificarActualizacionIncidencias();
     volverAIncidencias();
   } catch (error) {
-    console.error(error);
-    alert(error.message || "No se pudo guardar la incidencia.");
+    gestionarError(error, MENSAJES.errorGuardadoIncidencia);
   } finally {
-    toggleLoader(false);
+    mostrarLoader(false);
   }
 }
 
-function leerFormulario(form) {
+function construirIncidenciaDesdeFormulario(form) {
   const tipoResponsable = form.elements.tipoResponsable.value;
-  const responsableId = form.elements.responsableId.value
-    ? Number(form.elements.responsableId.value)
-    : null;
+  const responsableId = convertirANumeroONulo(form.elements.responsableId.value);
 
   return {
-    fechaHora: new Date().toISOString().slice(0, 19),
+    fechaHora: obtenerFechaHoraActualSinZona(),
     asunto: form.elements.asunto.value.trim(),
     descripcion: form.elements.descripcion.value.trim() || null,
     estado: form.elements.estado.value || "PENDIENTE",
-    responsableTiendaId: tipoResponsable === "RESPONSABLE_TIENDA" ? responsableId : null,
-    responsableEntidadId: tipoResponsable === "RESPONSABLE_ENTIDAD" ? responsableId : null
+    responsableTiendaId: tipoResponsable === TIPO_RESPONSABLE.TIENDA ? responsableId : null,
+    responsableEntidadId: tipoResponsable === TIPO_RESPONSABLE.ENTIDAD ? responsableId : null
   };
 }
 
-// ==============================
-// FETCH
-// ==============================
-
-async function pedirJSON(url, mensajeError) {
-  const respuesta = await fetch(url);
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
-
-  if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
+function validarIncidencia(incidencia) {
+  if (!incidencia.asunto) {
+    return MENSAJES.asuntoObligatorio;
   }
 
-  return cuerpo;
+  if (!incidencia.responsableTiendaId && !incidencia.responsableEntidadId) {
+    return MENSAJES.responsableObligatorio;
+  }
+
+  return null;
 }
 
-async function enviarJSON(url, method, datos, mensajeError) {
-  const respuesta = await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(datos)
-  });
+function convertirANumeroONulo(valor) {
+  return valor ? Number(valor) : null;
+}
 
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
+function notificarActualizacionIncidencias() {
+  canalComunicacion.postMessage(REFRESH_INCIDENCIAS_MESSAGE);
+}
+
+/* ==============================
+   COMUNICACIÓN HTTP
+   ============================== */
+
+function solicitarJSON(url, mensajeError) {
+  return procesarPeticionJSON(url, {}, mensajeError);
+}
+
+async function procesarPeticionJSON(url, opciones, mensajeError) {
+  const respuesta = await fetch(url, opciones);
+  const textoRespuesta = await respuesta.text();
+  const cuerpo = textoRespuesta ? intentarParsearJSON(textoRespuesta) : null;
 
   if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
+    throw new Error(
+      `${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${textoRespuesta}`
+    );
   }
 
   return cuerpo;
@@ -222,35 +289,51 @@ function intentarParsearJSON(texto) {
   }
 }
 
-// ==============================
-// NAVEGACIÓN
-// ==============================
+/* ==============================
+   NAVEGACIÓN
+   ============================== */
 
 function volverAIncidencias() {
   window.location.href = "incidencias.html";
 }
 
-// ==============================
-// LOADER
-// ==============================
+/* ==============================
+   INDICADOR DE CARGA
+   ============================== */
 
-function toggleLoader(mostrar) {
-  let loader = document.getElementById("loading-overlay");
+function mostrarLoader(mostrar) {
+  const loader = obtenerOCrearLoader();
+  loader.style.display = mostrar ? "flex" : "none";
+}
 
-  if (mostrar && !loader) {
-    loader = document.createElement("div");
-    loader.id = "loading-overlay";
-    loader.className = "loading-overlay";
+function obtenerOCrearLoader() {
+  const loaderExistente = document.querySelector(SELECTORS.loader);
 
-    loader.innerHTML = `
-      <div class="spinner"></div>
-      <div class="loading-text">Cargando datos... Por favor, espere</div>
-    `;
-
-    document.body.appendChild(loader);
+  if (loaderExistente) {
+    return loaderExistente;
   }
 
-  if (loader) {
-    loader.style.display = mostrar ? "flex" : "none";
-  }
+  const loader = document.createElement("div");
+  loader.id = SELECTORS.loader.replace("#", "");
+  loader.className = "loading-overlay";
+  loader.innerHTML = `
+    <div class="spinner"></div>
+    <div class="loading-text">Cargando datos... Por favor, espere</div>
+  `;
+
+  document.body.appendChild(loader);
+  return loader;
+}
+
+/* ==============================
+   UTILIDADES GENERALES
+   ============================== */
+
+function obtenerValorCampo(selector) {
+  return document.querySelector(selector)?.value || "";
+}
+
+function gestionarError(error, mensajeUsuario) {
+  console.error(error);
+  alert(error?.message || mensajeUsuario);
 }

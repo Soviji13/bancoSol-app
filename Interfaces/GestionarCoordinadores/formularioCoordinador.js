@@ -1,31 +1,89 @@
-const API_BASE = "http://localhost:8080/api";
-const canalComunicacion = new BroadcastChannel("bancosol_channel");
+/* ==========================================================
+   Formulario de coordinador
+   ----------------------------------------------------------
+   Este módulo gestiona el alta y modificación de coordinadores,
+   incluyendo la carga de campañas, zonas geográficas y el envío
+   de datos al backend.
+   ========================================================== */
 
-const endpoints = {
-  coordinadores: `${API_BASE}/coordinadores`,
-  coordinadorCompleto: `${API_BASE}/coordinadores/completo`,
-  contactos: `${API_BASE}/contactos`,
-  campanias: `${API_BASE}/campanias`,
-  zonas: `${API_BASE}/zonas-geograficas`
-};
+import {
+  listarCampanias,
+  listarZonas,
+  obtenerCoordinadorPorId,
+  crearCoordinadorCompleto,
+  actualizarCoordinador,
+  actualizarContacto
+} from "./coordinadorApi.js";
 
-let campaniasCache = [];
-let zonasCache = [];
-let coordinadorActual = null;
+import {
+  mapearCoordinadorDesdeAPI,
+  mapearCoordinadorParaCrear,
+  mapearCoordinadorParaActualizar,
+  mapearContactoParaActualizar
+} from "./coordinadorMapper.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  registrarEventos();
-  inicializarFormulario();
+/*
+ * Convención de rutas:
+ * - Utilidades globales: ../utils/
+ * - Assets globales: ../assets/
+ */
+
+/* ==============================
+   CONFIGURACIÓN
+   ============================== */
+
+const CANAL_BANCOSOL = "bancosol_channel";
+const MENSAJE_RECARGAR_COORDINADORES = "recargar-tabla-coordinadores";
+
+const SELECTORES = Object.freeze({
+  formulario: "#form-registro-coordinador",
+  btnVolver: "#btn-volver",
+  btnCancelar: "#btn-cancelar",
+  tituloFormulario: "#titulo-formulario",
+  btnGuardar: "#btn-guardar-coordinador",
+  selectZonas: "#select-zonas",
+  checkCampanias: "#check-campanias"
 });
 
-function registrarEventos() {
-  document.getElementById("btn-volver")?.addEventListener("click", volverACoordinadores);
-  document.getElementById("btn-cancelar")?.addEventListener("click", volverACoordinadores);
-  document.getElementById("form-registro-coordinador")?.addEventListener("submit", guardarCoordinador);
+/* ==============================
+   ESTADO
+   ============================== */
+
+const estado = {
+  campanias: [],
+  zonas: [],
+  coordinadorActual: null
+};
+
+const canalComunicacion = new BroadcastChannel(CANAL_BANCOSOL);
+
+/* ==============================
+   INICIALIZACIÓN
+   ============================== */
+
+document.addEventListener("DOMContentLoaded", inicializar);
+
+function inicializar() {
+  registrarEventos();
+  inicializarFormulario();
 }
 
+/* ==============================
+   EVENTOS
+   ============================== */
+
+function registrarEventos() {
+  document.querySelector(SELECTORES.btnVolver)?.addEventListener("click", volverACoordinadores);
+  document.querySelector(SELECTORES.btnCancelar)?.addEventListener("click", volverACoordinadores);
+  document.querySelector(SELECTORES.formulario)?.addEventListener("submit", guardarCoordinador);
+}
+
+/* ==============================
+   CARGA INICIAL
+   ============================== */
+
 async function inicializarFormulario() {
-  toggleLoader(true);
+  mostrarLoader(true);
 
   try {
     const parametros = new URLSearchParams(window.location.search);
@@ -33,120 +91,59 @@ async function inicializarFormulario() {
     const id = parametros.get("id");
 
     const [campanias, zonas] = await Promise.all([
-      pedirJSON(endpoints.campanias, "No se pudieron cargar las campañas"),
-      pedirJSON(endpoints.zonas, "No se pudieron cargar las zonas geográficas")
+      listarCampanias(),
+      listarZonas()
     ]);
 
-    campaniasCache = Array.isArray(campanias) ? campanias : [];
-    zonasCache = Array.isArray(zonas) ? zonas : [];
+    estado.campanias = normalizarColeccion(campanias);
+    estado.zonas = normalizarColeccion(zonas);
 
     pintarOpcionesFormulario();
 
     if (modo === "editar") {
-      if (!id) {
-        alert("No se ha indicado el coordinador que se quiere modificar.");
-        volverACoordinadores();
-        return;
-      }
-
-      await cargarCoordinadorParaEditar(id);
-    } else {
-      prepararModoCreacion();
+      await prepararModoEdicion(id);
+      return;
     }
+
+    prepararModoCreacion();
   } catch (error) {
     console.error(error);
     alert(error.message || "No se pudo preparar el formulario.");
   } finally {
-    toggleLoader(false);
+    mostrarLoader(false);
   }
+}
+
+async function prepararModoEdicion(id) {
+  if (!id) {
+    alert("No se ha indicado el coordinador que se quiere modificar.");
+    volverACoordinadores();
+    return;
+  }
+
+  const coordinadorAPI = await obtenerCoordinadorPorId(id);
+
+  estado.coordinadorActual = mapearCoordinadorDesdeAPI(coordinadorAPI, estado.campanias);
+  rellenarFormularioCoordinador(estado.coordinadorActual);
+
+  escribirTexto(SELECTORES.tituloFormulario, "Modificar Coordinador");
+  escribirTexto(SELECTORES.btnGuardar, "Guardar Cambios");
 }
 
 function prepararModoCreacion() {
-  document.getElementById("titulo-formulario").textContent = "Registrar Nuevo Coordinador";
-  document.getElementById("btn-guardar-coordinador").textContent = "Guardar Coordinador";
+  estado.coordinadorActual = null;
+
+  escribirTexto(SELECTORES.tituloFormulario, "Registrar Nuevo Coordinador");
+  escribirTexto(SELECTORES.btnGuardar, "Guardar Coordinador");
 }
 
-async function cargarCoordinadorParaEditar(id) {
-  const coordinadorAPI = await pedirJSON(
-    `${endpoints.coordinadores}/${id}`,
-    "No se pudo cargar el coordinador seleccionado"
-  );
-
-  coordinadorActual = mapearCoordinador(coordinadorAPI);
-  rellenarFormularioCoordinador(coordinadorActual);
-
-  document.getElementById("titulo-formulario").textContent = "Modificar Coordinador";
-  document.getElementById("btn-guardar-coordinador").textContent = "Guardar Cambios";
+function normalizarColeccion(datos) {
+  return Array.isArray(datos) ? datos : [];
 }
 
-async function pedirJSON(url, mensajeError) {
-  const respuesta = await fetch(url);
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
-
-  if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
-  }
-
-  return cuerpo;
-}
-
-async function enviarJSON(url, method, datos, mensajeError) {
-  const respuesta = await fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
-  });
-
-  const texto = await respuesta.text();
-  const cuerpo = texto ? intentarParsearJSON(texto) : null;
-
-  if (!respuesta.ok) {
-    throw new Error(`${mensajeError}. Código HTTP: ${respuesta.status}. Respuesta: ${texto}`);
-  }
-
-  return cuerpo;
-}
-
-function intentarParsearJSON(texto) {
-  try {
-    return JSON.parse(texto);
-  } catch {
-    return texto;
-  }
-}
-
-function mapearCoordinador(coordinadorAPI) {
-  const contacto = coordinadorAPI.contacto || {};
-  const campanias = Array.isArray(coordinadorAPI.campanias) ? coordinadorAPI.campanias : [];
-  const idsCampanias = obtenerIdsCampanias(coordinadorAPI, campanias);
-
-  return {
-    id: coordinadorAPI.id,
-    nombre: coordinadorAPI.nombre || contacto.nombre || "Sin nombre",
-    contactoId: contacto.id || coordinadorAPI.contactoId || null,
-    email: contacto.email || coordinadorAPI.email || "",
-    telefono: contacto.telefono || coordinadorAPI.telefono || "",
-    area: coordinadorAPI.area || coordinadorAPI.zonaGeografica || coordinadorAPI.nombreZonaGeografica || "",
-    tiendas: coordinadorAPI.tiendas ?? coordinadorAPI.numeroTiendas ?? 0,
-    permisoModificar: coordinadorAPI.permisoModificar === true,
-    campanias,
-    idsCampanias,
-    raw: coordinadorAPI
-  };
-}
-
-function obtenerIdsCampanias(coordinadorAPI, campanias) {
-  if (Array.isArray(coordinadorAPI.idsCampanias)) {
-    return coordinadorAPI.idsCampanias.map(Number).filter(Number.isFinite);
-  }
-
-  if (Array.isArray(campanias)) {
-    return campanias.map((campania) => Number(campania.id)).filter(Number.isFinite);
-  }
-
-  return [];
-}
+/* ==============================
+   OPCIONES DEL FORMULARIO
+   ============================== */
 
 function pintarOpcionesFormulario() {
   pintarSelectZonas();
@@ -154,193 +151,224 @@ function pintarOpcionesFormulario() {
 }
 
 function pintarSelectZonas() {
-  const select = document.getElementById("select-zonas");
+  const select = document.querySelector(SELECTORES.selectZonas);
 
-  if (!select) return;
+  if (!select) {
+    return;
+  }
 
-  select.innerHTML = '<option value="">Seleccione un área...</option>';
+  select.replaceChildren();
+  select.add(new Option("Seleccione un área...", ""));
 
-  zonasCache.forEach((zona) => {
+  estado.zonas.forEach((zona) => {
     const nombre = zona.nombre || zona.area || zona.nombreZonaGeografica || "";
 
-    if (!nombre) return;
-
-    const option = new Option(nombre, nombre);
-    select.add(option);
+    if (nombre) {
+      select.add(new Option(nombre, nombre));
+    }
   });
 }
 
 function pintarChecksCampanias() {
-  const contenedor = document.getElementById("check-campanias");
+  const contenedor = document.querySelector(SELECTORES.checkCampanias);
 
-  if (!contenedor) return;
+  if (!contenedor) {
+    return;
+  }
 
-  contenedor.innerHTML = "";
+  contenedor.replaceChildren();
 
-  campaniasCache.forEach((campania) => {
-    const label = document.createElement("label");
-    label.className = "check-item";
-
-    label.innerHTML = `
-      <input type="checkbox" value="${Number(campania.id)}" ${campania.activa ? "checked" : ""} />
-      <span>${escaparHTML(campania.nombre || `Campaña ${campania.id}`)}</span>
-    `;
-
-    contenedor.appendChild(label);
+  estado.campanias.forEach((campania) => {
+    contenedor.appendChild(crearCheckCampania(campania));
   });
 }
 
-function rellenarFormularioCoordinador(coordinador) {
-  const form = document.getElementById("form-registro-coordinador");
+function crearCheckCampania(campania) {
+  const label = document.createElement("label");
+  const input = document.createElement("input");
+  const span = document.createElement("span");
 
-  if (!form) return;
+  label.className = "check-item";
+
+  input.type = "checkbox";
+  input.value = Number(campania.id);
+  input.checked = Boolean(campania.activa);
+
+  span.textContent = campania.nombre || `Campaña ${campania.id}`;
+
+  label.appendChild(input);
+  label.appendChild(span);
+
+  return label;
+}
+
+/* ==============================
+   RELLENO Y LECTURA
+   ============================== */
+
+function rellenarFormularioCoordinador(coordinador) {
+  const form = document.querySelector(SELECTORES.formulario);
+
+  if (!form) {
+    return;
+  }
 
   form.elements.id.value = coordinador.id || "";
   form.elements.contactoId.value = coordinador.contactoId || "";
+  form.elements.usuarioId.value = coordinador.usuarioId || "";
   form.elements.nombre.value = coordinador.nombre || "";
   form.elements.email.value = coordinador.email || "";
   form.elements.telefono.value = coordinador.telefono || "";
   form.elements.area.value = coordinador.area || "";
-  form.elements.tiendas.value = Number(coordinador.tiendas) || 0;
   form.elements.permisoModificar.checked = coordinador.permisoModificar;
 
-  document.querySelectorAll('#check-campanias input[type="checkbox"]').forEach((check) => {
+  document.querySelectorAll(`${SELECTORES.checkCampanias} input[type="checkbox"]`).forEach((check) => {
     check.checked = coordinador.idsCampanias.includes(Number(check.value));
   });
 }
 
-async function guardarCoordinador(event) {
-  event.preventDefault();
-
-  const datos = leerFormularioCoordinador(event.target);
-
-  if (!datos.nombre || !datos.email || !datos.area) {
-    alert("Completa nombre, correo y área asignada.");
-    return;
-  }
-
-  if (datos.idsCampanias.length === 0) {
-    alert("Selecciona al menos una campaña.");
-    return;
-  }
-
-  try {
-    toggleLoader(true);
-
-    if (datos.id) {
-      await actualizarCoordinador(datos);
-      alert("Coordinador actualizado correctamente.");
-    } else {
-      await crearCoordinador(datos);
-      alert("Coordinador creado correctamente.");
-    }
-
-    canalComunicacion.postMessage("recargar-tabla-coordinadores");
-    volverACoordinadores();
-  } catch (error) {
-    console.error(error);
-    alert(error.message || "No se pudo guardar el coordinador.");
-  } finally {
-    toggleLoader(false);
-  }
-}
-
 function leerFormularioCoordinador(form) {
+  const esEdicion = Boolean(form.elements.id.value);
+
   return {
     id: form.elements.id.value ? Number(form.elements.id.value) : null,
     contactoId: form.elements.contactoId.value ? Number(form.elements.contactoId.value) : null,
+    usuarioId: form.elements.usuarioId.value ? Number(form.elements.usuarioId.value) : null,
     nombre: form.elements.nombre.value.trim(),
     email: form.elements.email.value.trim() || null,
     telefono: form.elements.telefono.value.trim() || null,
     area: form.elements.area.value.trim(),
-    tiendas: Number(form.elements.tiendas.value) || 0,
+
+    /*
+     * El número de tiendas deja de ser un campo editable en el formulario.
+     * En creación se inicializa siempre a 0.
+     * En edición se conserva el valor actual para no sobrescribirlo.
+     */
+    tiendas: esEdicion ? obtenerTiendasActuales() : 0,
+
     permisoModificar: form.elements.permisoModificar.checked,
-    idsCampanias: obtenerChecksMarcados("check-campanias")
+    idsCampanias: obtenerChecksMarcados(SELECTORES.checkCampanias)
   };
 }
 
-function crearCoordinador(datos) {
-  return enviarJSON(
-    endpoints.coordinadorCompleto,
-    "POST",
-    {
-      nombre: datos.nombre,
-      email: datos.email,
-      telefono: datos.telefono,
-      area: datos.area,
-      tiendas: datos.tiendas,
-      permisoModificar: datos.permisoModificar,
-      idsCampanias: datos.idsCampanias
-    },
-    "Error al crear el coordinador"
-  );
+function obtenerTiendasActuales() {
+  return Number(estado.coordinadorActual?.tiendas) || 0;
 }
 
-async function actualizarCoordinador(datos) {
-  await enviarJSON(
-    `${endpoints.coordinadores}/${datos.id}`,
-    "PUT",
-    {
-      area: datos.area,
-      tiendas: datos.tiendas,
-      permisoModificar: datos.permisoModificar,
-      contactoId: datos.contactoId,
-      idsCampanias: datos.idsCampanias
-    },
-    "Error al actualizar el coordinador"
-  );
+function obtenerChecksMarcados(selectorContenedor) {
+  const contenedor = document.querySelector(selectorContenedor);
 
-  if (datos.contactoId) {
-    await enviarJSON(
-      `${endpoints.contactos}/${datos.contactoId}`,
-      "PUT",
-      {
-        nombre: datos.nombre,
-        email: datos.email,
-        telefono: datos.telefono
-      },
-      "Error al actualizar el contacto del coordinador"
-    );
+  if (!contenedor) {
+    return [];
   }
-}
-
-function obtenerChecksMarcados(idContenedor) {
-  const contenedor = document.getElementById(idContenedor);
-
-  if (!contenedor) return [];
 
   return Array.from(contenedor.querySelectorAll('input[type="checkbox"]:checked'))
     .map((check) => Number(check.value))
     .filter(Number.isFinite);
 }
 
+/* ==============================
+   GUARDADO
+   ============================== */
+
+async function guardarCoordinador(evento) {
+  evento.preventDefault();
+
+  const datos = leerFormularioCoordinador(evento.target);
+  const errorValidacion = validarCoordinador(datos);
+
+  if (errorValidacion) {
+    alert(errorValidacion);
+    return;
+  }
+
+  mostrarLoader(true);
+
+  try {
+    if (datos.id) {
+      await guardarActualizacionCoordinador(datos);
+      alert("Coordinador actualizado correctamente.");
+    } else {
+      await crearCoordinadorCompleto(mapearCoordinadorParaCrear(datos));
+      alert("Coordinador creado correctamente.");
+    }
+
+    canalComunicacion.postMessage(MENSAJE_RECARGAR_COORDINADORES);
+    volverACoordinadores();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "No se pudo guardar el coordinador.");
+  } finally {
+    mostrarLoader(false);
+  }
+}
+
+function validarCoordinador(datos) {
+  if (!datos.nombre || !datos.email || !datos.area) {
+    return "Completa nombre, correo y área asignada.";
+  }
+
+  if (datos.id && !datos.usuarioId) {
+    return "No se ha podido conservar el usuario asociado al coordinador.";
+  }
+
+  if (datos.idsCampanias.length === 0) {
+    return "Selecciona al menos una campaña.";
+  }
+
+  return null;
+}
+
+async function guardarActualizacionCoordinador(datos) {
+  await actualizarCoordinador(
+    datos.id,
+    mapearCoordinadorParaActualizar(datos)
+  );
+
+  if (datos.contactoId) {
+    await actualizarContacto(
+      datos.contactoId,
+      mapearContactoParaActualizar(datos)
+    );
+  }
+}
+
+/* ==============================
+   NAVEGACIÓN Y UTILIDADES VISUALES
+   ============================== */
+
 function volverACoordinadores() {
   window.location.href = "coordinadores.html";
 }
 
-function toggleLoader(mostrar) {
-  let loader = document.getElementById("loading-overlay");
-
-  if (mostrar && !loader) {
-    loader = document.createElement("div");
-    loader.id = "loading-overlay";
-    loader.className = "loading-overlay";
-
-    loader.innerHTML = `
-      <div class="spinner"></div>
-      <div class="loading-text">Cargando datos... Por favor, espere</div>
-    `;
-
-    document.body.appendChild(loader);
-  }
-
-  if (loader) {
-    loader.style.display = mostrar ? "flex" : "none";
-  }
+function mostrarLoader(mostrar) {
+  const loader = obtenerOCrearLoader();
+  loader.style.display = mostrar ? "flex" : "none";
 }
 
-function escaparHTML(texto) {
-  const span = document.createElement("span");
-  span.textContent = texto ?? "";
-  return span.innerHTML;
+function obtenerOCrearLoader() {
+  let loader = document.getElementById("loading-overlay");
+
+  if (loader) {
+    return loader;
+  }
+
+  loader = document.createElement("div");
+  loader.id = "loading-overlay";
+  loader.className = "loading-overlay";
+  loader.innerHTML = `
+    <div class="spinner"></div>
+    <div class="loading-text">Cargando datos... Por favor, espere</div>
+  `;
+
+  document.body.appendChild(loader);
+  return loader;
+}
+
+function escribirTexto(selector, texto) {
+  const elemento = document.querySelector(selector);
+
+  if (elemento) {
+    elemento.textContent = texto ?? "";
+  }
 }
