@@ -6,10 +6,14 @@ import com.bancosol.dao.CoordinadorRepository;
 import com.bancosol.dao.UsuarioRepository;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.ContactoDTO;
+import com.bancosol.dto.CoordinadorCompletoDTO;
 import com.bancosol.dto.CoordinadorDTO;
 import com.bancosol.dto.CoordinadorFormDTO;
-import com.bancosol.entities.*;
-import com.bancosol.dto.CoordinadorCompletoDTO;
+import com.bancosol.entities.Campania;
+import com.bancosol.entities.Contacto;
+import com.bancosol.entities.Coordinador;
+import com.bancosol.entities.Tienda;
+import com.bancosol.entities.Usuario;
 import com.bancosol.entities.enums.TipoRol;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -76,45 +80,143 @@ public class CoordinadorService {
 
     @Transactional
     public void eliminar(Long id) {
-        if (!repo.existsById(id)) {
-            throw new RuntimeException("No existe el coordinador con id: " + id);
+        Coordinador coordinador = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("No existe el coordinador con id: " + id));
+
+        Usuario usuario = coordinador.getUsuario();
+        Contacto contacto = coordinador.getContacto();
+        if (coordinador.getCampanias() != null) {
+            coordinador.getCampanias().clear();
         }
 
-        repo.deleteById(id);
+        repo.saveAndFlush(coordinador);
+        repo.delete(coordinador);
+        repo.flush();
+
+        eliminarUsuarioSiQuedaHuerfano(usuario, id);
+    }
+    private void eliminarUsuarioSiQuedaHuerfano(Usuario usuario, Long coordinadorEliminadoId) {
+        if (usuario == null || usuario.getId() == null) {
+            return;
+        }
+
+        boolean usadoPorOtroCoordinador = repo.existsByUsuario_Id(usuario.getId());
+
+        if (!usadoPorOtroCoordinador) {
+            usuarioRepository.delete(usuario);
+        }
+    }
+
+    @Transactional
+    public CoordinadorDTO crearCompleto(CoordinadorCompletoDTO dto) {
+        validarCoordinadorCompleto(dto);
+
+        Contacto contacto = obtenerOCrearContacto(dto);
+
+        Usuario usuario = obtenerOCrearUsuario(contacto.getEmail());
+
+        Coordinador coordinador = new Coordinador();
+
+        coordinador.setArea(normalizarTexto(dto.getArea()));
+        coordinador.setTiendas(dto.getTiendas() != null ? dto.getTiendas() : 0);
+        coordinador.setPermisoModificar(dto.getPermisoModificar() != null ? dto.getPermisoModificar() : true);
+        coordinador.setContacto(contacto);
+        coordinador.setUsuario(usuario);
+
+        asignarCampanias(coordinador, dto.getIdsCampanias());
+
+        Coordinador guardado = repo.save(coordinador);
+
+        return toDTO(guardado);
     }
 
     private void aplicarDatosFormulario(Coordinador coordinador, CoordinadorFormDTO dto) {
-        coordinador.setArea(dto.getArea());
-        coordinador.setTiendas(dto.getTiendas());
-        coordinador.setPermisoModificar(dto.getPermisoModificar());
+        validarFormulario(dto);
 
-        asignarUsuario(coordinador, dto.getUsuarioId());
-        asignarContacto(coordinador, dto.getContactoId());
+        Contacto contacto = obtenerOActualizarContacto(dto);
+        Usuario usuario = obtenerOActualizarUsuario(dto, contacto.getEmail());
+
+        coordinador.setArea(normalizarTexto(dto.getArea()));
+        coordinador.setTiendas(dto.getTiendas() != null ? dto.getTiendas() : 0);
+        coordinador.setPermisoModificar(dto.getPermisoModificar() != null ? dto.getPermisoModificar() : false);
+        coordinador.setContacto(contacto);
+        coordinador.setUsuario(usuario);
+
         asignarCampanias(coordinador, dto.getIdsCampanias());
     }
 
-    private void asignarUsuario(Coordinador coordinador, Long usuarioId) {
-        if (usuarioId == null) {
-            coordinador.setUsuario(null);
-            return;
+    private void validarFormulario(CoordinadorFormDTO dto) {
+        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+            throw new RuntimeException("El nombre del coordinador es obligatorio.");
         }
 
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("No existe el usuario con id: " + usuarioId));
+        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+            throw new RuntimeException("El email del coordinador es obligatorio.");
+        }
 
-        coordinador.setUsuario(usuario);
+        if (dto.getArea() == null || dto.getArea().isBlank()) {
+            throw new RuntimeException("El área del coordinador es obligatoria.");
+        }
+
+        if (dto.getIdsCampanias() == null || dto.getIdsCampanias().isEmpty()) {
+            throw new RuntimeException("Debe seleccionar al menos una campaña.");
+        }
     }
 
-    private void asignarContacto(Coordinador coordinador, Long contactoId) {
-        if (contactoId == null) {
-            coordinador.setContacto(null);
-            return;
+    private Contacto obtenerOActualizarContacto(CoordinadorFormDTO dto) {
+        String nombre = normalizarTexto(dto.getNombre());
+        String email = normalizarEmail(dto.getEmail());
+        String telefono = normalizarTexto(dto.getTelefono());
+
+        Contacto contacto = null;
+
+        if (dto.getContactoId() != null) {
+            contacto = contactoRepository.findById(dto.getContactoId())
+                    .orElseThrow(() -> new RuntimeException("No existe el contacto con id: " + dto.getContactoId()));
         }
 
-        Contacto contacto = contactoRepository.findById(contactoId)
-                .orElseThrow(() -> new RuntimeException("No existe el contacto con id: " + contactoId));
+        if (contacto == null) {
+            contacto = contactoRepository.findByEmail(email).orElse(null);
+        }
 
-        coordinador.setContacto(contacto);
+        if (contacto == null && telefono != null) {
+            contacto = contactoRepository.findByTelefono(telefono).orElse(null);
+        }
+
+        if (contacto == null) {
+            contacto = new Contacto();
+        }
+
+        contacto.setNombre(nombre);
+        contacto.setEmail(email);
+        contacto.setTelefono(telefono);
+
+        return contactoRepository.save(contacto);
+    }
+
+    private Usuario obtenerOActualizarUsuario(CoordinadorFormDTO dto, String email) {
+        String emailNormalizado = normalizarEmail(email);
+
+        Usuario usuario = null;
+
+        if (dto.getUsuarioId() != null) {
+            usuario = usuarioRepository.findById(dto.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("No existe el usuario con id: " + dto.getUsuarioId()));
+        }
+
+        if (usuario == null) {
+            usuario = usuarioRepository.findByEmail(emailNormalizado).orElse(null);
+        }
+
+        if (usuario == null) {
+            usuario = new Usuario();
+            usuario.setContrasenia("1234");
+            usuario.setRol(TipoRol.COORDINADOR);
+        }
+
+        usuario.setEmail(emailNormalizado);
+
+        return usuarioRepository.save(usuario);
     }
 
     private void asignarCampanias(Coordinador coordinador, List<Long> idsCampanias) {
@@ -139,7 +241,7 @@ public class CoordinadorService {
         return CoordinadorDTO.builder()
                 .id(c.getId())
 
-                // Campos usados por el frontend nuevo
+                // Campos usados por JSP y frontend nuevo
                 .nombre(obtenerNombre(c))
                 .area(c.getArea())
                 .tiendas(numeroTiendas.shortValue())
@@ -217,7 +319,6 @@ public class CoordinadorService {
                 .collect(Collectors.toList());
     }
 
-
     private CampaniaDTO toCampaniaDTO(Campania campania) {
         return CampaniaDTO.builder()
                 .id(campania.getId())
@@ -240,29 +341,6 @@ public class CoordinadorService {
                 .email(contacto.getEmail())
                 .telefono(contacto.getTelefono())
                 .build();
-    }
-
-    @Transactional
-    public CoordinadorDTO crearCompleto(CoordinadorCompletoDTO dto) {
-        validarCoordinadorCompleto(dto);
-
-        Contacto contacto = obtenerOCrearContacto(dto);
-
-        Usuario usuario = obtenerOCrearUsuario(contacto.getEmail());
-
-        Coordinador coordinador = new Coordinador();
-
-        coordinador.setArea(normalizarTexto(dto.getArea()));
-        coordinador.setTiendas(dto.getTiendas());
-        coordinador.setPermisoModificar(dto.getPermisoModificar() != null ? dto.getPermisoModificar() : true);
-        coordinador.setContacto(contacto);
-        coordinador.setUsuario(usuario);
-
-        asignarCampanias(coordinador, dto.getIdsCampanias());
-
-        Coordinador guardado = repo.save(coordinador);
-
-        return toDTO(guardado);
     }
 
     private void validarCoordinadorCompleto(CoordinadorCompletoDTO dto) {
@@ -288,7 +366,7 @@ public class CoordinadorService {
     }
 
     private Contacto obtenerOCrearContacto(CoordinadorCompletoDTO dto) {
-        String email = normalizarTexto(dto.getEmail());
+        String email = normalizarEmail(dto.getEmail());
         String telefono = normalizarTexto(dto.getTelefono());
 
         Contacto contactoPorEmail = contactoRepository.findByEmail(email).orElse(null);
@@ -324,7 +402,7 @@ public class CoordinadorService {
     }
 
     private Usuario obtenerOCrearUsuario(String email) {
-        String emailNormalizado = normalizarTexto(email);
+        String emailNormalizado = normalizarEmail(email);
 
         Usuario usuarioExistente = usuarioRepository.findByEmail(emailNormalizado).orElse(null);
 
@@ -347,5 +425,13 @@ public class CoordinadorService {
         }
 
         return texto.trim();
+    }
+
+    private String normalizarEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        return email.trim().toLowerCase();
     }
 }

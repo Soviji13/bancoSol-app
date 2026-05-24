@@ -13,6 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CoordinadorFormDTO {
 
+    private String nombre;
+
+    private String email;
+
+    private String telefono;
+
     private String area;
 
     private Short tiendas;

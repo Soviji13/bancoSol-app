@@ -1,5 +1,5 @@
 //Test generado con IA 100% supervisado por Jose González
-package bancosol.gr21.proyectobancosol;
+package com.bancosol;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
