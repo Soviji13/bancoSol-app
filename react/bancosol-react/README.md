@@ -4,9 +4,8 @@
 2. Leer `README.md` con calma
 3. Empezar a programar **siguiendo las reglas** descritas en este archivo.
 
-<div style="border: 2px solid red; padding: 20px; margin: 10px auto; font-weight:bold">
-Cualquier incidente o complicación de mi parte al implementar los roles o al unir el código que sea debido a no haber seguido las reglas, será responsabilidad del miembro al que le tocó esa parte arreglarlo él mismo
-</div>
+#### Cualquier incidente o complicación de mi parte al implementar los roles o al unir el código que sea debido a no haber seguido las reglas, será responsabilidad del miembro al que le tocó esa parte arreglarlo él mismo
+
 
 **Índice (reglas):**
 
