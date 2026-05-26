@@ -1,0 +1,128 @@
+.bs-inicio__contenido {
+    padding: 0 !important;
+}
+
+.grid-campanias {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 20px;
+    padding: 20px;
+    min-height: calc(100vh - 140px);
+}
+
+.card-campania {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #283593;
+    border-radius: 8px;
+    padding: 20px;
+    width: 260px;
+    text-decoration: none;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.card-campania:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-campania.seleccionada {
+    background-color: #e8eaf6;
+    border-width: 2px;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-campania.terminada {
+    border-color: #e53935;
+}
+
+.card-titulo {
+    color: #283593;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.card-fechas {
+    font-size: 0.85em;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.card-info {
+    font-size: 0.8em;
+    color: #283593;
+}
+
+.card-info.alerta {
+    color: #e53935;
+}
+
+.pie-pagina {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    width: 100%;
+    min-height: 4rem;
+    background-color: #fff;
+    border-top: 1px solid #283593;
+    border-bottom: 1px solid #283593;
+    border-left: 1px solid #283593;
+    border-right: 1px solid #283593;
+    box-sizing: border-box;
+}
+
+.container-interactuar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    min-height: 4rem;
+}
+
+.accion-pie {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-right: 1px solid #283593;
+    color: #283593;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.accion-pie:last-child {
+    border-right: none;
+}
+
+.accion-pie:visited {
+    color: #283593;
+}
+
+.accion-pie.activado:hover {
+    background-color: #e8eaf6;
+}
+
+.accion-pie.desactivado {
+    opacity: 0.45;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
