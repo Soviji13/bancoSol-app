@@ -8,4 +8,5 @@ public interface CoordinadorRepository extends JpaRepository<Coordinador, Long> 
     boolean existsByUsuario_Id(Long usuarioId);
 
     boolean existsByContacto_Id(Long contactoId);
+
 }

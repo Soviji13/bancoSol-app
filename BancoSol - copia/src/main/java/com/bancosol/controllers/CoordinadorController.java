@@ -1,10 +1,10 @@
 package com.bancosol.controllers;
 
-import com.bancosol.dto.CoordinadorDTO;
 import com.bancosol.dto.CoordinadorFormDTO;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.CoordinadorService;
 import com.bancosol.services.ZonaGeograficaService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@AllArgsConstructor
 @RequestMapping("/coordinadores")
 public class CoordinadorController {
 
@@ -19,138 +20,90 @@ public class CoordinadorController {
     private final CampaniaService campaniaService;
     private final ZonaGeograficaService zonaGeograficaService;
 
-    public CoordinadorController(CoordinadorService coordinadorService,
-                                 CampaniaService campaniaService,
-                                 ZonaGeograficaService zonaGeograficaService) {
-        this.coordinadorService = coordinadorService;
-        this.campaniaService = campaniaService;
-        this.zonaGeograficaService = zonaGeograficaService;
-    }
-
-    @GetMapping
-    public String listar(Model model) {
-        List<CoordinadorDTO> coordinadores = coordinadorService.listarTodos();
-
-        model.addAttribute("coordinadores", coordinadores);
+    @GetMapping("/")
+    public String doInit(Model model) {
+        model.addAttribute("coordinadores", coordinadorService.listarTodos());
         model.addAttribute("campanias", campaniaService.listarTodas());
 
         return "coordinadores/listado";
     }
 
-    @GetMapping("/nuevo")
-    public String mostrarFormularioNuevo(Model model) {
-        CoordinadorFormDTO formDTO = new CoordinadorFormDTO();
-        formDTO.setPermisoModificar(true);
+    protected String editarCrear(Long id, Model model) {
+        CoordinadorFormDTO coordinador;
 
-        model.addAttribute("coordinador", formDTO);
-        model.addAttribute("modoEdicion", false);
+        if (id == null) {
+            coordinador = new CoordinadorFormDTO();
+            coordinador.setPermisoModificar(true);
+            model.addAttribute("modoEdicion", false);
+        } else {
+            coordinador = coordinadorService.buscarFormularioPorId(id);
+            model.addAttribute("id", id);
+            model.addAttribute("modoEdicion", true);
+        }
+
+        model.addAttribute("coordinador", coordinador);
 
         cargarDatosFormulario(model);
 
         return "coordinadores/formulario";
     }
 
-    @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
-        CoordinadorDTO coordinador = coordinadorService.buscarPorId(id);
+    @PostMapping("/anadir")
+    public String doAnadir(Model model) {
+        return this.editarCrear(null, model);
+    }
 
-        CoordinadorFormDTO formDTO = pasarDtoAFormulario(coordinador);
+    @GetMapping("/editar")
+    public String doEditar(@RequestParam("id") Long id, Model model) {
+        return this.editarCrear(id, model);
+    }
 
-        model.addAttribute("id", id);
-        model.addAttribute("coordinador", formDTO);
-        model.addAttribute("modoEdicion", true);
+    @GetMapping("/borrar")
+    public String doBorrar(@RequestParam("id") Long id) {
+        this.coordinadorService.eliminar(id);
 
-        cargarDatosFormulario(model);
-
-        return "coordinadores/formulario";
+        return "redirect:/coordinadores/";
     }
 
     @PostMapping("/guardar")
-    public String guardarNuevo(@ModelAttribute CoordinadorFormDTO coordinador,
-                               Model model) {
-        try {
-            normalizarCheckboxPermiso(coordinador);
+    public String doGuardar(@RequestParam(value = "id", required = false) Long id,
+                            @RequestParam(value = "nombre", required = false) String nombre,
+                            @RequestParam(value = "email", required = false) String email,
+                            @RequestParam(value = "telefono", required = false) String telefono,
+                            @RequestParam(value = "area", required = false) String area,
+                            @RequestParam(value = "tiendas", required = false) Short tiendas,
+                            @RequestParam(value = "permisoModificar", required = false) Boolean permisoModificar,
+                            @RequestParam(value = "usuarioId", required = false) Long usuarioId,
+                            @RequestParam(value = "contactoId", required = false) Long contactoId,
+                            @RequestParam(value = "idsCampanias", required = false) List<Long> idsCampanias) {
 
-            coordinadorService.crear(coordinador);
-
-            return "redirect:/coordinadores";
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("coordinador", coordinador);
-            model.addAttribute("modoEdicion", false);
-
-            cargarDatosFormulario(model);
-
-            return "coordinadores/formulario";
-        }
-    }
-
-    @PostMapping("/actualizar/{id}")
-    public String actualizar(@PathVariable Long id,
-                             @ModelAttribute CoordinadorFormDTO coordinador,
-                             Model model) {
-        try {
-            normalizarCheckboxPermiso(coordinador);
-
-            coordinadorService.actualizar(id, coordinador);
-
-            return "redirect:/coordinadores";
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("id", id);
-            model.addAttribute("coordinador", coordinador);
-            model.addAttribute("modoEdicion", true);
-
-            cargarDatosFormulario(model);
-
-            return "coordinadores/formulario";
-        }
-    }
-
-    @PostMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id,
-                           org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        try {
-            coordinadorService.eliminar(id);
-
-            redirectAttributes.addFlashAttribute(
-                    "mensajeExito",
-                    "Coordinador eliminado correctamente."
-            );
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute(
-                    "mensajeError",
-                    e.getMessage()
-            );
+        if (permisoModificar == null) {
+            permisoModificar = false;
         }
 
-        return "redirect:/coordinadores";
-    }
+        CoordinadorFormDTO coordinador = new CoordinadorFormDTO();
 
-    private CoordinadorFormDTO pasarDtoAFormulario(CoordinadorDTO coordinador) {
-        CoordinadorFormDTO formDTO = new CoordinadorFormDTO();
+        coordinador.setNombre(nombre);
+        coordinador.setEmail(email);
+        coordinador.setTelefono(telefono);
+        coordinador.setArea(area);
+        coordinador.setTiendas(tiendas);
+        coordinador.setPermisoModificar(permisoModificar);
+        coordinador.setUsuarioId(usuarioId);
+        coordinador.setContactoId(contactoId);
+        coordinador.setIdsCampanias(idsCampanias);
 
-        formDTO.setNombre(coordinador.getNombre());
-        formDTO.setEmail(coordinador.getEmail());
-        formDTO.setTelefono(coordinador.getTelefono());
-        formDTO.setArea(coordinador.getArea());
-        formDTO.setTiendas(coordinador.getTiendas());
-        formDTO.setPermisoModificar(coordinador.getPermisoModificar());
-        formDTO.setUsuarioId(coordinador.getUsuarioId());
-        formDTO.setContactoId(coordinador.getContactoId());
-        formDTO.setIdsCampanias(coordinador.getIdsCampanias());
+        if (id == null) {
+            this.coordinadorService.crear(coordinador);
+        } else {
+            this.coordinadorService.actualizar(id, coordinador);
+        }
 
-        return formDTO;
+        return "redirect:/coordinadores/";
     }
 
     private void cargarDatosFormulario(Model model) {
         model.addAttribute("campanias", campaniaService.listarTodas());
         model.addAttribute("zonas", zonaGeograficaService.listarTodas());
-    }
-
-    private void normalizarCheckboxPermiso(CoordinadorFormDTO coordinador) {
-        if (coordinador.getPermisoModificar() == null) {
-            coordinador.setPermisoModificar(false);
-        }
     }
 }

@@ -29,12 +29,10 @@ public class CoordinadorService {
     private final ContactoRepository contactoRepository;
     private final CampaniaRepository campaniaRepository;
 
-    public CoordinadorService(
-            CoordinadorRepository repo,
-            UsuarioRepository usuarioRepository,
-            ContactoRepository contactoRepository,
-            CampaniaRepository campaniaRepository
-    ) {
+    public CoordinadorService(CoordinadorRepository repo,
+                              UsuarioRepository usuarioRepository,
+                              ContactoRepository contactoRepository,
+                              CampaniaRepository campaniaRepository) {
         this.repo = repo;
         this.usuarioRepository = usuarioRepository;
         this.contactoRepository = contactoRepository;
@@ -53,6 +51,30 @@ public class CoordinadorService {
                 .orElseThrow(() -> new RuntimeException("No existe el coordinador con id: " + id));
 
         return toDTO(coordinador);
+    }
+
+    public CoordinadorFormDTO buscarFormularioPorId(Long id) {
+        Coordinador coordinador = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("No existe el coordinador con id: " + id));
+
+        CoordinadorFormDTO formDTO = new CoordinadorFormDTO();
+
+        Contacto contacto = coordinador.getContacto();
+        Usuario usuario = coordinador.getUsuario();
+
+        formDTO.setNombre(contacto != null ? contacto.getNombre() : null);
+        formDTO.setEmail(contacto != null ? contacto.getEmail() : null);
+        formDTO.setTelefono(contacto != null ? contacto.getTelefono() : null);
+
+        formDTO.setArea(coordinador.getArea());
+        formDTO.setTiendas(coordinador.getTiendas());
+        formDTO.setPermisoModificar(coordinador.getPermisoModificar());
+
+        formDTO.setContactoId(contacto != null ? contacto.getId() : null);
+        formDTO.setUsuarioId(usuario != null ? usuario.getId() : null);
+        formDTO.setIdsCampanias(obtenerIdsCampanias(coordinador));
+
+        return formDTO;
     }
 
     @Transactional
@@ -84,7 +106,7 @@ public class CoordinadorService {
                 .orElseThrow(() -> new RuntimeException("No existe el coordinador con id: " + id));
 
         Usuario usuario = coordinador.getUsuario();
-        Contacto contacto = coordinador.getContacto();
+
         if (coordinador.getCampanias() != null) {
             coordinador.getCampanias().clear();
         }
@@ -93,9 +115,10 @@ public class CoordinadorService {
         repo.delete(coordinador);
         repo.flush();
 
-        eliminarUsuarioSiQuedaHuerfano(usuario, id);
+        eliminarUsuarioSiQuedaHuerfano(usuario);
     }
-    private void eliminarUsuarioSiQuedaHuerfano(Usuario usuario, Long coordinadorEliminadoId) {
+
+    private void eliminarUsuarioSiQuedaHuerfano(Usuario usuario) {
         if (usuario == null || usuario.getId() == null) {
             return;
         }
@@ -112,7 +135,6 @@ public class CoordinadorService {
         validarCoordinadorCompleto(dto);
 
         Contacto contacto = obtenerOCrearContacto(dto);
-
         Usuario usuario = obtenerOCrearUsuario(contacto.getEmail());
 
         Coordinador coordinador = new Coordinador();
@@ -161,6 +183,10 @@ public class CoordinadorService {
         if (dto.getIdsCampanias() == null || dto.getIdsCampanias().isEmpty()) {
             throw new RuntimeException("Debe seleccionar al menos una campaña.");
         }
+
+        if (dto.getTiendas() != null && dto.getTiendas() < 0) {
+            throw new RuntimeException("El número de tiendas no es válido.");
+        }
     }
 
     private Contacto obtenerOActualizarContacto(CoordinadorFormDTO dto) {
@@ -175,7 +201,7 @@ public class CoordinadorService {
                     .orElseThrow(() -> new RuntimeException("No existe el contacto con id: " + dto.getContactoId()));
         }
 
-        if (contacto == null) {
+        if (contacto == null && email != null) {
             contacto = contactoRepository.findByEmail(email).orElse(null);
         }
 
@@ -204,7 +230,7 @@ public class CoordinadorService {
                     .orElseThrow(() -> new RuntimeException("No existe el usuario con id: " + dto.getUsuarioId()));
         }
 
-        if (usuario == null) {
+        if (usuario == null && emailNormalizado != null) {
             usuario = usuarioRepository.findByEmail(emailNormalizado).orElse(null);
         }
 
@@ -236,15 +262,14 @@ public class CoordinadorService {
 
     private CoordinadorDTO toDTO(Coordinador c) {
         Contacto contacto = c.getContacto();
-        Integer numeroTiendas = calcularNumeroTiendas(c);
+        Short numeroTiendas = calcularNumeroTiendas(c);
 
         return CoordinadorDTO.builder()
                 .id(c.getId())
 
-                // Campos usados por JSP y frontend nuevo
                 .nombre(obtenerNombre(c))
                 .area(c.getArea())
-                .tiendas(numeroTiendas.shortValue())
+                .tiendas(numeroTiendas)
                 .permisoModificar(c.getPermisoModificar())
                 .usuarioId(c.getUsuario() != null ? c.getUsuario().getId() : null)
                 .contactoId(contacto != null ? contacto.getId() : null)
@@ -253,20 +278,19 @@ public class CoordinadorService {
                 .idsCampanias(obtenerIdsCampanias(c))
                 .nombresCampanias(obtenerNombresCampanias(c))
 
-                // Campos antiguos conservados para no romper código existente
                 .zonaGeografica(c.getArea())
-                .numeroTiendas(numeroTiendas.shortValue())
+                .numeroTiendas(numeroTiendas)
                 .contacto(toContactoDTO(contacto))
                 .campanias(mapearCampanias(c))
                 .build();
     }
 
-    private Integer calcularNumeroTiendas(Coordinador c) {
+    private Short calcularNumeroTiendas(Coordinador c) {
         if (c.getCampanias() == null) {
             return 0;
         }
 
-        return (int) c.getCampanias()
+        long total = c.getCampanias()
                 .stream()
                 .filter(campania -> campania.getColaboradores() != null)
                 .flatMap(campania -> campania.getColaboradores().stream())
@@ -276,6 +300,8 @@ public class CoordinadorService {
                 .map(Tienda::getId)
                 .distinct()
                 .count();
+
+        return (short) total;
     }
 
     private String obtenerNombre(Coordinador c) {

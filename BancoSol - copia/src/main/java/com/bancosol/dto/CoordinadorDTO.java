@@ -15,23 +15,13 @@ public class CoordinadorDTO {
 
     private Long id;
 
-    /*
-     * Campo antiguo conservado.
-     * Normalmente se obtiene desde contacto.nombre.
-     */
     private String nombre;
 
-    /*
-     * Campos antiguos conservados para compatibilidad.
-     */
     private String zonaGeografica;
     private Short numeroTiendas;
     private ContactoDTO contacto;
     private List<CampaniaDTO> campanias;
 
-    /*
-     * Campos nuevos integrados para el frontend refactorizado.
-     */
     private String area;
     private Short tiendas;
     private Long contactoId;
