@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contenido - Gestionar coordinadores</title>
+  <link rel="stylesheet" href="../global.css" />
+  <link rel="stylesheet" href="incidencias.css" />
+  <script src="incidencias.js" defer></script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <section class="contenido" aria-labelledby="titulo-campania">
+    <div class="contenido__topbar">
+      <div class="filtro">
+        <button class="boton-icono" type="button" aria-label="Filtrar">
+          <img src="../assets/embudo.png" alt="" />
+          <span class="boton-icono__contador">3</span>
+        </button>
+      </div>
+
+
+      <div class="historial-incidencias">
+        <span><h1 id="historial_titulo" class="historial_titulo">Gran Recogida</h1></span>
+      </div>
+
+      <div class="seccion-ayuda">
+        <p class="contenido__ayuda">
+          Para ver más información sobre el coordinador, haga doble clic sobre su fila correspondiente.
+        </p>
+        <button class="boton-ayuda" type="button" aria-label="Ayuda">?</button>
+      </div>
+    </div>
+
+    <div class="tabla-contenedor">
+  <table class="tabla-incidencias">
+    <thead>
+      <tr>
+        <th scope="col">Tipo</th>
+        <th scope="col">Reportado por</th>
+        <th scope="col">Cargo</th>
+        <th scope="col">Contacto</th>
+        <th scope="col">Hora</th>
+        <th scope="col">Fecha</th>
+        <th scope="col">Asunto</th>
+        <th scope="col">Estado</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr tabindex="0">
+        <td>Incidencia</td>
+        <td>Juan García Sánchez</td>
+        <td>Responsable tienda</td>
+        <td>600 00 00 00</td>
+        <td>15:00</td>
+        <td>14/02/2023</td>
+        <td class="celda-asunto" title="Lorem ipsum dolor sit amet conse...">
+          Lorem ipsum dolor sit amet conse...
+        </td>
+        <td>
+          <span class="estado estado--resuelta">Resuelta</span>
+        </td>
+      </tr>
+
+      <tr tabindex="0">
+        <td>Incidencia</td>
+        <td>Mariana Olmo Jiménez</td>
+        <td>Responsable entidad</td>
+        <td>600 00 00 00</td>
+        <td>15:00</td>
+        <td>07/02/2023</td>
+        <td class="celda-asunto" title="Lorem ipsum dolor sit amet conse...">
+          Lorem ipsum dolor sit amet conse...
+        </td>
+        <td>
+          <span class="estado estado--pendiente">Pendiente</span>
+        </td>
+      </tr>
+
+      <tr tabindex="0">
+        <td>Mov.</td>
+        <td>Pepe Zamora Blanco</td>
+        <td>Coordinador</td>
+        <td>pepzam3@gmail.com</td>
+        <td>15:00</td>
+        <td>08/01/2023</td>
+        <td class="celda-asunto" title="Añade nueva tienda">
+          Añade nueva tienda
+        </td>
+        <td>
+          <span class="estado estado--ninguno">-</span>
+        </td>
+      </tr>
+
+      <tr tabindex="0">
+        <td>Incidencia</td>
+        <td>Mariana Olmo Jiménez</td>
+        <td>Responsable entidad</td>
+        <td>600 00 00 00</td>
+        <td>15:00</td>
+        <td>16/12/2022</td>
+        <td class="celda-asunto" title="Lorem ipsum dolor sit amet conse...">
+          Lorem ipsum dolor sit amet conse...
+        </td>
+        <td>
+          <span class="estado estado--leida">Leída</span>
+        </td>
+      </tr>
+      </tbody>
+      </table>
+      </div>
+
+      <div class="acciones-tabla">
+        <button class="acciones-tabla__btn" type="button">Añadir Nueva Incidencia</button>
+        <button class="acciones-tabla__btn" type="button">Confirmar Lectura </button>
+        <button class="acciones-tabla__btn" type="button">Confirmar Resolución</button>
+      </div>
+  </section>
+</body>
+</html>

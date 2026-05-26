@@ -1,0 +1,109 @@
+/* =========================
+   ESTRUCTURA GENERAL
+========================= */
+.pantalla-login {
+  width: 97%;
+  min-height: 96vh;
+  margin: 1vh auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 5%;
+  overflow-y: hidden;
+}
+
+.login-contenido {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-login {
+  width: 28%;
+  max-width: 320px;
+  min-width: 180px;
+  height: auto;
+  display: block;
+  margin: 0 auto 3%;
+}
+
+.titulo-login {
+  font-size: 2.2vw;
+  font-weight: 400;
+  margin-bottom: 2.5%;
+  text-align: center;
+}
+
+.form-login {
+  width: 32%;
+  min-width: 280px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grupo-campo {
+  width: 100%;
+  margin-bottom: 7%;
+}
+
+.label-login {
+  display: block;
+  width: 100%;
+  font-size: 1.1vw;
+  margin-bottom: 4%;
+  text-align: left;
+}
+
+.input-login {
+  width: 100%;
+  height: 3vw;
+  min-height: 42px;
+  border-radius: 0.6vw;
+  background: transparent;
+  outline: none;
+  padding: 0 4%;
+  font-size: 1vw;
+}
+
+.input-login:focus {
+  border-color: var(--color-principal);
+}
+
+.btn-login {
+  margin-top: 4%;
+  width: 42%;
+  min-width: 120px;
+  height: 3vw;
+  min-height: 42px;
+  border: none;
+  border-radius: 0.6vw;
+  font-size: 1vw;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.contenedor-error {
+  width: 100%;
+  min-height: 1.6vw;
+  margin-top: 3%;
+}
+
+.mensaje-error {
+  width: 100%;
+  color: var(--color-error);
+  font-size: 0.9vw;
+  text-align: left;
+  line-height: 1.2;
+}
+
+.incorrecto {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.incorrecto:focus {
+  border-color: var(--color-error);
+}

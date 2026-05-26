@@ -1,0 +1,135 @@
+/* =========================
+   RESET DE LA PÁGINA INICIO
+========================= */
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================
+   CONTENEDOR PRINCIPAL
+========================= */
+
+.bs-inicio {
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background-color: var(--color-fondo, #ffffff);
+    box-sizing: border-box;
+    overflow: hidden !important;
+}
+
+/* =========================
+   HEADER SUPERIOR
+========================= */
+
+.bs-inicio__header {
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    min-height: 60px;
+    display: flex !important;
+    align-items: center;
+    border-bottom: var(--borde-general, 1px solid #ccc);
+    background-color: var(--color-fondo, #ffffff);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Importante para que el contenido de header.jsp no rompa el layout */
+.bs-inicio__header > * {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================
+   CUERPO EN COLUMNAS
+========================= */
+
+.bs-inicio__body {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+
+    display: grid !important;
+    grid-template-columns: 25% 75% !important;
+    grid-template-rows: 100% !important;
+
+    grid-template-areas: "menu contenido" !important;
+
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+/* =========================
+   COLUMNA IZQUIERDA
+========================= */
+
+.bs-inicio__menu {
+    grid-area: menu !important;
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    overflow: auto !important;
+    border-right: var(--borde-general, 1px solid #ccc);
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
+/* =========================
+   COLUMNA DERECHA
+========================= */
+
+.bs-inicio__contenido {
+    grid-area: contenido !important;
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 2 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    overflow: auto !important;
+    padding: 20px;
+    background-color: var(--color-fondo, #ffffff);
+    box-sizing: border-box;
+}
+
+/* =========================
+   PROTECCIÓN CONTRA JSPs INTERNOS
+========================= */
+
+.bs-inicio__menu > *,
+.bs-inicio__contenido > * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.bs-inicio__menu table,
+.bs-inicio__contenido table {
+    max-width: 100%;
+}
+
+/* =========================
+   ACCESIBILIDAD
+========================= */
+
+.bs-inicio button:focus-visible,
+.bs-inicio a:focus-visible,
+.bs-inicio tr:focus-visible {
+    outline: 0.18rem solid var(--color-focus, #2b7cff);
+    outline-offset: 0.15rem;
+}
