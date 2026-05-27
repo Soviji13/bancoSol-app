@@ -30,6 +30,15 @@
         </script>
     </c:if>
 
+    <c:if test="${pagina == 'formulario-coordinador'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/formularioCoordinador.css" />
+
+        <script type="module"
+                src="${pageContext.request.contextPath}/js/coordinadores/formularioCoordinador.js"
+                defer>
+        </script>
+    </c:if>
+
     <c:if test="${pagina == 'gestion-campanias'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/gestionar-campanias.css" />
     </c:if>
@@ -76,8 +85,8 @@
                     <jsp:include page="coordinadores/listado.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'detalles-coordinador'}">
-                    <jsp:include page="coordinadores/detalles-coordinador.jsp" />
+                <c:when test="${pagina == 'formulario-coordinador'}">
+                    <jsp:include page="coordinadores/formulario.jsp" />
                 </c:when>
 
                 <c:otherwise>

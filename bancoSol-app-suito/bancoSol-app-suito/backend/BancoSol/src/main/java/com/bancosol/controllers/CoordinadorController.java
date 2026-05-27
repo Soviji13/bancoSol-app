@@ -114,15 +114,12 @@ public class CoordinadorController {
 
         if (id == null) {
             coordinador = new CoordinadorFormDTO();
-            coordinador.setPermisoModificar(true);
-            model.addAttribute("modoEdicion", false);
         } else {
             coordinador = coordinadorService.buscarFormularioPorId(id);
             model.addAttribute("id", id);
-            model.addAttribute("modoEdicion", true);
         }
 
-        model.addAttribute("pagina", "detalles-coordinador");
+        model.addAttribute("pagina", "formulario-coordinador");
         model.addAttribute("coordinador", coordinador);
 
         cargarDatosFormulario(model);
