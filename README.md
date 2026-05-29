@@ -6,7 +6,7 @@ El proyecto sigue en progreso, aún no es definitivo.
 
 ## Estado del proyecto
 
-*Si está en rojo, hacer push a main hasta que se resuelva el conflicto*
+*Si está en rojo, NO hacer push a main hasta que se resuelva el conflicto*
 
 ![Build](https://github.com/Soviji13/bancoSol-app/actions/workflows/ci-backend.yml/badge.svg?branch=main)
 
