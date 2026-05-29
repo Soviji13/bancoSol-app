@@ -10,6 +10,20 @@ El proyecto sigue en progreso, aún no es definitivo.
 
 ![Build](https://github.com/Soviji13/bancoSol-app/actions/workflows/ci-backend.yml/badge.svg?branch=main)
 
+## Especificaciones
+
+### Lado del servidor (SSR)
+
+- Tecnología: SpringBoot
+- BBDD: Postgree
+- Versión de Java: 17
+- Compilado con Maven
+
+### Lado del cliente 
+
+- Tecnologías: HTML+CSS+JS, React
+- API: Springboot
+
 ## Créditos
 
 Aún no están terminados. Falta por seguir completando.
