@@ -27,4 +27,4 @@ jobs:
       run: chmod +x mvnw
 
     - name: Compilar proyecto con Maven (Sin Tests)
-      run: ./mvnw clean package -DskipTests
+      run: mvn clean package -DskipTests
