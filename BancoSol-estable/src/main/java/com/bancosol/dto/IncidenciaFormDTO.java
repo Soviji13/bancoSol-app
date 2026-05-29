@@ -1,6 +1,5 @@
 package com.bancosol.dto;
 
-import com.bancosol.entities.enums.EstadoIncidencia;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IncidenciaDTO {
-
-    private Long id;
+public class IncidenciaFormDTO {
 
     private LocalDateTime fechaHora;
 
@@ -22,17 +19,9 @@ public class IncidenciaDTO {
 
     private String descripcion;
 
-    private EstadoIncidencia estado;
+    private String estado;
 
     private Long responsableTiendaId;
 
-    private String responsableTiendaNombre;
-
     private Long responsableEntidadId;
-
-    private String responsableEntidadNombre;
-
-    private String reportadoPorTipo;
-
-    private String reportadoPorNombre;
 }

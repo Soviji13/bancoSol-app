@@ -3,11 +3,16 @@ package com.bancosol.entities;
 import com.bancosol.entities.enums.EstadoIncidencia;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "\"Incidencia\"", schema = "public")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Incidencia {
 
     @Id
@@ -26,7 +31,6 @@ public class Incidencia {
     @Column(nullable = false)
     private EstadoIncidencia estado = EstadoIncidencia.PENDIENTE;
 
-    // Puede ser creada por un Responsable de Tienda O un Responsable de Entidad
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsable_tienda_id")
     private ResponsableTienda responsableTienda;
