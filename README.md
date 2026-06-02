@@ -1,141 +1,90 @@
-# Parte React BancoSol
+# bancoSol-app
 
-1. Descargar la carpeta entera
-2. Leer `README.md` con calma
-3. Empezar a programar **siguiendo las reglas** descritas en este archivo.
-4. **Importante**: En la guía de github, en vez de hacer las cosas a `main`, se harán a `react`
+Proyecto universitario en la UMA para las asignaturas de Front-End y Back-End de tercer curso. Esta es una aplicación que se puede acabar llevando a un uso real, ya que la empresa BancoSol y su problema es real.
 
-#### Cualquier incidente o complicación de mi parte al implementar los roles o al unir el código que sea debido a no haber seguido las reglas, será responsabilidad del miembro al que le tocó esa parte arreglarlo él mismo
+El proyecto sigue en progreso, aún no es definitivo.
 
+## Estado del proyecto
 
-**Índice (reglas):**
+*Si está en rojo, NO hacer push a main hasta que se resuelva el conflicto*
 
-1. [Estructura de archivos](#estructura-de-archivos-modificables)
-2. [Cómo utilizar `gestionVentanas.jsx`](#cómo-utilizar-gestionventanasjsx)
-3. [Gestión de roles](#gestión-de-roles)
-4. [Login](#login)
-5. [Conexión a API](#conexión-a-api)
+![Build](https://github.com/Soviji13/bancoSol-app/actions/workflows/ci-backend.yml/badge.svg?branch=main)
 
-Los **únicos directorios o archivos modificables** serán los que se muestren en el apartado [Estructura de Archivos](#estructura-de-archivos-modificables). De hecho, **es necesario modificarlos para que os funcione vuestra parte**
+## Especificaciones
 
-> Muy recomendable leer el apartado explicando cómo utilizar `gestionVentanas.jsx`.
+### Lado del servidor (SSR)
 
-*Recordatorio: Para lanzar un proyecto de react necesitamos lanzar en el mismo directorio `npm install`y `npm run dev` en el mismo orden escrito. Posteriormente, accedemos desde `http://localhost:5173`*
+- Tecnología: SpringBoot
+- BBDD: Postgree
+- Versión de Java: 17
+- Compilado con Maven
 
----
+### Lado del cliente 
 
-## Estructura de archivos (modificables)
+- Tecnologías: HTML+CSS+JS, React
+- API: Springboot
 
-- `src/campanias/`: Directorio donde irá todo el código relacionado con las campañas. He dejado un componente `main` para que podáis partir desde él sin tener que vincularlo. **No modificar el nombre del componente**
+## Créditos
 
-- `src/voluntarios/`: Directorio donde irá todo el código relacionado con los voluntarios. He dejado un componente `main` para que podáis partir desde él sin tener que vincularlo. **No modificar el nombre del componente**
+Aún no están terminados. Falta por seguir completando.
 
-- `src/gestionVentanas.jsx`: Archivo donde se debe **gestionar qué se ve en el menú lateral y en la ventana principal. No gestionar la lógica de esto en vuestros directorios, solo aquí**. Recomendable para saber cómo manejarlo en este [apartado](#cómo-utilizar-gestionventanasjsx). 
+### Front-End
 
-- `public/`: Aquí deben ir archivos estáticos: **estilos `.css` e imágenes** normalmente.
+- **Diseño de interfaces** - Mockup y concepto: [@frangssss](https://github.com/Frangssss) en su mayoría, [@soviji13](https://github.com/Soviji13) en algunas de ellas. En el concepto inicial han trabajado ambos miembros.
 
->**En `gestionVentanas.jsx` sólo se pueden modificar los componentes especificados**
+- **Creación de interfaz genérica** - HTML, CSS y lógica general: menú lateral y superior y acceso a las subinterfaces: [@CodeJose21](https://github.com/CodeJose21)
 
----
+- **Gestión de lógica en React** - Lógica de cambios de interfaces: creación de controlador para el cambio de subinterfaz y estructura global: [@soviji13](https://github.com/Soviji13)
 
-## Cómo utilizar `gestionVentanas.jsx`
+- **Parte JS+CSS+HTML**
 
-**IMPORTANTE: DOCUMENTAR TODO LO QUE MODIFIQUÉIS COMENTANDO Y EXPLICANDO PARA PODER REALIZAR UNA POSTERIOR INTEGRACIÓN CORRECTAMENTE**
+    - `Coordinadores`: [@CodeJose21](https://github.com/CodeJose21)
 
-### Estados importantes
+    - `Tiendas`: [@frangssss](https://github.com/Frangssss)
 
-- `lateral`: Indica qué menú lateral se debe mostrar (psrte izquierda). **Manejaremos este valor con `manejaContenidoLateral("contenido")`.** Importante que la entrada sea **tipo String**
+    - `Colaboradores`: [@soviji13](https://github.com/Soviji13)
 
-- `contenidoIniial`: Indica qué contenido inicial se debe mostrar (parte derecha). **Manejaremos este valor con `manejaContenidoInicial("contenido")`.** Importante que la entrada sea **tipo String**
+    - `Incidencias y movimientos`: [@CodeJose21](https://github.com/CodeJose21)
 
-**No crear nuevos manejadores para estos cambios de estado en concreto**
+- **Parte de React**
 
-**Ejemplo de uso**: Queremos que al pulsar un botón, el menú lateral cambie a filtros de tiendas
+    - `Gestión de roles`: [@soviji13](https://github.com/Soviji13)
 
-```jsx
-<button onClick(() => {
-    manejaContenidoLateral("filtro-tiendas");
-})>Filtro de Tiendas</button>
-```
+    - `Campañas`: [@CodeJose21](https://github.com/CodeJose21)
 
-> Nota importante: Esto de por sí solo no funciona, para que funcione, debemos realizar el siguiente apartado.
+    - `Voluntarios`: [@frangssss](https://github.com/Frangssss)
 
-### Funciones/Componentes que se deben modificar
+### Arquitectura
 
-**ESTAS FUNCIONES SERÁN LAS QUE MAPEARÁN EL MENÚ LATERAL O INICIAL. NO GESTIONAR ESTOS MAPEOS EN OTRA FUNCIÓN**
+- **Diseño y creación de la Base de Datos** - Modelo relacional e integración en Supabase (PostgreeSQL): [@soviji13](https://github.com/Soviji13).
 
-> Nota: No eliminar nada de lo que ya hay dentro, excepto el siguiente bloque:
+- **Conexión de BBDD** - Pasos para conectar SpringBoot con Supabase: [@Alewuito](https://github.com/Alewuito)
 
-```jsx
-{tipoContenido === "test" && <Ok 
-        manejaContenidoLateral={manejaContenidoLateral}
-        manejaContenidoInicial={manejaContenidoInicial}
-    />
-}
-```
+- **Análisis de requisitos** - Gestión de roles: [@CodeJose21](https://github.com/CodeJose21)
 
-- `MenuLateral`: Gestiona cómo varía el contenido lateral (parte izquierda).Solo debemos manejarlo de la siguiente forma, **siempre dentro del `div`**
+- **Elección y creación de patrón** - Patrón DTO unificado (creación de los DTOs y services): [@soviji13](https://github.com/Soviji13)
 
-**Ejemplo de uso**: Queremos que al pulsar un botón, el menú lateral cambie a filtros de tiendas
+- **Conexión a la API** - Creación de RestControllers y configuración del CORS: [@soviji13](https://github.com/Soviji13) 
 
-```jsx
-    export function MenuLateral ({tipoLateral, manejaContenidoInicial, manejaContenidoLateral, contenidoInicial}) {
-    return (
-        <div className="contenedor_contenido contenedor_menu">
-            {/*...código*/} 
-            {tipoLateral === "filtro-tiendas" && 
-                <FiltroTiendas manejaContenidoInicial={manejaContenidoInicial}/>
-            }
-            {/*código...*/} 
-        </div>
-    )
-}
-```
-> Ahora deberíamos crear en nuestro respectivo directorio el componente `FiltroTiendas``
+- **Soporte** - Creación de workflow y elección de Feature Branch Workflow: [@soviji13](https://github.com/Soviji13). Creación de `readme` y arquitectura global del repositorio: [@soviji13](https://github.com/Soviji13)
 
-> *Pasamos `manejaContenidoInicial` por props en este caso, porque queremos manejar cómo va a variar el menú de la derecha según los filtros que apliquemos. Si quisiéramos modificar cualquier otra cosa, habría que crear manejadores o usar `manejaContenidoLateral`, si queremos modificar también el menú lateral*
+### Back-end
 
-- `ContenidoInicial`: Gestiona cómo varía el contenido inicial (parte derecha), se usa igual que `MenuLateral`y **siempre dentro del `div`**
+- **Creación del proyecto** - Creación del proyecto global, junto a entities: [@Alewuito](https://github.com/Alewuito)
 
-### Ejemplos aplicados
+- **Interfaces (JSP), Controllers, DAO, DTO y Services**
+    - `Campañas`: [@Alewuito](https://github.com/Alewuito)
 
-Tenéis el ejemplo de `Ok` o el de `NavegadorMenus` dentro del mismo archivo para que entendáis cómo funciona la lógica.
+    - `Coordinadores`: [@CodeJose21](https://github.com/CodeJose21)
 
----
+    - `Tiendas`: [@frangssss](https://github.com/Frangssss)
 
-## Gestión de roles
+    - `Colaboradores`: [@soviji13](https://github.com/Soviji13)
 
-Debéis **comentar en qué secciones de vuestro código se deben aplicar los roles y con qué lógica.** 
+    - `Voluntarios`: 
 
-**La lógica la implemento yo**, pero para no cometer errores o evitar saltarme algo, intentad dejar claro **dónde pueden variar los permisos según el rol, y cómo varían.**
+    - `Incidencias y movimientos`: [@CodeJose21](https://github.com/CodeJose21)
 
----
+    - `Interfaz global (panel lateral y superior)`: [CodeJose21](https://github.com/CodeJose21)
 
-## Login
-
-- Entrar con user `prueba` y contraseña `prueba`.
-
-Hay más usuarios creados para probar los roles, pero para vuestra implementación, lo más simple es usar el especificado. Si desean saber el resto de usuarios, se encuentran en `login.jsx`.
-
----
-
-## Conexión a API
-
-Debería valer con modificar el archivo `WebConfig.java` en el proyecto de springBoot.
-
-Modificaremos la línea de `.allowedOrigins(...)` de tal forma:
-
-```java
-.allowedOrigins("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:5173")
-```
-
-Por ahora no he realizado fetchs, así que no he comprobado su funcionamiento correcto. Cualquier problema comentadlo.
-
-> Os recomiendo usar el proyecto de SpringBoot que ya tenemos para el front-end.
-
----
-
-## Anotaciones para un futuro (para mí misma)
-
-- Refactorizar login conectando a la API y eliminar `e.preventDefault()` del form
-
+    - `Gestión de roles`: [@soviji13](https://github.com/Soviji13)
