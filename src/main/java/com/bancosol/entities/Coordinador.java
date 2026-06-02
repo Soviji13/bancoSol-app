@@ -1,0 +1,53 @@
+//Generado íntgramente con IA, comprobado por Jose González a la hora de integrarlo
+package com.bancosol.entities;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "\"Coordinador\"", schema = "public")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Coordinador {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String area;
+
+    @Column(nullable = false)
+    private Short tiendas = 0;
+
+    @Column(name = "permiso_modificar", nullable = false)
+    private Boolean permisoModificar = false;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false, unique = true)
+    private Usuario usuario;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contacto_id")
+    private Contacto contacto;
+
+    @ManyToMany(mappedBy = "coordinadores")
+    private List<Campania> campanias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "coordinador", fetch = FetchType.LAZY)
+    private List<EntidadColaboradora> entidades = new ArrayList<>();
+
+    @PrePersist
+    @PreUpdate
+    private void asegurarMayusculas() {
+        if (this.area != null) {
+            this.area = this.area.toUpperCase();
+        }
+    }
+}
