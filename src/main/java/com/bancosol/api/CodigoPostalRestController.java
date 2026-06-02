@@ -1,3 +1,4 @@
+/* 
 package com.bancosol.api;
 
 import com.bancosol.dto.CodigoPostalDTO;
@@ -17,3 +18,4 @@ public class CodigoPostalRestController {
         return ResponseEntity.ok(service.listarTodos());
     }
 }
+*/

@@ -1,5 +1,7 @@
 package com.bancosol.entities;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,4 +20,7 @@ public class CodigoPostal {
 
     @Column(nullable = false, unique = true)
     private Short codigo;
+
+    @ManyToMany(mappedBy = "codigosPostales", fetch = FetchType.LAZY)
+    private List<Distrito> distritos;
 }

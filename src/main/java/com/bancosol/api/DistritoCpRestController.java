@@ -1,3 +1,4 @@
+/* 
 package com.bancosol.api;
 
 import com.bancosol.dto.DistritoCpDTO;
@@ -14,3 +15,4 @@ public class DistritoCpRestController {
     @GetMapping
     public ResponseEntity<List<DistritoCpDTO>> getAll() { return ResponseEntity.ok(service.listarTodos()); }
 }
+*/
