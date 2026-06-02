@@ -119,7 +119,10 @@
                 <c:forEach var="responsableEntidad" items="${responsablesEntidad}">
                     <option value="${responsableEntidad.id}"
                             <c:if test="${incidencia.responsableEntidadId == responsableEntidad.id}">selected</c:if>>
-                        <c:out value="${responsableEntidad.nombre}" />
+                        <c:out value="${responsable.nombreContacto}" />
+                        <c:if test="${not empty responsable.emailContacto}">
+                            - <c:out value="${responsable.emailContacto}" />
+                        </c:if>
                     </option>
                 </c:forEach>
             </select>

@@ -2,11 +2,20 @@ package com.bancosol.dto;
 
 import lombok.*;
 
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResponsableEntidadDTO {
+
     private Long id;
     private Boolean esContactoPrincipal;
-    private Long entidadId;  // Referencia a la entidad colaboradora
-    private Long usuarioId;  // Referencia a su cuenta de usuario
-    private Long contactoId; // Referencia a su información de contacto
+
+    private Long entidadId;
+    private Long usuarioId;
+    private Long contactoId;
+
+    private String nombreContacto;
+    private String emailContacto;
+    private String telefonoContacto;
 }

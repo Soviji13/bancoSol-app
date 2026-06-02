@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/incidencias/incidenciaSeleccionada.css">
-
 <section class="detalle-incidencia">
 
     <header class="detalle-incidencia__cabecera">
@@ -12,7 +10,7 @@
         </div>
 
         <a class="btn-classic" href="${pageContext.request.contextPath}/incidencias">
-            Volver
+            Cerrar
         </a>
     </header>
 
@@ -50,7 +48,14 @@
                 <div class="detalle-incidencia__fila">
                     <span class="detalle-incidencia__etiqueta">Reportado por</span>
                     <span class="detalle-incidencia__valor">
-                        <c:out value="${incidencia.reportadoPorNombre}" />
+                        <c:choose>
+                            <c:when test="${not empty incidencia.reportadoPorNombre}">
+                                <c:out value="${incidencia.reportadoPorNombre}" />
+                            </c:when>
+                            <c:otherwise>
+                                No indicado
+                            </c:otherwise>
+                        </c:choose>
                     </span>
                 </div>
 
@@ -90,6 +95,7 @@
                 </div>
 
                 <div class="detalle-incidencia__acciones">
+
                     <a class="btn-classic"
                        href="${pageContext.request.contextPath}/incidencias/editar?id=${incidencia.id}">
                         Editar
@@ -105,6 +111,7 @@
                             Eliminar
                         </button>
                     </form>
+
                 </div>
 
             </article>

@@ -35,27 +35,26 @@ public class IncidenciaController {
                          @RequestParam(value = "mostrarFiltros", required = false) Boolean mostrarFiltros,
                          Model model) {
 
-        List<IncidenciaDTO> incidencias;
+        List<IncidenciaDTO> incidencias = obtenerIncidencias(estado, asunto, tipo, responsable);
 
-        if (estado == null || estado.isBlank()) {
-            incidencias = incidenciaService.listarTodas();
-        } else {
-            incidencias = incidenciaService.listarPorEstado(estado);
-        }
-
-        incidencias = filtrarIncidencias(incidencias, asunto, tipo, responsable);
-
-        model.addAttribute("pagina", "gestionar-incidencias");
-        model.addAttribute("incidencias", incidencias);
-
-        model.addAttribute("estadoSeleccionado", estado);
-        model.addAttribute("asuntoSeleccionado", asunto);
-        model.addAttribute("tipoSeleccionado", tipo);
-        model.addAttribute("responsableSeleccionado", responsable);
+        prepararListado(model, incidencias, estado, asunto, tipo, responsable);
 
         if (Boolean.TRUE.equals(mostrarFiltros)) {
             model.addAttribute("panelIzquierdo", "incidencias/panel-filtros.jsp");
         }
+
+        return "inicio";
+    }
+
+    @GetMapping("/detalle")
+    public String doDetalle(@RequestParam("id") Long id, Model model) {
+        IncidenciaDTO incidencia = incidenciaService.buscarPorId(id);
+        List<IncidenciaDTO> incidencias = incidenciaService.listarTodas();
+
+        prepararListado(model, incidencias, null, null, null, null);
+
+        model.addAttribute("panelIzquierdo", "incidencias/incidenciaSeleccionada.jsp");
+        model.addAttribute("incidencia", incidencia);
 
         return "inicio";
     }
@@ -68,23 +67,6 @@ public class IncidenciaController {
     @GetMapping("/editar")
     public String doEditar(@RequestParam("id") Long id, Model model) {
         return editarCrear(id, model);
-    }
-
-    @GetMapping("/detalle")
-    public String doDetalle(@RequestParam("id") Long id, Model model) {
-        IncidenciaDTO incidencia = incidenciaService.buscarPorId(id);
-
-        model.addAttribute("pagina", "detalle-incidencia");
-        model.addAttribute("incidencia", incidencia);
-
-        return "inicio";
-    }
-
-    @PostMapping("/borrar")
-    public String doBorrar(@RequestParam("id") Long id) {
-        incidenciaService.eliminar(id);
-
-        return "redirect:/incidencias";
     }
 
     @PostMapping("/guardar")
@@ -112,6 +94,13 @@ public class IncidenciaController {
         } else {
             incidenciaService.actualizar(id, incidencia);
         }
+
+        return "redirect:/incidencias";
+    }
+
+    @PostMapping("/borrar")
+    public String doBorrar(@RequestParam("id") Long id) {
+        incidenciaService.eliminar(id);
 
         return "redirect:/incidencias";
     }
@@ -145,15 +134,48 @@ public class IncidenciaController {
         return "inicio";
     }
 
+    private void prepararListado(Model model,
+                                 List<IncidenciaDTO> incidencias,
+                                 String estado,
+                                 String asunto,
+                                 String tipo,
+                                 String responsable) {
+
+        model.addAttribute("pagina", "gestionar-incidencias");
+        model.addAttribute("incidencias", incidencias);
+
+        model.addAttribute("estadoSeleccionado", estado);
+        model.addAttribute("asuntoSeleccionado", asunto);
+        model.addAttribute("tipoSeleccionado", tipo);
+        model.addAttribute("responsableSeleccionado", responsable);
+    }
+
     private void cargarDatosFormulario(Model model) {
         model.addAttribute("responsablesTienda", responsableTiendaService.listarTodos());
         model.addAttribute("responsablesEntidad", responsableEntidadService.listarTodos());
+    }
+
+    private List<IncidenciaDTO> obtenerIncidencias(String estado,
+                                                   String asunto,
+                                                   String tipo,
+                                                   String responsable) {
+
+        List<IncidenciaDTO> incidencias;
+
+        if (estado == null || estado.isBlank()) {
+            incidencias = incidenciaService.listarTodas();
+        } else {
+            incidencias = incidenciaService.listarPorEstado(estado);
+        }
+
+        return filtrarIncidencias(incidencias, asunto, tipo, responsable);
     }
 
     private List<IncidenciaDTO> filtrarIncidencias(List<IncidenciaDTO> incidencias,
                                                    String asunto,
                                                    String tipo,
                                                    String responsable) {
+
         return incidencias.stream()
                 .filter(incidencia -> coincideAsunto(incidencia, asunto))
                 .filter(incidencia -> coincideTipo(incidencia, tipo))
@@ -184,7 +206,8 @@ public class IncidenciaController {
             return false;
         }
 
-        return incidencia.getReportadoPorTipo().equalsIgnoreCase(tipo.trim());
+        return incidencia.getReportadoPorTipo()
+                .equalsIgnoreCase(tipo.trim());
     }
 
     private boolean coincideResponsable(IncidenciaDTO incidencia, String responsable) {
