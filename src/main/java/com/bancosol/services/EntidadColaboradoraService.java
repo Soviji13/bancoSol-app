@@ -19,7 +19,7 @@ public class EntidadColaboradoraService {
     private final EntidadColaboradoraRepository entidadRepo;
     private final EntidadColaboradoraMapper entidadMapper;
 
-    public List <EntidadColaboradoraDTO> listarTodos () {
+    public List <EntidadColaboradoraDTO> listarTodas () {
         return entidadMapper.toDTOList(entidadRepo.findAll());
     }
 
