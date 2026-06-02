@@ -3,10 +3,13 @@
 
 package com.bancosol.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.entities.Tienda;
 
-public class TiendaMapper {
+@Component
+public class TiendaMapper extends MapperDTO <TiendaDTO, Tienda> {
 
     public TiendaDTO toDTO (Tienda tienda) {
 
