@@ -9,6 +9,7 @@ public class DireccionDTO {
     private Short numero;
     private String datosAdicionales;
     private Boolean esCapital;
+    
     private Long localidadId;
     private Long codigoPostalId;
     private Long distritoId;

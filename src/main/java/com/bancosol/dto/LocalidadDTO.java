@@ -6,5 +6,6 @@ import lombok.*;
 public class LocalidadDTO {
     private Long id;
     private String nombre;
+    
     private Long zonaGeoId; // Referencia a la zona geográfica
 }

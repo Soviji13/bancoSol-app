@@ -2,13 +2,39 @@ package com.bancosol.services;
 
 import com.bancosol.dao.DireccionRepository;
 import com.bancosol.dto.DireccionDTO;
-import com.bancosol.entities.Direccion;
+import com.bancosol.mapper.DireccionMapper;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class DireccionService {
+
+    // Refactorización Sofía (0 IA) --------------------------------------
+
+    private final DireccionRepository dirRepo;
+    private final DireccionMapper dirMapper;
+
+    public List <DireccionDTO> listarTodos () {
+        return dirMapper.toDTOList(dirRepo.findAll());
+    }
+
+    public DireccionDTO findById (Long id) {
+        return dirMapper.toDTO(dirRepo.findById(id).orElse(null));
+    }
+
+    // Devuelve todas las que se encuentren en el Array de Ids
+    public List<DireccionDTO> findAllById(List<Long> ids) {
+        return dirMapper.toDTOList(dirRepo.findAllById(ids));
+    }
+
+    // Final parte Sofía ------------------------------------------
+
+
+    /* 
     private final DireccionRepository repo;
     public DireccionService(DireccionRepository repo) { this.repo = repo; }
 
@@ -28,4 +54,5 @@ public class DireccionService {
                 .distritoId(d.getDistrito() != null ? d.getDistrito().getId() : null)
                 .build();
     }
+    */
 }
