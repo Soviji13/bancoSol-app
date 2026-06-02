@@ -18,7 +18,7 @@ public class DireccionService {
     private final DireccionRepository dirRepo;
     private final DireccionMapper dirMapper;
 
-    public List <DireccionDTO> listarTodos () {
+    public List <DireccionDTO> listarTodas () {
         return dirMapper.toDTOList(dirRepo.findAll());
     }
 

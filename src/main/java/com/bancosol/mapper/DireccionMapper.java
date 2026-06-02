@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import com.bancosol.dto.DireccionDTO;
 import com.bancosol.entities.Direccion;
 
-
-
 @Component
 public class DireccionMapper extends MapperDTO <DireccionDTO, Direccion> {
 

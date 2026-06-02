@@ -2,13 +2,38 @@ package com.bancosol.services;
 
 import com.bancosol.dao.LocalidadRepository;
 import com.bancosol.dto.LocalidadDTO;
-import com.bancosol.entities.Localidad;
+import com.bancosol.mapper.LocalidadMapper;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class LocalidadService {
+
+    // Refactorización Sofía (0 IA) --------------------------------------
+
+    private final LocalidadRepository locRepo;
+    private final LocalidadMapper locMapper;
+
+    public List <LocalidadDTO> listarTodas () {
+        return locMapper.toDTOList(locRepo.findAll());
+    }
+
+    public LocalidadDTO findById (Long id) {
+        return locMapper.toDTO(locRepo.findById(id).orElse(null));
+    }
+
+    // Devuelve todas las que se encuentren en el Array de Ids
+    public List<LocalidadDTO> findAllById(List<Long> ids) {
+        return locMapper.toDTOList(locRepo.findAllById(ids));
+    }
+
+    // Final parte Sofía ------------------------------------------
+
+    /* 
     private final LocalidadRepository repo;
     public LocalidadService(LocalidadRepository repo) { this.repo = repo; }
 
@@ -23,4 +48,5 @@ public class LocalidadService {
                 .zonaGeoId(l.getZonaGeografica() != null ? l.getZonaGeografica().getId() : null)
                 .build();
     }
+    */
 }
