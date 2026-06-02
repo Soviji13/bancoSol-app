@@ -32,6 +32,7 @@ public class CampaniaService {
     public List<CampaniaDTO> findAllById(List<Long> ids) {
         return campaniaMapper.toDTOList(repo.findAllById(ids));
     }
+
     @Transactional
     public void vincularCoordinador(Long campaniaId, Long coordinadorId) {
         Campania campania = repo.findById(campaniaId).orElse(null);

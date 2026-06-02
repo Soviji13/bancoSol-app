@@ -2,15 +2,39 @@ package com.bancosol.services;
 
 import com.bancosol.dao.EntidadColaboradoraRepository;
 import com.bancosol.dto.EntidadColaboradoraDTO;
-import com.bancosol.entities.EntidadColaboradora;
-import com.bancosol.entities.Tienda;
+import com.bancosol.mapper.EntidadColaboradoraMapper;
+
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class EntidadColaboradoraService {
+
+    // Refactorización de Sofía (0 IA)
+
+    private final EntidadColaboradoraRepository entidadRepo;
+    private final EntidadColaboradoraMapper entidadMapper;
+
+    public List <EntidadColaboradoraDTO> listarTodos () {
+        return entidadMapper.toDTOList(entidadRepo.findAll());
+    }
+
+    public EntidadColaboradoraDTO findById (Long id) {
+        return entidadMapper.toDTO(entidadRepo.findById(id).orElse(null));
+    }
+
+    // Devuelve todas las que se encuentren en el Array de Ids
+    public List<EntidadColaboradoraDTO> findAllById(List<Long> ids) {
+        return entidadMapper.toDTOList(entidadRepo.findAllById(ids));
+    }
+
+    // Final parte Sofía
+
+    /* 
     private final EntidadColaboradoraRepository repo;
     public EntidadColaboradoraService(EntidadColaboradoraRepository repo) { this.repo = repo; }
 
@@ -42,4 +66,5 @@ public class EntidadColaboradoraService {
 
                 .build();
     }
+    */
 }

@@ -27,15 +27,6 @@ public class EntidadColaboradora {
 
     private String observaciones;
 
-    @Column(name = "num_tiendas", nullable = false)
-    private Short numTiendas = 0;
-
-    @Column(name = "num_turnos", nullable = false)
-    private Short numTurnos = 0;
-
-    @Column(name = "num_voluntarios", nullable = false)
-    private Short numVoluntarios = 0;
-
     // Relaciones
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coordinador_id")
@@ -64,5 +55,9 @@ public class EntidadColaboradora {
     )
     private List<Tienda> tiendas = new ArrayList<>();
 
+    // Responsables de entidad (refactorización - Sofía Si Villalba Jiménez)
+    // Ayuda de la IA
+    @OneToMany(mappedBy = "colaborador", fetch = FetchType.LAZY)
+    private List<ResponsableEntidad> responsables;
 
 }

@@ -1,7 +1,6 @@
 package com.bancosol.services;
 
 import com.bancosol.dao.TiendaRepository;
-import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.mapper.TiendaMapper;
 
