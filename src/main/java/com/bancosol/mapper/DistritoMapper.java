@@ -3,11 +3,13 @@
 
 package com.bancosol.mapper;
 
+import java.util.stream.Collectors;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
-import com.bancosol.dto.DireccionDTO;
 import com.bancosol.dto.DistritoDTO;
-import com.bancosol.entities.Direccion;
+import com.bancosol.entities.CodigoPostal;
 import com.bancosol.entities.Distrito;
 
 @Component
@@ -18,6 +20,15 @@ public class DistritoMapper extends MapperDTO <DistritoDTO, Distrito> {
         DistritoDTO dto = new DistritoDTO();
 
         dto.setId(dis.getId());
+        dto.setNombre(dis.getNombre());
+
+        dto.setCodigosIds (
+            dis.getCodigosPostales() != null ?
+                dis.getCodigosPostales().stream()
+                    .map(CodigoPostal::getId)
+                    .collect(Collectors.toList())
+                : List.of()
+        );
 
         return dto;
     }
