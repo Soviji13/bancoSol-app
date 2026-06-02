@@ -18,7 +18,7 @@ public class DistritoService {
     private final DistritoRepository disRepo;
     private final DistritoMapper disMapper;
 
-    public List <DistritoDTO> listarTodas () {
+    public List <DistritoDTO> listarTodos () {
         return disMapper.toDTOList(disRepo.findAll());
     }
 
