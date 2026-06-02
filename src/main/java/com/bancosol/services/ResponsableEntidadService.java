@@ -2,16 +2,39 @@ package com.bancosol.services;
 
 import com.bancosol.dao.ResponsableEntidadRepository;
 import com.bancosol.dto.ResponsableEntidadDTO;
-import com.bancosol.entities.Contacto;
-import com.bancosol.entities.ResponsableEntidad;
+import com.bancosol.mapper.ResponsableEntidadMapper;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class ResponsableEntidadService {
 
+    // Refactorización de Sofía (0 IA)
+
+    private final ResponsableEntidadRepository responsableRepo;
+    private final ResponsableEntidadMapper responsableMapper;
+
+    public List <ResponsableEntidadDTO> listarTodos () {
+        return responsableMapper.toDTOList(responsableRepo.findAll());
+    }
+
+    public ResponsableEntidadDTO findById (Long id) {
+        return responsableMapper.toDTO(responsableRepo.findById(id).orElse(null));
+    }
+
+    // Devuelve todas las que se encuentren en el Array de Ids
+    public List<ResponsableEntidadDTO> findAllById(List<Long> ids) {
+        return responsableMapper.toDTOList(responsableRepo.findAllById(ids));
+    }
+
+    // Final parte Sofía
+    
+    /* 
     private final ResponsableEntidadRepository repo;
 
     public ResponsableEntidadService(ResponsableEntidadRepository repo) {
@@ -42,4 +65,5 @@ public class ResponsableEntidadService {
 
                 .build();
     }
+    */
 }

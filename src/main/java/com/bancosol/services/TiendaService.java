@@ -2,24 +2,47 @@ package com.bancosol.services;
 
 import com.bancosol.dao.TiendaRepository;
 import com.bancosol.dto.TiendaDTO;
-import com.bancosol.entities.Campania;
-import com.bancosol.entities.EntidadColaboradora;
-import com.bancosol.entities.ResponsableTienda;
-import com.bancosol.entities.Tienda;
+import com.bancosol.mapper.TiendaMapper;
+
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor // Sofía
 public class TiendaService {
-    private final TiendaRepository repo;
-    public TiendaService(TiendaRepository repo) { this.repo = repo; }
 
-    public List<TiendaDTO> listarTodas() {
-        return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
-    }
+        // Integración Sofía para Backend (0% IA generativa) --------------
+        private final TiendaRepository tiendaRepo;
+        private final TiendaMapper tiendaMapper;
 
-    private TiendaDTO toDTO(Tienda t) {
+        public List <TiendaDTO> listarTodas () {
+                return tiendaMapper.toDTOList(tiendaRepo.findAll());
+        }
+
+        public TiendaDTO findById (Long id) {
+                return tiendaMapper.toDTO(tiendaRepo.findById(id).orElse(null));
+        }
+
+        // Devuelve todas las que se encuentren en el Array de Ids
+        public List<TiendaDTO> findAllById(List<Long> ids) {
+                return tiendaMapper.toDTOList(tiendaRepo.findAllById(ids));
+        }
+
+        
+        // Fin integración Sofía ---------------------------------------------------
+
+/*   Parte Fran Comentada
+        private final TiendaRepository repo;
+        public TiendaService(TiendaRepository repo) { this.repo = repo; }
+
+        public List<TiendaDTO> listarTodas() {
+                return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+        }
+
+        private TiendaDTO toDTO(Tienda t) {
         return TiendaDTO.builder()
                 .id(t.getId())
                 .nombre(t.getNombre())
@@ -47,5 +70,7 @@ public class TiendaService {
                                 .collect(Collectors.toList()))
 
                 .build();
-    }
+        }
+    */ 
+
 }

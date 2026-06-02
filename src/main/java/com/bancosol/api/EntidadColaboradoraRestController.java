@@ -1,3 +1,4 @@
+/* 
 package com.bancosol.api;
 
 import com.bancosol.dto.EntidadColaboradoraDTO;
@@ -14,3 +15,4 @@ public class EntidadColaboradoraRestController {
     @GetMapping
     public ResponseEntity<List<EntidadColaboradoraDTO>> getAll() { return ResponseEntity.ok(service.listarTodas()); }
 }
+*/
