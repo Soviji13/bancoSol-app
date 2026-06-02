@@ -103,6 +103,11 @@ function actualizarInputBorrado() {
   }
 }
 
+/*
+   VER INCIDENCIA:
+   mantiene el listado como contenido principal
+   y abre el detalle en el panel lateral izquierdo.
+*/
 function irADetalleIncidencia() {
   if (!incidenciaSeleccionadaId) {
     return;
@@ -111,6 +116,10 @@ function irADetalleIncidencia() {
   window.location.href = construirUrl(`/incidencias/detalle?id=${incidenciaSeleccionadaId}`);
 }
 
+/*
+   EDITAR INCIDENCIA:
+   abre el formulario normal en el contenido principal.
+*/
 function irAEditarIncidencia() {
   if (!incidenciaSeleccionadaId) {
     return;

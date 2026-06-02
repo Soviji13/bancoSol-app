@@ -54,6 +54,10 @@
             <link rel="stylesheet" href="${pageContext.request.contextPath}/css/incidencias/panelFiltro.css" />
         </c:if>
 
+        <c:if test="${panelIzquierdo == 'incidencias/incidenciaSeleccionada.jsp'}">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/incidencias/incidenciaSeleccionada.css" />
+        </c:if>
+
         <script type="module"
                 src="${pageContext.request.contextPath}/js/incidencias/incidencias.js"
                 defer>
@@ -68,11 +72,6 @@
                 src="${pageContext.request.contextPath}/js/incidencias/formIncidencia.js"
                 defer>
         </script>
-    </c:if>
-
-    <%-- INCIDENCIAS: DETALLE --%>
-    <c:if test="${pagina == 'detalle-incidencia'}">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/incidencias/incidenciaSeleccionada.css" />
     </c:if>
 </head>
 
@@ -126,10 +125,6 @@
 
                 <c:when test="${pagina == 'formulario-incidencia'}">
                     <jsp:include page="incidencias/formulario.jsp" />
-                </c:when>
-
-                <c:when test="${pagina == 'detalle-incidencia'}">
-                    <jsp:include page="incidencias/detalle.jsp" />
                 </c:when>
 
                 <c:otherwise>
