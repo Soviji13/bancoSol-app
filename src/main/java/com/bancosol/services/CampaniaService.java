@@ -6,6 +6,8 @@ import com.bancosol.dao.CoordinadorRepository;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.entities.*;
 import com.bancosol.mapper.CampaniaMapper;
+
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +36,14 @@ public class CampaniaService {
 
     // Parte Sofía Si Villalba Jiménez (0% IA) --------------------------------------------------
 
-    
+    public CampaniaDTO devolverCampaniaActiva () {
+        Campania c = this.repo.findByActivaTrue().
+            orElseThrow(() -> 
+                new EntityNotFoundException("No hay ninguna campaña activa actualmente")
+            );
+
+        return campaniaMapper.toDTO(c);
+    }
 
     //------------------------------------------------------------------------------------------------
 

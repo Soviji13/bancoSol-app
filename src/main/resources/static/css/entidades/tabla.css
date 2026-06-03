@@ -17,7 +17,7 @@
     font-weight: bold;
     background-color: #f8f9ff;
     position: sticky;
-    top: 20vh; 
+    top: 100px; 
     z-index: 10;
     box-shadow: inset 0 -1px 0 var(--color-borde-suave);
     border: 1px solid var(--color-borde-suave);
