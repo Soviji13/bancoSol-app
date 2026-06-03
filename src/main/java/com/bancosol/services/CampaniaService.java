@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +31,12 @@ public class CampaniaService {
     public List<CampaniaDTO> findAllById(List<Long> ids) {
         return campaniaMapper.toDTOList(repo.findAllById(ids));
     }
+
+    // Parte Sofía Si Villalba Jiménez (0% IA) --------------------------------------------------
+
+    
+
+    //------------------------------------------------------------------------------------------------
 
     @Transactional
     public void vincularCoordinador(Long campaniaId, Long coordinadorId) {
