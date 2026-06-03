@@ -17,4 +17,12 @@ public class EntidadColaboradoraDTO {
 
     private List<Long> idsTiendas;       // Sustituye a TiendaColaborador
     private List<Long> idsResponsables;     // Sustituye a ResponsableEntidad
+
+    // Código añadido por Sofía (0% IA Generativa) --------------------------
+
+    // Para la tabla
+    private String domicilio;
+    private String zonaGeo;
+    private List <String> nombresTiendas;
+    private ResponsableEntidadDTO contactoPrincipal;
 }

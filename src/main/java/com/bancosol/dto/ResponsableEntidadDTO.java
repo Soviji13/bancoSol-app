@@ -12,5 +12,12 @@ public class ResponsableEntidadDTO {
     private Boolean esContactoPrincipal;
 
     private Long usuarioId;
-    private Long contactoId;
+
+    // Comentado por Sofía, ya no es necesario
+    // private Long contactoId;
+
+    // Código añadido de Sofía Si Villalba Jiménez (0% IA Generativa)
+    private String nombre;
+    private String email;
+    private String telefono;
 }

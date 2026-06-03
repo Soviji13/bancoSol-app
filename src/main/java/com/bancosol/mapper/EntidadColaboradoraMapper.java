@@ -17,6 +17,12 @@ import com.bancosol.entities.Tienda;
 @Component
 public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO, EntidadColaboradora> {
 
+    private final ResponsableEntidadMapper responsableEntidadMapper;
+
+    EntidadColaboradoraMapper(ResponsableEntidadMapper responsableEntidadMapper) {
+        this.responsableEntidadMapper = responsableEntidadMapper;
+    }
+
     public EntidadColaboradoraDTO toDTO (EntidadColaboradora entidad) {
 
         EntidadColaboradoraDTO dto = new EntidadColaboradoraDTO();
@@ -55,6 +61,39 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
             entidad.getCoordinador().getId()
             : null
         );
+
+        // Datos directos para poder mostrarlos por tabla sin realizar demasiadas consultas
+        // ni sin tener que acceder a la entidad directamente
+
+        dto.setDomicilio (
+            entidad.getDireccion() != null ? 
+            entidad.getDireccion().getCalle() + ", " + entidad.getDireccion().getNumero()
+            : "-"
+        );
+
+        dto.setZonaGeo (
+            entidad.getDireccion()  != null && entidad.getDireccion().getLocalidad() != null ? 
+            entidad.getDireccion().getLocalidad().getNombre()
+            : "-"
+        );
+
+        dto.setNombresTiendas (
+            entidad.getTiendas() != null ? 
+            entidad.getTiendas().stream()
+                .map(Tienda::getNombre)
+                .collect(Collectors.toList())
+            : List.of()
+        );
+
+        dto.setContactoPrincipal (
+        entidad.getResponsables() != null ?
+        entidad.getResponsables().stream()
+            .filter(ResponsableEntidad::getEsContactoPrincipal) 
+            .findFirst()                                        
+            .map(responsableEntidadMapper::toDTO)                      
+            .orElse(null)                              
+        : null
+    );
 
         return dto;
     }
