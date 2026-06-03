@@ -4,25 +4,26 @@
 .menu-lateral {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    padding: 4%;
+    gap: 1.4rem;
+    padding: 3%;
     border: none;
     margin: 0;
     height: 100%;
     box-sizing: border-box;
     align-items: center;
+    overflow: hidden;
 }
 
 .menu-lateral__btn {
     width: 80%;
-    min-height: 10%;
-    padding: 5% 6%;
+    min-height: 8.5%;
+    padding: 4% 5%;
     border: var(--borde-general);
     border-radius: var(--radio-md);
     background-color: var(--color-fondo);
     color: var(--color-texto);
-    font-size: clamp(0.95rem, 1vw, 1.08rem);
-    line-height: 1.25;
+    font-size: clamp(0.9rem, 0.95vw, 1rem);
+    line-height: 1.2;
     text-align: center;
     transition:
     background-color var(--transicion),
@@ -67,7 +68,9 @@ button:focus-visible {
     grid-template-columns: 25% 75%;
     flex: 1;
     gap: 0;
-    height: 100vh;
+    height: calc(100vh - 20px);
+    min-height: 0;
+    overflow: hidden;
 }
 
 .contenedor_contenido {
@@ -76,22 +79,29 @@ button:focus-visible {
     gap: 0;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .contenedor_principal {
     grid-column: 2;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .contenedor_menu {
     grid-column: 1;
     border-right: var(--borde-general);
+    min-height: 0;
+    overflow: hidden;
 }
 
 .contenido {
     border: none;
     margin: 0;
     padding: 0;
-    overflow: auto;
+    overflow: hidden;
     width: 100%;
     height: 100%;
+    min-height: 0;
 }
