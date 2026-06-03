@@ -1,0 +1,45 @@
+/* 1. Aseguramos que el contenedor no tenga scroll horizontal */
+#entidades .panel-contenido { 
+    overflow-x: hidden; 
+    padding: 15px;
+    box-sizing: border-box; /* Crucial para que el padding no sume al ancho */
+}
+    
+    /* 2. Ajustamos la fila de los checkboxes */
+    #entidades .fila-check { 
+        display: flex; 
+        align-items: flex-start; /* Alinea el checkbox con la primera línea de texto */
+        gap: 12px; 
+        margin-bottom: 20px; 
+        cursor: pointer;
+        width: 100%;
+    }
+
+    /* 3. Estilo del texto del checkbox */
+    #entidades .fila-check .etiqueta {
+        flex: 1; /* Ocupa el espacio restante */
+        white-space: normal; /* PERMITE que el texto salte de línea si es necesario */
+        line-height: 1.2;
+        color: #334155;
+        font-size: 14px;
+        word-wrap: break-word; /* Rompe palabras si son excesivamente largas */
+    }
+
+    /* 4. Tamaño fijo para el checkbox para que no se deforme */
+    #entidades .check-inline {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0; /* Evita que el checkbox se haga pequeño si hay mucho texto */
+        margin-top: 2px;
+        cursor: pointer;
+    }
+
+    /* 5. Selectores más limpios */
+    #entidades select.input-linea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--color-borde-suave);
+        border-radius: 4px;
+        background-color: var(--color-fondo);
+        margin-bottom: 10px;
+    }

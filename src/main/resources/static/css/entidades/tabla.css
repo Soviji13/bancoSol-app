@@ -1,0 +1,127 @@
+/* En styles/tabla.css */
+
+/* Eliminamos la altura fija restrictiva que cortaba las filas por la mitad */
+#entidades .contenedor-tabla-scroll {
+    width: 100%;
+    margin-bottom: 90px; /* Evita que el pie de página fijo tape las últimas filas */
+}
+
+#entidades table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Cabecera Sticky Perfecta: Se quedará fija arriba al hacer scroll nativo en la página */
+#entidades thead td {
+    color: var(--color-principal);
+    font-weight: bold;
+    background-color: #f8f9ff;
+    position: sticky;
+    top: 20vh; 
+    z-index: 10;
+    box-shadow: inset 0 -1px 0 var(--color-borde-suave);
+    border: 1px solid var(--color-borde-suave);
+}
+
+#entidades td {
+    text-align: center;
+    border: 1px solid var(--color-borde-suave);
+    padding: 15px 20px;
+    background-color: var(--color-fondo);
+}
+
+#entidades tbody tr:hover td {
+    background-color: var(--color-hover);
+    cursor: pointer;
+}
+
+#entidades .fila-seccion-campania {
+    background-color: #e2e8f0 !important;
+    color: var(--color-principal) !important;
+    font-weight: bold;
+    text-align: left !important;
+    padding: 10px 20px !important;
+    font-size: 1.05em;
+    letter-spacing: 0.5px;
+    cursor: default !important;
+}
+
+#entidades tbody tr:has(.fila-seccion-campania):hover td {
+    background-color: #e2e8f0 !important;
+    cursor: default !important;
+}
+
+#entidades tbody tr {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#entidades .desplegar {
+    width: 20px;
+    height: 20px;
+    background-image: url("../assets/keyboard_double_arrow_down.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px;
+    cursor: pointer;
+}
+
+#entidades .desplegar.rotado {
+    transform: rotate(180deg);
+}
+
+/* Estilo del Modal */
+#entidades .modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+
+#entidades .modal-content {
+    background: var(--color-fondo); 
+    padding: 20px; 
+    border-radius: 8px; 
+    width: 500px;
+    max-height: 80vh; 
+    overflow-y: auto;
+    border: 2px solid var(--color-texto);
+}
+
+#entidades .modal-header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+
+#entidades .campania-card {
+    border: 1px solid var(--color-texto); 
+    padding: 15px; 
+    margin-bottom: 10px;
+    cursor: pointer; 
+    transition: background 0.3s;
+}
+#entidades .campania-card:hover { 
+    background: var(--color-hover); 
+    border-color: var(--color-principal-oscuro); 
+}
+
+#entidades .campania-card h3 { 
+    color: var(--color-principal-oscuro); 
+    margin-bottom: 5px;
+}
+
+#entidades .campania-card p { 
+    font-size: 0.9em; 
+    color: var(--color-borde); 
+}
+
+#entidades .campania-card.activa { 
+    border-left: 5px solid var(--color-principal-oscuro); 
+    background: #f9f9f9; 
+}
+
+/* Forzamos a la caja del formulario a eliminar los márgenes de centrado de los modales flotantes */
+#entidades .modal-overlay
+{
+    margin: 0;
+    padding: 20px;
+}

@@ -1,0 +1,148 @@
+#entidades .pie-pagina
+{
+    bottom: 0;
+    position: fixed;
+    display: flex;
+    width: 100%;
+
+    border-top: 1px solid var(--color-principal);
+
+    align-items: stretch;
+
+    z-index: 1;
+
+    background-color: var(--color-fondo);
+}
+
+#entidades .container-interactuar div
+{
+    border-right: 1px solid var(--color-principal);
+    box-sizing: border-box;
+    flex: 1;
+    width: auto;
+    text-align: center;
+    padding: 20px 0;
+
+}
+
+
+#entidades .container-interactuar
+{
+    flex: 1;
+    display: flex;
+}
+
+#entidades .activado 
+{
+    color: var(--color-principal);
+}
+
+#entidades .activado:hover
+{
+    cursor: pointer;
+    background-color: var(--color-hover);
+}
+
+#entidades .desactivado:hover
+{
+    cursor: not-allowed;
+    background-color: #f7bdbd;
+    color: var(--color-error)
+}
+
+#entidades .desactivado
+{
+    color: var(--color-deshabilitado);
+}
+
+#entidades .csv
+{
+
+    background-image: url("../assets/file_export.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+
+    cursor:pointer;
+
+    padding: 20px 0;
+
+    width: 60px;
+    flex-shrink: 0;
+    margin-left: 0;
+
+    background-size: 40%;
+    background-origin:padding-box;
+
+}
+
+#entidades .csv:hover
+{
+    cursor: pointer;
+    background-color: var(--color-hover);
+}
+
+
+#entidades .aviso-flotante {
+    position: fixed;
+    bottom: 65px; /* Se posiciona perfectamente por encima de los 57px~ del pie de página fijo */
+    left: 20px;
+    right: 20px;
+    background-color: #ffebeb;
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    z-index: 10;
+    
+    /* Flexbox para mandar el texto a la izquierda y el botón a la derecha */
+    display: none; /* JS lo cambiará a 'flex' */
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+}
+
+#entidades .enlace-cancelar {
+    background: none;
+    border: none;
+    color: var(--color-error);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: normal;
+    font-size: 0.95em;
+    padding: 0;
+    margin-left: 15px;
+    transition: color 0.2s;
+}
+
+#entidades .enlace-cancelar:hover {
+    color: #7f1d1d;
+}
+
+/* Efecto para que el usuario sepa que puede hacer click en las filas */
+#entidades .modo-borrado-activo tr:hover {
+    background-color: #ffcccc !important;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><text y="15">🗑️</text></svg>'), auto;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+/* Estados para los botones del pie de página */
+#entidades .desactivado {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none; /* Esto evita que se pueda hacer click */
+    filter: grayscale(100%);
+}
+
+#entidades .activado {
+    opacity: 1;
+    cursor: pointer !important;
+    pointer-events: auto; /* Vuelve a ser clickeable */
+    filter: none;
+}
+
+

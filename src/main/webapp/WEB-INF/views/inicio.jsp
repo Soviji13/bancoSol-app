@@ -16,6 +16,15 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/global.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/inicio/inicio.css" />
 
+    <%-- Estilos Sofía (no afectan al resto) --%>
+    <link rel="stylesheet" href="<c:url value='/css/entidades/badges.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/entidades/colaborador-seleccionado.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/entidades/encabezado.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/entidades/panel-filtros.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/entidades/pie.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/entidades/registro-colaborador.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/entidades/tabla.css' />">
+
     <%-- COORDINADORES: LISTADO --%>
     <c:if test="${pagina == 'gestionar-coordinadores'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/encabezado.css" />
@@ -127,12 +136,16 @@
                     <jsp:include page="incidencias/formulario.jsp" />
                 </c:when>
 
+                <%-- ENTIDADES PÁGINA INICIAL (Sofía) --%>
+                <c:when test="${pagina == 'inicio-entidades'}">
+                    <jsp:include page="entidades_colaboradoras/tabla.jsp" />
+                </c:when>
+
                 <c:otherwise>
                     <p>No se ha encontrado la página solicitada.</p>
                 </c:otherwise>
             </c:choose>
         </main>
-
     </div>
 
 </div>

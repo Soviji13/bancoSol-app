@@ -1,0 +1,257 @@
+/* Ajustes específicos para el Formulario/Modal de Registro */
+#entidades .god-form {
+    /* Le damos un ancho generoso y fijo para que todos los grids y columnas respiren bien debido a la complejidad de los datos */
+    width: 700px; 
+    /* Evitamos que el formulario se desborde verticalmente en pantallas pequeñas limitándolo al 90% del alto de la ventana (Viewport Height) */
+    max-height: 90vh;
+    /* Espaciado interno general para que los elementos no peguen contra los bordes del contenedor */
+    padding: 30px;
+    /* Dejamos un colchón enorme abajo; clave para que al hacer scroll el botón flotante o el footer no tapen los últimos inputs */
+    padding-bottom: 100px;
+}
+
+#entidades fieldset {
+    /* Enmarcamos cada sección lógica (Información, Localización...) con un borde oscuro sutil */
+    border: 2px solid var(--color-texto);
+    /* Separación vertical limpia entre las diferentes agrupaciones de datos */
+    margin-bottom: 25px;
+    /* Aire interno para que los inputs no queden pegados a las líneas del fieldset */
+    padding: 15px;
+    /* Redondeado ligero en las esquinas para suavizar las líneas rectas del diseño */
+    border-radius: 4px;
+}
+
+#entidades legend {
+    /* Color corporativo semi-transparente para destacar el título de la sección */
+    color: var(--color-principal-oscuro);
+    /* Resaltamos el texto en negrita para mejorar la jerarquía visual de lectura */
+    font-weight: bold;
+    /* Separación lateral para que la línea del borde del fieldset no toque directamente las letras */
+    padding: 0 10px;
+    /* Aumentamos un pelín el tamaño respecto al texto base */
+    font-size: 1.1em;
+    /* Forzamos mayúsculas automáticas para darle un toque más formal de cabecera */
+    text-transform: uppercase;
+}
+
+#entidades .form-group {
+    /* Margen inferior para que los bloques de preguntas no se amontonen */
+    margin-bottom: 15px;
+    /* Activamos flexbox en formato columna: la etiqueta (label) arriba y el input abajo */
+    display: flex;
+    flex-direction: column;
+}
+
+#entidades .form-row {
+    /* Activamos flexbox en formato fila para poner varios inputs juntos (ej: Calle y Número) */
+    display: flex;
+    /* Espacio de separación idéntico entre los elementos que coincidan en la misma línea */
+    gap: 15px;
+    /* Margen inferior para separarse de la siguiente fila del formulario */
+    margin-bottom: 15px;
+}
+
+#entidades .form-row input {
+    /* Hacemos que todos los inputs dentro de una fila crezcan proporcionalmente para ocupar el espacio disponible por igual */
+    flex: 1;
+}
+
+/* Tipografía y estilos unificados para todos los controles de entrada de datos */
+#entidades input[type="text"], 
+#entidades input[type="number"], 
+#entidades input[type="email"], 
+#entidades input[type="password"], 
+#entidades input[type="tel"], 
+#entidades textarea, 
+#entidades select {
+    /* Espaciado interno para que el texto introducido no quede enano ni apretado */
+    padding: 10px;
+    /* Borde gris estándar muy fino */
+    border: 1px solid var(--color-borde-suave);
+    /* Bordes suavizados a juego con el resto de contenedores de la app */
+    border-radius: 4px;
+    /* Tamaño de fuente cómodo y legible para el usuario */
+    font-size: 14px;
+}
+
+/* Efecto visual dinámico cuando el usuario hace clic o se posiciona dentro de un input */
+#entidades input:focus {
+    /* Eliminamos el borde azul por defecto que meten algunos navegadores web */
+    outline: none;
+    /* Cambiamos el color del borde por el azul corporativo del proyecto */
+    border-color: var(--color-principal-oscuro);
+    /* Añadimos un pequeño destello perimetral difuminado (glow) para guiar el ojo del usuario */
+    box-shadow: 0 0 5px rgba(43, 58, 140, 0.2);
+}
+
+/* Tarjetas de Responsables Dinámicos (Inyectadas por JS) */
+#entidades .responsable-card {
+    /* Fondo grisáceo muy claro para diferenciar la tarjeta del fondo blanco del formulario */
+    background: var(--color-fondo-suave);
+    /* Borde perimetral fino para acotar la ficha del contacto */
+    border: 1px solid var(--color-borde-suave);
+    /* Espaciado interno para albergar el bloque de datos del responsable */
+    padding: 15px;
+    /* Margen de separación con la siguiente tarjeta de contacto */
+    margin-bottom: 15px;
+    /* El toque maestro: un borde izquierdo grueso en azul que denota que es un bloque dinámico o especial */
+    border-left: 4px solid var(--color-principal-oscuro);
+}
+
+/* Cabecera interna de la ficha del responsable */
+#entidades .card-header {
+    /* Alineamos en horizontal el título (Responsable #X) y su botón de borrar */
+    display: flex;
+    /* Empuja el título a la izquierda y el botón de eliminación al extremo derecho */
+    justify-content: space-between;
+    /* Centrado vertical perfecto por si el botón es más alto que el texto */
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#entidades .card-header h4 {
+    /* Color oscuro sólido para el título del responsable */
+    color: var(--color-texto);
+    /* Reseteamos márgenes por defecto del h4 para que no rompa el flex de la cabecera */
+    margin: 0;
+}
+
+/* Botón individual para eliminar una tarjeta de responsable específica */
+#entidades .card-header button {
+    /* Color rojo de alerta/peligro */
+    background: var(--color-error);
+    /* Texto en blanco puro para garantizar contraste */
+    color: var(--color-fondo);
+    /* Quitamos el borde plano que mete el navegador por defecto */
+    border: none;
+    /* Botón compacto mediante padding ajustado */
+    padding: 5px 10px;
+    /* Forzamos el cursor interactivo para indicar que es clickeable */
+    cursor: pointer;
+    /* Tamaño de letra ligeramente reducido para mantener la estética de control secundario */
+    font-size: 12px;
+}
+
+/* Contenedores con scroll interno para los listados de Tiendas y Campañas */
+#entidades .scroll-checks {
+    /* Borde gris perimetral para delimitar la caja de opciones */
+    border: 1px solid var(--color-borde-suave);
+    /* Altura fija controlada; clave para que si hay 50 tiendas, el formulario no se vuelva infinito */
+    height: 120px;
+    /* Activamos el scroll exclusivamente vertical cuando el contenido supere los 120px de alto */
+    overflow-y: auto;
+    /* Aire interno para que los checkboxes no peguen contra el borde de la caja */
+    padding: 10px;
+    /* Fondo blanco limpio para contrastar con los labels */
+    background: var(--color-fondo);
+    /* Separación con el elemento superior */
+    margin-top: 5px;
+}
+
+#entidades .scroll-checks label {
+    /* Forzamos a que cada opción ocupe toda la línea horizontal, tirando la siguiente abajo */
+    display: block;
+    /* Separación vertical entre las diferentes casillas de verificación */
+    margin-bottom: 5px;
+    /* Tamaño de fuente ligeramente más compacto para optimizar el espacio de la lista */
+    font-size: 13px;
+    /* Cursor de mano para que toda la línea sea interactiva al hacer click */
+    cursor: pointer;
+}
+
+/* Barra de acciones inferior del formulario (Botonera) */
+#entidades .modal-footer {
+    /* Activamos flexbox para colocar los botones en línea */
+    display: flex;
+    /* Alinea los botones al final (extremo derecho) de la barra inferior */
+    justify-content: flex-end;
+    /* Espacio de separación horizontal fijo entre los botones */
+    gap: 15px;
+    /* Colchón superior antes de la línea divisoria */
+    padding-top: 20px;
+    /* Línea divisoria oscura que delimita el final del formulario */
+    border-top: 2px solid var(--color-texto);
+}
+
+/* Botón principal de confirmación y guardado */
+#entidades .btn-guardar {
+    /* Fondo azul corporativo */
+    background-color: var(--color-principal-oscuro);
+    /* Texto en blanco */
+    color: var(--color-fondo);
+    /* Eliminamos bordes nativos */
+    border: none;
+    /* Botón grande y cómodo para facilitar la pulsación del usuario */
+    padding: 12px 25px;
+    /* Resaltamos el texto de la acción principal */
+    font-weight: bold;
+    cursor: pointer;
+    /* Transición suave de 0.3 segundos para suavizar el cambio de color al pasar el ratón */
+    transition: 0.3s;
+}
+
+/* Cambio de estado cuando el usuario pasa el cursor sobre el botón guardar */
+#entidades .btn-guardar:hover {
+    /* Oscurecemos el azul para dar feedback visual de interactividad */
+    background-color: var(--color-principal-oscuro);
+}
+
+/* Botón secundario para abortar o cancelar el registro */
+#entidades .btn-cancelar {
+    /* Fondo transparente para que quede en un plano secundario respecto al botón de guardar */
+    background: none;
+    /* Borde oscuro idéntico al de los bloques del formulario para mantener la coherencia */
+    border: 2px solid var(--color-texto);
+    /* Dimensiones equilibradas con el botón de guardar */
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+/* Telón de fondo oscuro para el comportamiento de modal clásico */
+#entidades .modal-overlay {
+    /* Posicionamiento fijo para que cubra toda la pantalla del navegador */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Fondo negro con un 70% de opacidad para oscurecer y desenfocar la tabla de atrás */
+    background: rgba(0, 0, 0, 0.7); 
+    /* Oculto por defecto al arrancar la vista (JS cambiará el estado según se requiera) */
+    display: none; 
+    /* Preparado para centrar el formulario perfectamente en los ejes X e Y cuando se active */
+    justify-content: center;
+    align-items: center;
+    /* Capa de prioridad alta para asegurar que flota por encima de la tabla y del pie de página */
+    z-index: 9999; 
+}
+
+/* SUSTITUCIÓN DE VISTA (Cuando el formulario ocupa el lugar de la tabla) */
+#entidades #modal-registro.v-sustitucion {
+    /* Rompemos el posicionamiento fixed para que el formulario vuelva a comportarse como un bloque normal de la página */
+    position: static; 
+    /* Lo forzamos a mostrarse en bloque ocupando su lugar natural en el flujo del documento HTML */
+    display: block;   
+    /* Eliminamos el velo negro de fondo porque ya no está flotando sobre la tabla, ahora ocupa su espacio */
+    background: none; 
+    /* Expandimos el ancho al máximo disponible de la ventana */
+    width: 100%;
+    height: auto;
+    /* Bajamos la prioridad de capa al nivel estándar de los bloques normales de la aplicación */
+    z-index: 1;
+}
+
+/* Adaptación dinámica del formulario contenedor interno bajo el modo de sustitución de vista */
+#entidades #modal-registro.v-sustitucion .god-form {
+    /* Forzamos que use el 100% del ancho disponible para mimetizarse perfectamente con las dimensiones que tenía la tabla */
+    width: 100%;
+    max-width: 100%; 
+    /* Eliminamos márgenes para que se alinee limpio a los bordes de la pantalla */
+    margin: 0;
+    /* Eliminamos la sombra paralela perimetral para que se integre de forma plana y elegante en la página */
+    box-shadow: none; 
+    /* Quitamos bordes */
+    border: none;
+    /* Eliminamos el tope del alto del viewport (90vh) para que crezca libremente hacia abajo según se añadan responsables */
+    max-height: none; 
+}

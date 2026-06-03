@@ -1,0 +1,108 @@
+/* Contenedor de cabecera de la tarjeta */
+#entidades .card-header-flex {
+    /* Activamos flexbox para alinear el título y los badges en la misma línea */
+    display: flex;
+    /* Empuja el título a la izquierda y el contenedor de badges a la derecha del todo */
+    justify-content: space-between;
+    /* Alinea los elementos arriba del todo; clave para que si el título ocupa dos líneas, los badges no se descuadren */
+    align-items: flex-start;
+    /* Margen de separación con las fechas y datos de la zona inferior de la tarjeta */
+    margin-bottom: 10px;
+}
+
+/* Badges (Etiquetas generales) */
+#entidades .badge {
+    /* Tamaño de fuente compacto para que no compita jerárquicamente con el título */
+    font-size: 0.7em;
+    /* Espaciado interno para darle aire al texto y que parezca una píldora estilizada */
+    padding: 3px 8px;
+    /* Bordes muy redondeados para conseguir el efecto de pastilla/píldora moderno */
+    border-radius: 12px;
+    /* Resaltamos el texto para mejorar la legibilidad en tamaños pequeños */
+    font-weight: bold;
+    /* Margen a la izquierda para separar los badges entre sí si coinciden varios juntos */
+    margin-left: 5px;
+    /* Dejamos el borde preparado como transparente para evitar saltos visuales al aplicar el color específico */
+    border: 1px solid transparent;
+}
+
+/* Variación del badge para campañas operativas */
+#entidades .badge-activa {
+    /* Fondo verde menta muy suave */
+    background-color: #e6fffa;
+    /* Texto en verde oscuro para garantizar un buen contraste de accesibilidad */
+    color: #2c7a7b;
+    /* Borde a juego con el texto para enmarcar la etiqueta */
+    border-color: #2c7a7b;
+}
+
+/* Variación del badge para campañas pausadas o terminadas */
+#entidades .badge-inactiva {
+    /* Fondo rojizo pastel de advertencia */
+    background-color: #fff5f5;
+    /* Texto en rojo oscuro para que resalte el estado de inactividad */
+    color: var(--color-error);
+    /* Borde rojizo para cerrar el diseño de la etiqueta */
+    border-color: var(--color-error);
+}
+
+/* Variación del badge para la campaña que se está consultando actualmente */
+#entidades .badge-viendo {
+    /* Fondo azul cielo muy limpio */
+    background-color: var(--color-fila-seleccionada);
+    /* Texto en azul corporativo para llamar la atención del usuario */
+    color: var(--color-focus);
+    /* Borde azulado a juego */
+    border-color: var(--color-focus);
+}
+
+/* Resaltar visualmente la tarjeta que el usuario ha seleccionado */
+#entidades .campania-card.seleccionada {
+    /* Fondo azulado muy sutil para diferenciarla del resto de tarjetas blancas o grises */
+    background-color: var(--color-hover);
+    /* Borde azul potente con !important para asegurar que pisa cualquier otro estilo previo de la tarjeta */
+    border: 2px solid var(--color-principal-oscuro) !important;
+    /* Sombra suave hacia abajo para darle un efecto de elevación flotante espectacular */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Bloque de texto para el año fiscal en la parte inferior */
+#entidades .anio-info {
+    /* Espacio de separación respecto a las fechas de inicio y fin */
+    margin-top: 8px;
+    /* Estilo en cursiva para denotar que es una información secundaria o de apoyo */
+    font-style: italic;
+    /* Tamaño de letra ligeramente reducido para mantener la jerarquía de lectura */
+    font-size: 0.85em;
+}
+
+/* Contador flotante circular para el botón de filtros activos */
+#entidades .badge-filtros {
+    /* Posicionamiento absoluto respecto al botón padre (que debe ser relativo) */
+    position: absolute;
+    /* Lo desplazamos ligeramente hacia fuera de la esquina inferior derecha */
+    bottom: -4px;
+    right: -4px;
+    /* Color de fondo azul oscuro que combina con la línea estética de la app */
+    background-color: var(--color-principal);
+    /* Texto del número en color blanco puro */
+    color: var(--color-fondo);
+    /* Al ser un círculo perfecto, forzamos el radio al 50% */
+    border-radius: 50%;
+    /* Dimensiones idénticas de ancho y alto para asegurar la simetría esférica */
+    width: 18px;
+    height: 18px;
+    /* Activamos flexbox internamente solo para centrar el número de forma matemática en el eje X e Y */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Tamaño de fuente ultra compacto y en negrita para que el número quepa y se lea bien */
+    font-size: 11px;
+    font-weight: bold;
+    /* Ese borde blanco le da un acabado fino espectacular y lo separa del fondo del botón */
+    border: 2px solid var(--color-fondo);
+    /* Sombra proyectada para darle relieve sobre el botón */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    /* MÁGICO: Hace que el círculo ignore las interacciones; si el usuario clica el número, el clic traspasa y activa el botón de abajo */
+    pointer-events: none;
+}
