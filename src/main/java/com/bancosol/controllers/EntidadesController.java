@@ -24,6 +24,7 @@ public class EntidadesController {
     {
         if (campaniaId == null) {
             // Mostramos solo las que son de la campaña actual
+            
         }
 
         model.addAttribute("pagina", "inicio-entidades");
