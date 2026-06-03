@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ProyectoBancoSolApplication<proyecto-banco-sol>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.bancosol.ProyectoBancoSolApplication",
+            "projectName": "proyecto-banco-sol",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

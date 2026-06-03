@@ -52,8 +52,8 @@
         Gestionar tiendas
     </a>
 
-    <a href="<%= contextPath %>/colaboradores"
-       class="btn-menu <%= paginaActual.contains("colaborador") ? "activo" : "" %>">
+    <a href="<%= contextPath %>/entidades"
+       class="btn-menu <%= paginaActual.contains("entidad") ? "activo" : "" %>">
         Gestionar colaboradores
     </a>
 
