@@ -2,6 +2,7 @@
 
 /* Eliminamos la altura fija restrictiva que cortaba las filas por la mitad */
 #entidades .contenedor-tabla-scroll {
+    margin-top: 100px;
     width: 100%;
     margin-bottom: 90px; /* Evita que el pie de página fijo tape las últimas filas */
 }
@@ -17,7 +18,7 @@
     font-weight: bold;
     background-color: #f8f9ff;
     position: sticky;
-    top: 100px; 
+    top: 101px; 
     z-index: 10;
     box-shadow: inset 0 -1px 0 var(--color-borde-suave);
     border: 1px solid var(--color-borde-suave);
@@ -59,7 +60,7 @@
 #entidades .desplegar {
     width: 20px;
     height: 20px;
-    background-image: url("../assets/keyboard_double_arrow_down.svg");
+    background-image: url("../../assets/keyboard_double_arrow_down.svg");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 20px;

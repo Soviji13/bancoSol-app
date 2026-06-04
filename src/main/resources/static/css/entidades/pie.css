@@ -3,7 +3,7 @@
     bottom: 0;
     position: fixed;
     display: flex;
-    width: 100%;
+    width: 75%;
 
     border-top: 1px solid var(--color-principal);
 
@@ -18,8 +18,7 @@
 {
     border-right: 1px solid var(--color-principal);
     box-sizing: border-box;
-    flex: 1;
-    width: auto;
+    width: 80%;
     text-align: center;
     padding: 20px 0;
 
@@ -58,7 +57,7 @@
 #entidades .csv
 {
 
-    background-image: url("../assets/file_export.svg");
+    background-image: url("../../assets/file_export.svg");
     background-repeat: no-repeat;
     background-position: center;
 
@@ -67,7 +66,6 @@
     padding: 20px 0;
 
     width: 60px;
-    flex-shrink: 0;
     margin-left: 0;
 
     background-size: 40%;

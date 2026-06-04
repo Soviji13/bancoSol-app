@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
+
 <section id="entidades">
 
     <%-- Encabezado --%>
@@ -21,22 +22,88 @@
         </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <td>ID</td>
-                <td>NOMBRE</td>
-            </tr>
-        </thead>
-        <tbody>
-            <c:forEach items="${entidadesSelec}" var="e">
+    <%-- Tabla --%>
+    <div class="contenedor-tabla-scroll">
+        <table>
+            <thead>
                 <tr>
-                    <td>${e.id}</td>
-                    <td>${e.nombre}</td>
+                    <td>Colaborador</td>
+                    <td>Domicilio</td>
+                    <td>Colabora en</td>
+                    <td>Contacto Principal</td>
+                    <td colspan="2">Tienda(s) asignada(s)</td>
                 </tr>
-            </c:forEach>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <c:forEach items="${entidadesSelec}" var="e">
+                    <tr>
+                        <td>${e.nombre}</td>
+                        <td>${e.domicilio}</td>
+                        <td>${e.zonaGeo}</td>
+                        <td>
+                            ${e.contactoPrincipal.nombre}
+                            <br>
+                            <c:choose>
+                                <c:when test="${e.contactoPrincipal.email != null}">
+                                    <small>${e.contactoPrincipal.email}</small>
+                                </c:when>
+                                <c:when test="${e.contactoPrincipal.telefono != null}">
+                                    <small>${e.contactoPrincipal.telefono}</small>
+                                </c:when>
+                                <c:otherwise>
+                                    <small>No tiene ningún contacto asociado</small>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td>
+                            <%-- Si tiene tiendas --%>
+                            <c:choose>
+                                <c:when test="${e.nombresTiendas != null && e.nombresTiendas.size() > 0}">
 
+                                    <div class="tiendas-resumen">
+                                        ${e.nombresTiendas.get(0)}
+                                        <c:if test="${e.nombresTiendas.size() > 1}">
+                                            <b>(+${e.nombresTiendas.size() - 1})</b>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="tiendas-lista-completa" style="display: none;">
+                                        <c:forEach var="tienda" items="${e.nombresTiendas}">
+                                            <div style="margin-bottom: 10px;">- ${tienda}</div>
+                                            <br>
+                                        </c:forEach>
+                                    </div>
+
+                                </c:when>
+                                <c:otherwise>
+                                    <p>Sin Tiendas</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                        <c:choose>
+                            <c:when test="${e.nombresTiendas != null && e.nombresTiendas.size() > 1}">
+                                <td class="desplegar boton-desplegar-tiendas-js">&nbsp;</td>
+                            </c:when>
+                            <c:otherwise>
+                                <td class="desplegar">&nbsp;</td>
+                            </c:otherwise>
+                        </c:choose>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </div>
+
+    <%-- Botones inferiores --%>
+    <div class="pie-pagina">
+        <div class="container-interactuar">
+            <div id="btn-eliminar-colaborador" class="activado" style="cursor: pointer;">Eliminar colaborador</div>
+            <div id="btn-modificar-colaborador" class="desactivado" title="Debes primero seleccionar un colaborador">Modificar colaborador</div>
+            <div id="btn-abrir-registro" class="activado" style="cursor: pointer;">Añadir colaborador</div>
+        </div>
+        <div class="csv activado">&nbsp;</div>
+    </div>
+
+    
 
 </section>

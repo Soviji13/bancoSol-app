@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/global.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/inicio/inicio.css" />
 
-    <%-- Estilos Sofía (no afectan al resto) --%>
+    <%-- Estilos y JS Sofía (no afectan al resto) --%>
     <link rel="stylesheet" href="<c:url value='/css/entidades/badges.css' />">
     <link rel="stylesheet" href="<c:url value='/css/entidades/colaborador-seleccionado.css' />">
     <link rel="stylesheet" href="<c:url value='/css/entidades/encabezado.css' />">
@@ -24,6 +24,13 @@
     <link rel="stylesheet" href="<c:url value='/css/entidades/pie.css' />">
     <link rel="stylesheet" href="<c:url value='/css/entidades/registro-colaborador.css' />">
     <link rel="stylesheet" href="<c:url value='/css/entidades/tabla.css' />">
+
+    <c:if test="${pagina == 'inicio-entidades'}">
+        <script type="module"
+                src="${pageContext.request.contextPath}/js/entidades/tabla.js"
+                defer>
+        </script>
+    </c:if>
 
     <%-- COORDINADORES: LISTADO --%>
     <c:if test="${pagina == 'gestionar-coordinadores'}">
@@ -34,10 +41,6 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/badges.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/coordinadores.css" />
 
-        <script type="module"
-                src="${pageContext.request.contextPath}/js/coordinadores/coordinadores.js"
-                defer>
-        </script>
     </c:if>
 
     <%-- COORDINADORES: FORMULARIO --%>

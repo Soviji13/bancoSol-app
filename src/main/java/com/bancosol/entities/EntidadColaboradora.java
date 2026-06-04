@@ -44,9 +44,16 @@ public class EntidadColaboradora {
 
     //Refactorización de entidadColaboradora
 
+    // Refactorización - Sofía Si Villalba Jiménez (Ayuda de IA)
+    // Vincular correctamente la tabla intermedia Tienda_colaborador
+
+    @OneToMany(mappedBy = "colaborador", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<TiendaColaborador> tiendasAsignadas = new ArrayList<>();
+
     @ManyToMany(mappedBy = "colaboradores")
     private List<Campania> campanias = new ArrayList<>();
 
+    /* 
     @ManyToMany
     @JoinTable(
             name = "\"Tienda_colaborador\"",
@@ -54,6 +61,8 @@ public class EntidadColaboradora {
             inverseJoinColumns = @JoinColumn(name = "tienda_id")
     )
     private List<Tienda> tiendas = new ArrayList<>();
+
+    */
 
     // Responsables de entidad (refactorización - Sofía Si Villalba Jiménez)
     // Ayuda de la IA

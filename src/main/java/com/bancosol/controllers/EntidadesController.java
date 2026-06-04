@@ -43,9 +43,9 @@ public class EntidadesController {
             campaniaTabla = this.campaniaService.findById(campaniaId);
         }
 
-        // Buscamos todos los colaboradores de la campaña
+        // Buscamos todos los colaboradores de la campaña (nos devuelve sus tiendas respectivas)
         List <EntidadColaboradoraDTO> entidadesCampania = 
-            this.entidadService.findAllById(campaniaTabla.getIdsColaboradores());
+            this.entidadService.findAllByCampaniaId(campaniaId);
 
         model.addAttribute("entidadesSelec", entidadesCampania);
         model.addAttribute("campaniaSelec", campaniaTabla.getNombre());

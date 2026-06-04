@@ -26,9 +26,23 @@ public class ResponsableEntidadMapper extends MapperDTO <ResponsableEntidadDTO, 
             : null
         );
 
-        dto.setContactoId (
+        // Datos aplanados para acceder más fácilmente
+
+        dto.setEmail (
+            responsable.getContacto() != null ?
+            responsable.getContacto().getEmail()
+            : null
+        );
+
+        dto.setNombre (
+            responsable.getContacto() != null ?
+            responsable.getContacto().getNombre()
+            : "-"
+        );
+
+        dto.setTelefono (
             responsable.getContacto() != null ? 
-            responsable.getContacto().getId()
+            responsable.getContacto().getTelefono()
             : null
         );
 

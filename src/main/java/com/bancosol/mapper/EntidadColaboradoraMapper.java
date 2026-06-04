@@ -12,10 +12,17 @@ import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.ResponsableEntidad;
 import com.bancosol.entities.Tienda;
+import com.bancosol.entities.Campania;
 
 
 @Component
 public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO, EntidadColaboradora> {
+
+    private final ResponsableEntidadMapper responsableEntidadMapper;
+
+    EntidadColaboradoraMapper(ResponsableEntidadMapper responsableEntidadMapper) {
+        this.responsableEntidadMapper = responsableEntidadMapper;
+    }
 
     public EntidadColaboradoraDTO toDTO (EntidadColaboradora entidad) {
 
@@ -27,13 +34,15 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
         dto.setObservaciones(entidad.getObservaciones());
         
         // Ayuda de la IA generativa para saber asignar IDs de tiendas
+        /* Ya no me es necesario
         dto.setIdsTiendas (
-            entidad.getTiendas() != null ? 
+            entidad. != null ? 
             entidad.getTiendas().stream()
                 .map(Tienda::getId)
                 .collect(Collectors.toList()) 
             : List.of()
         );
+        */
         // Fin IA
 
         dto.setIdsResponsables (
@@ -41,6 +50,14 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
             entidad.getResponsables().stream()
                 .map(ResponsableEntidad::getId)
                 .collect(Collectors.toList())
+            : List.of()
+        );
+
+        dto.setIdsCampanias (
+            entidad.getCampanias() != null ?
+            entidad.getCampanias().stream()
+            .map(Campania::getId)
+            .collect(Collectors.toList())
             : List.of()
         );
 
@@ -55,6 +72,42 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
             entidad.getCoordinador().getId()
             : null
         );
+
+        // Datos directos para poder mostrarlos por tabla sin realizar demasiadas consultas
+        // ni sin tener que acceder a la entidad directamente
+
+        dto.setDomicilio (
+            entidad.getDireccion() != null ? 
+            entidad.getDireccion().getCalle() + ", " + entidad.getDireccion().getNumero()
+            : "-"
+        );
+
+        dto.setZonaGeo (
+            entidad.getDireccion()  != null && entidad.getDireccion().getLocalidad() != null ? 
+            entidad.getDireccion().getLocalidad().getNombre()
+            : "-"
+        );
+
+        // Acceso a la tabla intermedia
+        dto.setNombresTiendas (
+            entidad.getTiendasAsignadas() != null ? 
+            entidad.getTiendasAsignadas().stream()
+                .map(tc -> tc.getTienda().getNombre()) 
+                .distinct() 
+                .collect(Collectors.toList())
+            : List.of()
+        );
+
+
+        dto.setContactoPrincipal (
+        entidad.getResponsables() != null ?
+        entidad.getResponsables().stream()
+            .filter(ResponsableEntidad::getEsContactoPrincipal) 
+            .findFirst()                                        
+            .map(responsableEntidadMapper::toDTO)                      
+            .orElse(null)                              
+        : null
+    );
 
         return dto;
     }

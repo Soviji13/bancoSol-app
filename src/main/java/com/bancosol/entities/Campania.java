@@ -77,11 +77,18 @@ public class Campania {
     )
     private List<Coordinador> coordinadores = new ArrayList<>();
 
+    // Refactorización Sofía Para correcto uso de tabla intermedia TiendaColaborador
+
+    /* ANTIGUO - NO LO COMENTO POR SI SE QUIERE USAR */
     @ManyToMany
     @JoinTable(
-            name = "\"Tienda_responsable\"",
-            joinColumns = @JoinColumn(name = "campania_id"),
-            inverseJoinColumns = @JoinColumn(name = "responsable_entidad_id")
+        name = "\"Tienda_responsable\"",
+        joinColumns = @JoinColumn(name = "campania_id"),
+        inverseJoinColumns = @JoinColumn(name = "responsable_entidad_id")
     )
     private List<ResponsableTienda> responsables = new ArrayList<>();
+
+    /* NUEVO */
+    @OneToMany(mappedBy = "campania", fetch = FetchType.LAZY)
+    private List<TiendaColaborador> tiendasColaboradores = new ArrayList<>();
 }
