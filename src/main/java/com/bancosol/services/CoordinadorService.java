@@ -36,13 +36,16 @@ public class CoordinadorService {
 
     @Transactional(readOnly = true)
     public List<CoordinadorDTO> listarTodos() {
-        return coordinadorMapper.toDTOList(repo.findAll());
+        return repo.findAll()
+                .stream()
+                .map(this::convertirAListado)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public CoordinadorDTO findById(Long id) {
         return repo.findById(id)
-                .map(coordinadorMapper::toDTO)
+                .map(this::convertirAListado)
                 .orElse(null);
     }
 
@@ -52,7 +55,10 @@ public class CoordinadorService {
             return List.of();
         }
 
-        return coordinadorMapper.toDTOList(repo.findAllById(ids));
+        return repo.findAllById(ids)
+                .stream()
+                .map(this::convertirAListado)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -128,6 +134,18 @@ public class CoordinadorService {
 
         eliminarContactoSiProcede(contacto);
         eliminarUsuarioSiProcede(usuario);
+    }
+
+    private CoordinadorDTO convertirAListado(Coordinador coordinador) {
+        CoordinadorDTO dto = coordinadorMapper.toDTO(coordinador);
+
+        if (dto == null) {
+            return null;
+        }
+
+        dto.setEntidadId(obtenerEntidadId(coordinador));
+
+        return dto;
     }
 
     private CoordinadorFormDTO convertirAFormulario(Coordinador coordinador) {
@@ -315,7 +333,7 @@ public class CoordinadorService {
     }
 
     private Long obtenerEntidadId(Coordinador coordinador) {
-        if (coordinador.getId() == null) {
+        if (coordinador == null || coordinador.getId() == null) {
             return null;
         }
 
