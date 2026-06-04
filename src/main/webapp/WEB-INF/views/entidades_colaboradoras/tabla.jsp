@@ -104,6 +104,16 @@
         <div class="csv activado">&nbsp;</div>
     </div>
 
+    <%-- Interfaz de seleccionar otra campaña (oculta en principio) --%>
+    <div id="modal-campanias" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Seleccionar Campaña</h2>
+                <button id="cerrar-selector" class="btn-cerrar-modal">X</button>
+            </header>
+            <div id="lista-campanias" class="campanias-grid"></div>
+        </div>
+    </div>
     
 
 </section>
