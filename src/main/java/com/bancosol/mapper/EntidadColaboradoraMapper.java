@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.ResponsableEntidad;
-import com.bancosol.entities.Tienda;
 import com.bancosol.entities.Campania;
 
 
@@ -87,17 +86,6 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
             entidad.getDireccion().getLocalidad().getNombre()
             : "-"
         );
-
-        // Acceso a la tabla intermedia
-        dto.setNombresTiendas (
-            entidad.getTiendasAsignadas() != null ? 
-            entidad.getTiendasAsignadas().stream()
-                .map(tc -> tc.getTienda().getNombre()) 
-                .distinct() 
-                .collect(Collectors.toList())
-            : List.of()
-        );
-
 
         dto.setContactoPrincipal (
         entidad.getResponsables() != null ?
