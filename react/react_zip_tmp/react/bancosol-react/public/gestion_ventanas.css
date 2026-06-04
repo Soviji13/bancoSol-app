@@ -1,0 +1,107 @@
+/* =========================
+    MENÚ LATERAL
+========================= */
+.menu-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    padding: 3%;
+    border: none;
+    margin: 0;
+    height: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    overflow: hidden;
+}
+
+.menu-lateral__btn {
+    width: 80%;
+    min-height: 8.5%;
+    padding: 4% 5%;
+    border: var(--borde-general);
+    border-radius: var(--radio-md);
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    font-size: clamp(0.9rem, 0.95vw, 1rem);
+    line-height: 1.2;
+    text-align: center;
+    transition:
+    background-color var(--transicion),
+    color var(--transicion),
+    border-color var(--transicion),
+    transform var(--transicion);
+}
+
+.menu-lateral__btn:hover,
+.menu-lateral__btn:focus-visible {
+    background-color: var(--color-hover);
+    border-color: var(--color-principal);
+}
+
+.menu-lateral__btn--activo {
+    background-color: var(--color-principal);
+    border-color: var(--color-principal);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.menu-lateral__btn--activo:hover,
+.menu-lateral__btn--activo:focus-visible {
+    background-color: var(--color-principal-oscuro);
+    border-color: var(--color-principal-oscuro);
+}
+
+/* =========================
+    ACCESIBILIDAD
+========================= */
+button:focus-visible {
+    outline: 0.18rem solid var(--color-focus);
+    outline-offset: 0.15rem;
+}
+
+/* ==============================================
+    CONTENEDOR DE MENÚ LATERAL Y MENÚ INICIAL
+================================================ */
+
+.panel-gestion {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    flex: 1;
+    gap: 0;
+    height: calc(100vh - 20px);
+    min-height: 0;
+    overflow: hidden;
+}
+
+.contenedor_contenido {
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.contenedor_principal {
+    grid-column: 2;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.contenedor_menu {
+    grid-column: 1;
+    border-right: var(--borde-general);
+    min-height: 0;
+    overflow: hidden;
+}
+
+.contenido {
+    border: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
