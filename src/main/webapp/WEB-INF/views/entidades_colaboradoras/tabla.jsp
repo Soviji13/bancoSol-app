@@ -2,8 +2,10 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
+<%-- Parte de Sofía Sí Villalba Jiménez --%>
+<%-- Se han reutilizado recursos del proyecto por parte de clientes, pero refactorizados --%>
 
-<section id="entidades">
+<section id="entidades" data-id-campania-actual="${campaniaSelec.id}">
 
     <%-- Encabezado --%>
     <div class="encabezado">
@@ -15,7 +17,7 @@
                 <button>Seleccionar otra campaña</button>
             </div>
         </div>
-        <h1>${campaniaSelec}</h1>
+        <h1>${campaniaSelec.nombre}</h1>
         <div class="help-container">
             <p>Para ver más información sobre la entidad colaboradora, haga doble click sobre su fila correspondiente</p>
             <div class="simbolo"><p>?</p></div>
@@ -104,6 +106,16 @@
         <div class="csv activado">&nbsp;</div>
     </div>
 
+    <%-- Interfaz de seleccionar otra campaña (oculta en principio) --%>
+    <div id="modal-campanias" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Seleccionar Campaña</h2>
+                <button id="cerrar-selector" class="btn-cerrar-modal">X</button>
+            </header>
+            <div id="lista-campanias" class="campanias-grid"></div>
+        </div>
+    </div>
     
 
 </section>

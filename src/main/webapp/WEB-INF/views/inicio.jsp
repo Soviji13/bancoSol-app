@@ -30,6 +30,10 @@
                 src="${pageContext.request.contextPath}/js/entidades/tabla.js"
                 defer>
         </script>
+        <script type="module"
+                src="${pageContext.request.contextPath}/js/entidades/mostrarCampanias.js"
+                defer>
+        </script>
     </c:if>
 
     <%-- COORDINADORES: LISTADO --%>
