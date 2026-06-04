@@ -6,6 +6,7 @@ A continuación se detallan los pasos necesarios para integrar el módulo de vol
 
 *   **Archivo `gestionVentanas.jsx`:** En mi rama, he dejado señalados de forma muy visible (mediante comentarios) los fragmentos de código que he añadido. Copiad exactamente esos bloques y pegadlos en el archivo `gestionVentanas.jsx` del proyecto integrado.
 *   **Carpeta `voluntarios`:** Copiad la carpeta `/voluntarios` al completo (la cual ya contiene su estructura de subcarpetas y archivos CSS modularizados) y pegadla directamente dentro del directorio `src/` del proyecto integrado.
+*   * **Assets e Iconos:** Copiad el contenido de mi carpeta `assets` y fusionadlo (merge) dentro de la carpeta `public/assets` del proyecto principal. Este paso es imprescindible para que carguen correctamente los iconos de exportar a CSV, el embudo de filtros y las ayudas visuales del topbar.
 
 ---
 
