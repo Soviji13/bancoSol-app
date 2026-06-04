@@ -33,5 +33,5 @@ Para aplicar las restricciones de acceso según el usuario, bastará con aplicar
     *   Inicializar el estado `filtroTienda` con el nombre de su tienda correspondiente.
     *   Deshabilitar el `<select>` de Tienda para restringir la consulta al ámbito de su local.
 *   **`FooterVoluntarios.jsx` (aprox. líneas 52-80):** 
-    *   Aplicar un renderizado condicional (por ejemplo: `{rol !== 'tienda' && (<button>...</button>)}`) para ocultar los botones de **Eliminar voluntario**, **Modificar voluntario** y **Añadir voluntario**.
+    *   Deshabilitar los botones de **Eliminar voluntario**, **Modificar voluntario** y **Añadir voluntario**.
     *   El botón de **Exportar a CSV** debe permanecer visible y sin restricciones.
