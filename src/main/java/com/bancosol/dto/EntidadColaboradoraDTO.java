@@ -23,8 +23,12 @@ public class EntidadColaboradoraDTO {
 
 
     // Para la tabla
-    private String domicilio;
+    // private String domicilio;
     private String zonaGeo;
     private List <String> nombresTiendas;
     private ResponsableEntidadDTO contactoPrincipal;
+
+    // Para la tabla y modificación
+    private String calle;
+    private Short numero;
 }

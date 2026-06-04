@@ -64,5 +64,16 @@ if (seccionEntidades) {
         // Si la fila existe, tiene un ID asignado y NO estamos en modo borrado, abrimos su vista detallada
         //abrirDetalleColaborador(fila.dataset.id);
     });
-}
 
+    // PARA QUITAR MENÚ LATERAL
+    const botonCerrar = document.getElementById('btn-cerrar-panel');
+
+    if (botonCerrar) {
+
+        const idCampania = seccionEntidades.dataset.idCampaniaActual;
+
+        botonCerrar.addEventListener('click', () => {
+        window.location.href = `http://localhost:8080/entidades?campaniaId=${idCampania}`;
+    })
+    }
+}
