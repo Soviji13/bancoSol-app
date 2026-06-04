@@ -9,6 +9,7 @@ import com.bancosol.entities.Incidencia;
 import com.bancosol.entities.ResponsableEntidad;
 import com.bancosol.entities.ResponsableTienda;
 import com.bancosol.entities.enums.EstadoIncidencia;
+import com.bancosol.mapper.IncidenciaMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +22,22 @@ public class IncidenciaService {
     private final IncidenciaRepository incidenciaRepository;
     private final ResponsableTiendaRepository responsableTiendaRepository;
     private final ResponsableEntidadRepository responsableEntidadRepository;
+    private final IncidenciaMapper incidenciaMapper;
 
-    public IncidenciaService(
-            IncidenciaRepository incidenciaRepository,
-            ResponsableTiendaRepository responsableTiendaRepository,
-            ResponsableEntidadRepository responsableEntidadRepository
-    ) {
+    public IncidenciaService(IncidenciaRepository incidenciaRepository,
+                             ResponsableTiendaRepository responsableTiendaRepository,
+                             ResponsableEntidadRepository responsableEntidadRepository,
+                             IncidenciaMapper incidenciaMapper) {
         this.incidenciaRepository = incidenciaRepository;
         this.responsableTiendaRepository = responsableTiendaRepository;
         this.responsableEntidadRepository = responsableEntidadRepository;
+        this.incidenciaMapper = incidenciaMapper;
     }
 
     public List<IncidenciaDTO> listarTodas() {
-        return incidenciaRepository.findAllByOrderByFechaHoraDesc()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return incidenciaMapper.toDTOList(
+                incidenciaRepository.findAllByOrderByFechaHoraDesc()
+        );
     }
 
     public List<IncidenciaDTO> listarPorEstado(String estado) {
@@ -46,15 +47,15 @@ public class IncidenciaService {
 
         EstadoIncidencia estadoIncidencia = parsearEstado(estado);
 
-        return incidenciaRepository.findByEstadoOrderByFechaHoraDesc(estadoIncidencia)
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        return incidenciaMapper.toDTOList(
+                incidenciaRepository.findByEstadoOrderByFechaHoraDesc(estadoIncidencia)
+        );
     }
 
     public IncidenciaDTO buscarPorId(Long id) {
         Incidencia incidencia = obtenerEntidadPorId(id);
-        return toDTO(incidencia);
+
+        return incidenciaMapper.toDTO(incidencia);
     }
 
     @Transactional
@@ -65,7 +66,7 @@ public class IncidenciaService {
 
         Incidencia incidenciaGuardada = incidenciaRepository.save(incidencia);
 
-        return toDTO(incidenciaGuardada);
+        return incidenciaMapper.toDTO(incidenciaGuardada);
     }
 
     @Transactional
@@ -76,7 +77,7 @@ public class IncidenciaService {
 
         Incidencia incidenciaActualizada = incidenciaRepository.save(incidencia);
 
-        return toDTO(incidenciaActualizada);
+        return incidenciaMapper.toDTO(incidenciaActualizada);
     }
 
     @Transactional
@@ -96,7 +97,7 @@ public class IncidenciaService {
 
         Incidencia incidenciaActualizada = incidenciaRepository.save(incidencia);
 
-        return toDTO(incidenciaActualizada);
+        return incidenciaMapper.toDTO(incidenciaActualizada);
     }
 
     private Incidencia obtenerEntidadPorId(Long id) {
@@ -145,11 +146,9 @@ public class IncidenciaService {
         }
     }
 
-    private void asignarResponsable(
-            Incidencia incidencia,
-            Long responsableTiendaId,
-            Long responsableEntidadId
-    ) {
+    private void asignarResponsable(Incidencia incidencia,
+                                    Long responsableTiendaId,
+                                    Long responsableEntidadId) {
         incidencia.setResponsableTienda(null);
         incidencia.setResponsableEntidad(null);
 
@@ -183,100 +182,6 @@ public class IncidenciaService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Estado de incidencia no válido: " + estado);
         }
-    }
-
-    private IncidenciaDTO toDTO(Incidencia incidencia) {
-        ResponsableTienda responsableTienda = incidencia.getResponsableTienda();
-        ResponsableEntidad responsableEntidad = incidencia.getResponsableEntidad();
-
-        return IncidenciaDTO.builder()
-                .id(incidencia.getId())
-                .fechaHora(incidencia.getFechaHora())
-                .asunto(incidencia.getAsunto())
-                .descripcion(incidencia.getDescripcion())
-                .estado(incidencia.getEstado())
-
-                .responsableTiendaId(
-                        responsableTienda != null
-                                ? responsableTienda.getId()
-                                : null
-                )
-                .responsableTiendaNombre(
-                        obtenerNombreResponsableTienda(responsableTienda)
-                )
-
-                .responsableEntidadId(
-                        responsableEntidad != null
-                                ? responsableEntidad.getId()
-                                : null
-                )
-                .responsableEntidadNombre(
-                        obtenerNombreResponsableEntidad(responsableEntidad)
-                )
-
-                .reportadoPorTipo(
-                        obtenerReportadoPorTipo(responsableTienda, responsableEntidad)
-                )
-                .reportadoPorNombre(
-                        obtenerReportadoPorNombre(responsableTienda, responsableEntidad)
-                )
-                .build();
-    }
-
-    private String obtenerReportadoPorTipo(
-            ResponsableTienda responsableTienda,
-            ResponsableEntidad responsableEntidad
-    ) {
-        if (responsableTienda != null) {
-            return "RESPONSABLE_TIENDA";
-        }
-
-        if (responsableEntidad != null) {
-            return "RESPONSABLE_ENTIDAD";
-        }
-
-        return null;
-    }
-
-    private String obtenerReportadoPorNombre(
-            ResponsableTienda responsableTienda,
-            ResponsableEntidad responsableEntidad
-    ) {
-        if (responsableTienda != null) {
-            return obtenerNombreResponsableTienda(responsableTienda);
-        }
-
-        if (responsableEntidad != null) {
-            return obtenerNombreResponsableEntidad(responsableEntidad);
-        }
-
-        return null;
-    }
-
-    private String obtenerNombreResponsableTienda(ResponsableTienda responsableTienda) {
-        if (responsableTienda == null) {
-            return null;
-        }
-
-        if (responsableTienda.getContacto() != null
-                && responsableTienda.getContacto().getNombre() != null) {
-            return responsableTienda.getContacto().getNombre();
-        }
-
-        return responsableTienda.getNombre();
-    }
-
-    private String obtenerNombreResponsableEntidad(ResponsableEntidad responsableEntidad) {
-        if (responsableEntidad == null) {
-            return null;
-        }
-
-        if (responsableEntidad.getContacto() != null
-                && responsableEntidad.getContacto().getNombre() != null) {
-            return responsableEntidad.getContacto().getNombre();
-        }
-
-        return "Responsable entidad " + responsableEntidad.getId();
     }
 
     private String normalizarTexto(String texto) {
