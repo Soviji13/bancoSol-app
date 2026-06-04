@@ -1,7 +1,9 @@
 package com.bancosol.services;
 
 import com.bancosol.dao.EntidadColaboradoraRepository;
+import com.bancosol.dao.TiendaColaboradorRepository;
 import com.bancosol.dto.EntidadColaboradoraDTO;
+import com.bancosol.entities.TiendaColaborador;
 import com.bancosol.mapper.EntidadColaboradoraMapper;
 
 
@@ -9,15 +11,18 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class EntidadColaboradoraService {
 
-    // Refactorización de Sofía (0 IA)
+    // Refactorización de Sofía (IA para acceso a tabla de triple entidad)
 
     private final EntidadColaboradoraRepository entidadRepo;
     private final EntidadColaboradoraMapper entidadMapper;
+
+    private final TiendaColaboradorRepository tiendaColabRepo;
 
     public List <EntidadColaboradoraDTO> listarTodas () {
         return entidadMapper.toDTOList(entidadRepo.findAll());
@@ -32,9 +37,44 @@ public class EntidadColaboradoraService {
         return entidadMapper.toDTOList(entidadRepo.findAllById(ids));
     }
 
+    // Uso de IA aquí (como ayuda)
     // Devuelve las de una campaña específica con sus tiendas únicamente respectivas
-    public List<EntidadColaboradoraDTO> findAllByCampaniaId(Long campaniaId) {
-        return entidadMapper.toDTOList(entidadRepo.findByCampaniaWithTiendas(campaniaId));
+    // Única función que le añade al DTO las tiendas asignadas
+    public List<EntidadColaboradoraDTO> findAllByCampaniaId (Long campaniaId) {
+        
+        // Se obtiene la tabla intermedia
+        List <TiendaColaborador> tiendasConColaboradorEnCampania =
+            this.tiendaColabRepo.findByCampaniaId(campaniaId);
+
+        
+        List <EntidadColaboradoraDTO> entidadesConTiendas = 
+            // Recorremos la tabla intermedia
+            tiendasConColaboradorEnCampania.stream()
+            // Se agrupan dependiendo del colaborador (clave colaborador, valor tabla intermedia)
+            .collect(Collectors.groupingBy(TiendaColaborador::getColaborador))
+            .entrySet().stream()
+            // Recorremos cada entidad colaboradora
+            .map(e -> {
+
+                // Obtenemos el colaborador con e.getKey
+                // Obtenemos la tabla intermedia con e.getValue()
+
+                // Pasamos casi todos los parámetros a DTO
+                EntidadColaboradoraDTO dto = entidadMapper.toDTO(e.getKey());
+
+                // Pasamos las tiendas correspondientes
+                List<String> nombresTiendas = e.getValue().stream()
+                    .map(tc -> tc.getTienda().getNombre())
+                    .distinct()
+                    .collect(Collectors.toList());
+                        
+                dto.setNombresTiendas(nombresTiendas);
+
+                return dto;
+        })
+        .collect(Collectors.toList());
+
+        return entidadesConTiendas;
     }
 
     // Final parte Sofía
