@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <%-- Se comporta tanto como formulario como no --%>
-<aside class="panel-colaborador" id="entidades">
+<aside class="panel-colaborador" id="entidades" data-id-campania-actual="${campaniaSelec.id}">
         <header class="panel-cabecera">
             <div style="flex: 1;">
                 <input 
