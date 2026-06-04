@@ -36,9 +36,9 @@
                     <td colspan="2">Tienda(s) asignada(s)</td>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tabla-body">
                 <c:forEach items="${entidadesSelec}" var="e">
-                    <tr>
+                    <tr data-id-entidad-detalle="${e.id}">
                         <td>${e.nombre}</td>
                         <td>${e.domicilio}</td>
                         <td>${e.zonaGeo}</td>

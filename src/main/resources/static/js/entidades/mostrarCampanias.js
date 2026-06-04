@@ -71,14 +71,6 @@ if (seccionEntidades) {
                     </a>
                 `;
 
-                /*
-                // Vinculamos el clic sobre la tarjeta para actualizar el estado local y ejecutar el procesamiento del cambio
-                card.onclick = () => {
-                    idCampaniaVisualizada = c.id; 
-                    seleccionarCampania(c);
-                };
-                */
-
                 // Adjuntamos la tarjeta terminada y lista para usarse como un nodo hijo directo dentro de nuestro grid modal
                 grid.appendChild(card);
             });
