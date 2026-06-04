@@ -75,10 +75,24 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
         // Datos directos para poder mostrarlos por tabla sin realizar demasiadas consultas
         // ni sin tener que acceder a la entidad directamente
 
+        /* 
         dto.setDomicilio (
             entidad.getDireccion() != null ? 
             entidad.getDireccion().getCalle() + ", " + entidad.getDireccion().getNumero()
             : "-"
+        );
+        */
+
+        dto.setCalle (
+            entidad.getDireccion() != null ? 
+            entidad.getDireccion().getCalle()
+            : "-"
+        );
+
+        dto.setNumero (
+            entidad.getDireccion() != null ? 
+            entidad.getDireccion().getNumero()
+            : null
         );
 
         dto.setZonaGeo (

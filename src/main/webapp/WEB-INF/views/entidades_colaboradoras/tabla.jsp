@@ -40,7 +40,7 @@
                 <c:forEach items="${entidadesSelec}" var="e">
                     <tr data-id-entidad-detalle="${e.id}">
                         <td>${e.nombre}</td>
-                        <td>${e.domicilio}</td>
+                        <td>${e.calle}, ${e.numero}</td>
                         <td>${e.zonaGeo}</td>
                         <td>
                             ${e.contactoPrincipal.nombre}
