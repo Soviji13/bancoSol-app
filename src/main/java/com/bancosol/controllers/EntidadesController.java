@@ -28,33 +28,43 @@ public class EntidadesController {
     private final CampaniaService campaniaService;
     private final EntidadColaboradoraService entidadService;
 
-    // Relacionadas con la tabla --------------------------------------------------------------
+    // Relacionadas con mostrar datos --------------------------------------------------------------
 
     // Mostrar todas las entidades de una campaña (parámetro)
     // Si no se pasa una específicamente por parámetro, se muestran las de la activa
     @GetMapping({"", "/"})
     public String mostrarTabla( 
         @RequestParam( value = "campaniaId", required = false ) Long campaniaId,
+        @RequestParam( value = "entidadId", required = false ) Long entidadId,
         Model model
     ) 
     {
-        CampaniaDTO campaniaTabla = new CampaniaDTO();
+        // -- Devolver tabla --
+        // Si es null, devuelve la campaña activa
+        CampaniaDTO campaniaTabla = (campaniaId == null) 
+            ? this.campaniaService.devolverCampaniaActiva() 
+            : this.campaniaService.findById(campaniaId);
 
-        if (campaniaId == null) {
-            // Mostramos solo las que son de la campaña actual
-            campaniaTabla = this.campaniaService.devolverCampaniaActiva(); 
-        // Si se seleccionó una
-        } else {
-            campaniaTabla = this.campaniaService.findById(campaniaId);
-        }
-
-        // Buscamos todos los colaboradores de la campaña (nos devuelve sus tiendas respectivas)
-        List <EntidadColaboradoraDTO> entidadesCampania = 
+        // Obtenemos las entidades colaboradoras a mostrar
+        List<EntidadColaboradoraDTO> entidadesCampania = 
             this.entidadService.findAllByCampaniaId(campaniaTabla.getId());
 
         model.addAttribute("entidadesSelec", entidadesCampania);
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("pagina", "inicio-entidades");
+
+        // -- Devolver entidad en el lateral (solo info) --
+        // Si se seleccionó una entidad
+        if (entidadId != null) {
+            // Pasamos la entidad colaboradora además
+            EntidadColaboradoraDTO e = (entidadId == null)
+                ? null
+                : this.entidadService.findByCampaniaId(campaniaId, entidadId);
+
+            model.addAttribute("entidadSelec", e);
+            model.addAttribute("panelIzquierdo", "entidades_colaboradoras/info-entidad.jsp");
+        }
+
         return "inicio";
     }
 
@@ -65,6 +75,5 @@ public class EntidadesController {
     public List <CampaniaDTO> getCampanias () {
         return campaniaService.listarTodas();
     }
-    
 
 }

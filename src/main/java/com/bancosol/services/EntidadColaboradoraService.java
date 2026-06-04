@@ -6,7 +6,6 @@ import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.entities.TiendaColaborador;
 import com.bancosol.mapper.EntidadColaboradoraMapper;
 
-
 import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -76,6 +75,39 @@ public class EntidadColaboradoraService {
 
         return entidadesConTiendas;
     }
+
+    // Ayuda de la IA para filtrar, razonamiento mío
+    // Devuelve una entidad específica con sus tiendas asignadas a esa campaña por el ID de la entidad
+    public EntidadColaboradoraDTO findByCampaniaId (Long campaniaId, Long entidadId) {
+        
+        // Se obtiene la tabla intermedia
+        List <TiendaColaborador> tiendasConColaboradorEnCampania =
+            this.tiendaColabRepo.findByCampaniaId(campaniaId);
+
+        // Se filtran solo las que el id del colaborador coincide con entidadId
+        List <TiendaColaborador> tiendasEntidadFiltrada =
+            tiendasConColaboradorEnCampania.stream()
+            .filter(tiendaColab -> tiendaColab.getColaborador().getId().equals(entidadId))
+            .collect(Collectors.toList());
+        
+        // Obtenemos una entidad de las filtradas, p.e la primera (todas son la misma)
+        // La pasamos ya a DTO
+        EntidadColaboradoraDTO dto = entidadMapper.toDTO(
+            tiendasEntidadFiltrada.get(0).getColaborador()
+        );
+        
+        // Le añadimos las tiendas
+        List<String> nombresTiendas = tiendasEntidadFiltrada.stream()
+        .map(tc -> tc.getTienda().getNombre())
+        .distinct()
+        .collect(Collectors.toList());
+
+        dto.setNombresTiendas(nombresTiendas);
+
+        return dto;
+    }
+
+
 
     // Final parte Sofía
 
