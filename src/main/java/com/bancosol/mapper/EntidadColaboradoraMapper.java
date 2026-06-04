@@ -12,6 +12,7 @@ import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.ResponsableEntidad;
 import com.bancosol.entities.Tienda;
+import com.bancosol.entities.Campania;
 
 
 @Component
@@ -33,13 +34,15 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
         dto.setObservaciones(entidad.getObservaciones());
         
         // Ayuda de la IA generativa para saber asignar IDs de tiendas
+        /* Ya no me es necesario
         dto.setIdsTiendas (
-            entidad.getTiendas() != null ? 
+            entidad. != null ? 
             entidad.getTiendas().stream()
                 .map(Tienda::getId)
                 .collect(Collectors.toList()) 
             : List.of()
         );
+        */
         // Fin IA
 
         dto.setIdsResponsables (
@@ -47,6 +50,14 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
             entidad.getResponsables().stream()
                 .map(ResponsableEntidad::getId)
                 .collect(Collectors.toList())
+            : List.of()
+        );
+
+        dto.setIdsCampanias (
+            entidad.getCampanias() != null ?
+            entidad.getCampanias().stream()
+            .map(Campania::getId)
+            .collect(Collectors.toList())
             : List.of()
         );
 
@@ -77,13 +88,16 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
             : "-"
         );
 
+        // Acceso a la tabla intermedia
         dto.setNombresTiendas (
-            entidad.getTiendas() != null ? 
-            entidad.getTiendas().stream()
-                .map(Tienda::getNombre)
+            entidad.getTiendasAsignadas() != null ? 
+            entidad.getTiendasAsignadas().stream()
+                .map(tc -> tc.getTienda().getNombre()) 
+                .distinct() 
                 .collect(Collectors.toList())
             : List.of()
         );
+
 
         dto.setContactoPrincipal (
         entidad.getResponsables() != null ?

@@ -32,6 +32,11 @@ public class EntidadColaboradoraService {
         return entidadMapper.toDTOList(entidadRepo.findAllById(ids));
     }
 
+    // Devuelve las de una campaña específica con sus tiendas únicamente respectivas
+    public List<EntidadColaboradoraDTO> findAllByCampaniaId(Long campaniaId) {
+        return entidadMapper.toDTOList(entidadRepo.findByCampaniaWithTiendas(campaniaId));
+    }
+
     // Final parte Sofía
 
     /* 
