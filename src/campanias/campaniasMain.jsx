@@ -4,18 +4,24 @@ import "./campanias.css";
 import { CampaniasGrid } from "./campaniasGrid";
 import { CampaniasAcciones } from "./campaniasAcciones";
 import { CampaniaDetalle } from "./campaniaDetalle";
+import { FormularioCampania } from "./formularioCampania";
 
-export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }) {
+export function MainCampanias({
+  manejaContenidoLateral,
+  manejaContenidoInicial,
+}) {
   const [campaniaSeleccionadaId, setCampaniaSeleccionadaId] = useState(null);
   const [mostrandoDetalle, setMostrandoDetalle] = useState(false);
+  const [modoFormulario, setModoFormulario] = useState(null);
+  const [modoSeleccionAccion, setModoSeleccionAccion] = useState(null);
 
-  const campanias = [
+  const [campanias, setCampanias] = useState([
     {
       id: 1,
       nombre: "Gran Recogida 2025",
       fechaInicio: "2025-11-11",
       fechaFin: "2025-11-15",
-      activa: true,
+      activa: false,
       cadenas: [
         { id: 1, nombre: "Alcampo", participa: true },
         { id: 2, nombre: "Aldi", participa: true },
@@ -36,7 +42,7 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
       nombre: "Operación Kilo Navidad",
       fechaInicio: "2025-12-01",
       fechaFin: "2025-12-20",
-      activa: true,
+      activa: false,
       cadenas: [
         { id: 1, nombre: "Carrefour", participa: true },
         { id: 2, nombre: "DIA", participa: true },
@@ -53,9 +59,9 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
     {
       id: 3,
       nombre: "Vuelta al Cole Solidaria",
-      fechaInicio: "2025-09-02",
-      fechaFin: "2025-09-18",
-      activa: false,
+      fechaInicio: "2026-09-02",
+      fechaFin: "2026-09-18",
+      activa: true,
       cadenas: [
         { id: 1, nombre: "Alcampo", participa: true },
         { id: 2, nombre: "Mercadona", participa: true },
@@ -72,7 +78,7 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
       id: 4,
       nombre: "Banco de Alimentos Primavera",
       fechaInicio: "2026-03-10",
-      fechaFin: "2026-03-25",
+      fechaFin: "2026-12-25",
       activa: true,
       cadenas: [
         { id: 1, nombre: "LIDL", participa: true },
@@ -91,7 +97,7 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
       nombre: "Campaña Empresas Colaboradoras",
       fechaInicio: "2026-04-01",
       fechaFin: "2026-04-30",
-      activa: true,
+      activa: false,
       cadenas: [
         { id: 1, nombre: "Grupo Sol", participa: true },
         { id: 2, nombre: "Distribuciones Costa", participa: true },
@@ -109,7 +115,7 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
       nombre: "Recogida Especial Verano",
       fechaInicio: "2026-07-05",
       fechaFin: "2026-07-19",
-      activa: false,
+      activa: true,
       cadenas: [
         { id: 1, nombre: "DIA", participa: true },
         { id: 2, nombre: "Covirán", participa: true },
@@ -122,18 +128,48 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
         { id: 3, nombre: "Miguel Torres Ruiz", participa: false },
       ],
     },
-  ];
+  ]);
 
-  const campaniaSeleccionada = campanias.find(
-    (campania) => campania.id === campaniaSeleccionadaId
+  const campaniasOrdenadas = [...campanias].sort((campaniaA, campaniaB) => {
+    const fechaA = crearFechaLocalDesdeISO(campaniaA.fechaInicio);
+    const fechaB = crearFechaLocalDesdeISO(campaniaB.fechaInicio);
+
+    return fechaA - fechaB;
+  });
+
+  const campaniaSeleccionada = campanias.find((campania) => {
+    return campania.id === campaniaSeleccionadaId;
+  });
+
+  const indiceCampaniaSeleccionada = campaniasOrdenadas.findIndex(
+    (campania) => {
+      return campania.id === campaniaSeleccionadaId;
+    }
   );
 
-  const indiceCampaniaSeleccionada = campanias.findIndex(
-    (campania) => campania.id === campaniaSeleccionadaId
-  );
+  const manejarClickCampania = (idCampania) => {
+    const campania = campanias.find((campaniaActual) => {
+      return campaniaActual.id === idCampania;
+    });
 
-  const seleccionarCampania = (idCampania) => {
+    if (!campania) {
+      return;
+    }
+
     setCampaniaSeleccionadaId(idCampania);
+
+    if (modoSeleccionAccion === "editar") {
+      setModoFormulario("editar");
+      setModoSeleccionAccion(null);
+      return;
+    }
+
+    if (modoSeleccionAccion === "eliminar") {
+      eliminarCampaniaSeleccionada(campania);
+      setModoSeleccionAccion(null);
+      return;
+    }
+
     setMostrandoDetalle(true);
   };
 
@@ -146,67 +182,188 @@ export function MainCampanias({ manejaContenidoLateral, manejaContenidoInicial }
       return;
     }
 
-    setCampaniaSeleccionadaId(campanias[indiceCampaniaSeleccionada - 1].id);
+    setCampaniaSeleccionadaId(
+      campaniasOrdenadas[indiceCampaniaSeleccionada - 1].id
+    );
   };
 
   const irACampaniaSiguiente = () => {
-    if (indiceCampaniaSeleccionada >= campanias.length - 1) {
+    if (indiceCampaniaSeleccionada >= campaniasOrdenadas.length - 1) {
       return;
     }
 
-    setCampaniaSeleccionadaId(campanias[indiceCampaniaSeleccionada + 1].id);
+    setCampaniaSeleccionadaId(
+      campaniasOrdenadas[indiceCampaniaSeleccionada + 1].id
+    );
   };
 
   const generarCampania = () => {
-    console.log("Generar campaña");
+    setModoSeleccionAccion(null);
+    setMostrandoDetalle(false);
+    setModoFormulario("crear");
   };
 
-  const modificarCampania = () => {
-    if (campaniaSeleccionadaId === null) {
-      console.log("No hay ninguna campaña seleccionada");
+  const activarSeleccionParaModificar = () => {
+    setMostrandoDetalle(false);
+    setModoFormulario(null);
+    setModoSeleccionAccion("editar");
+  };
+
+  const activarSeleccionParaEliminar = () => {
+    setMostrandoDetalle(false);
+    setModoFormulario(null);
+    setModoSeleccionAccion("eliminar");
+  };
+
+  const cancelarSeleccionAccion = () => {
+    setModoSeleccionAccion(null);
+  };
+
+  const eliminarCampaniaSeleccionada = (campania) => {
+    const confirmada = confirm(
+      `¿Seguro que quieres eliminar la campaña "${campania.nombre}"?`
+    );
+
+    if (!confirmada) {
       return;
     }
 
-    console.log("Modificar campaña:", campaniaSeleccionadaId);
+    setCampanias((campaniasActuales) =>
+      campaniasActuales.filter((campaniaActual) => {
+        return campaniaActual.id !== campania.id;
+      })
+    );
+
+    setCampaniaSeleccionadaId(null);
+    setMostrandoDetalle(false);
   };
 
-  const eliminarCampania = () => {
-    if (campaniaSeleccionadaId === null) {
-      console.log("No hay ninguna campaña seleccionada");
-      return;
+  const cerrarFormularioCampania = () => {
+    setModoFormulario(null);
+  };
+
+  const guardarCampania = (campaniaFormulario) => {
+    if (modoFormulario === "crear") {
+      const nuevoId =
+        campanias.length === 0
+          ? 1
+          : Math.max(...campanias.map((campania) => campania.id)) + 1;
+
+      const nuevaCampania = {
+        ...campaniaFormulario,
+        id: nuevoId,
+        cadenas: [],
+        coordinadores: [],
+      };
+
+      setCampanias((campaniasActuales) => [
+        ...campaniasActuales,
+        nuevaCampania,
+      ]);
+
+      setCampaniaSeleccionadaId(nuevoId);
     }
 
-    console.log("Eliminar campaña:", campaniaSeleccionadaId);
+    if (modoFormulario === "editar") {
+      setCampanias((campaniasActuales) =>
+        campaniasActuales.map((campania) =>
+          campania.id === campaniaFormulario.id
+            ? {
+                ...campania,
+                ...campaniaFormulario,
+                cadenas: campania.cadenas || [],
+                coordinadores: campania.coordinadores || [],
+              }
+            : campania
+        )
+      );
+
+      setCampaniaSeleccionadaId(campaniaFormulario.id);
+    }
+
+    setModoFormulario(null);
+  };
+
+  const obtenerMensajeSeleccion = () => {
+    if (modoSeleccionAccion === "editar") {
+      return "Selecciona una campaña para modificarla.";
+    }
+
+    if (modoSeleccionAccion === "eliminar") {
+      return "Selecciona una campaña para eliminarla.";
+    }
+
+    return null;
   };
 
   if (mostrandoDetalle && campaniaSeleccionada) {
     return (
       <CampaniaDetalle
-      campania={campaniaSeleccionada}
-      puedeIrAnterior={indiceCampaniaSeleccionada > 0}
-      puedeIrSiguiente={indiceCampaniaSeleccionada < campanias.length - 1}
-      onVolver={volverAlListado}
-      onAnterior={irACampaniaAnterior}
-      onSiguiente={irACampaniaSiguiente}
-    />
+        campania={campaniaSeleccionada}
+        puedeIrAnterior={indiceCampaniaSeleccionada > 0}
+        puedeIrSiguiente={
+          indiceCampaniaSeleccionada < campaniasOrdenadas.length - 1
+        }
+        onVolver={volverAlListado}
+        onAnterior={irACampaniaAnterior}
+        onSiguiente={irACampaniaSiguiente}
+      />
     );
   }
 
   return (
     <main className="campanias">
+      {modoSeleccionAccion !== null && (
+        <div className="campanias__mensaje-seleccion">
+          <span>{obtenerMensajeSeleccion()}</span>
+
+          <button type="button" onClick={cancelarSeleccionAccion}>
+            Cancelar
+          </button>
+        </div>
+      )}
+
       <section className="campanias__contenido">
         <CampaniasGrid
-          campanias={campanias}
+          campanias={campaniasOrdenadas}
           campaniaSeleccionadaId={campaniaSeleccionadaId}
-          onSeleccionarCampania={seleccionarCampania}
+          modoSeleccionAccion={modoSeleccionAccion}
+          onClickCampania={manejarClickCampania}
         />
       </section>
 
       <CampaniasAcciones
         onGenerarCampania={generarCampania}
-        onModificarCampania={modificarCampania}
-        onEliminarCampania={eliminarCampania}
+        onModificarCampania={activarSeleccionParaModificar}
+        onEliminarCampania={activarSeleccionParaEliminar}
       />
+
+      {modoFormulario !== null && (
+        <FormularioCampania
+          modo={modoFormulario}
+          campaniaInicial={
+            modoFormulario === "editar" ? campaniaSeleccionada : null
+          }
+          onCerrar={cerrarFormularioCampania}
+          onGuardar={guardarCampania}
+        />
+      )}
     </main>
   );
+}
+
+function crearFechaLocalDesdeISO(fechaISO) {
+  if (!fechaISO || typeof fechaISO !== "string") {
+    return new Date(0);
+  }
+
+  const partesFecha = fechaISO.split("-").map(Number);
+
+  if (partesFecha.length !== 3 || partesFecha.some(Number.isNaN)) {
+    return new Date(0);
+  }
+
+  const [anio, mes, dia] = partesFecha;
+
+  return new Date(anio, mes - 1, dia);
 }

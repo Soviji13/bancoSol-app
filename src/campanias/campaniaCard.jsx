@@ -1,41 +1,45 @@
 import { CampaniaEstado } from "./CampaniaEstado";
 
-export function CampaniaCard({ campania, seleccionada, onSeleccionar }) {
+export function CampaniaCard({
+  campania,
+  seleccionada,
+  modoSeleccionAccion,
+  onClickCampania,
+}) {
   const claseTarjeta = [
     "campanias__tarjeta",
     seleccionada ? "campanias__tarjeta--seleccionada" : "",
-    campania.activa ? "campanias__tarjeta--activa" : "campanias__tarjeta--terminada",
+    campania.activa
+      ? "campanias__tarjeta--activa"
+      : "campanias__tarjeta--terminada",
+    modoSeleccionAccion !== null ? "campanias__tarjeta--seleccionable" : "",
   ]
     .filter(Boolean)
     .join(" ");
-
-  const textoFechas = obtenerTextoFechas(campania.fechaInicio, campania.fechaFin);
 
   return (
     <button
       type="button"
       className={claseTarjeta}
-      onClick={() => onSeleccionar(campania.id)}
+      onClick={() => onClickCampania(campania.id)}
     >
       <h2 className="campanias__nombre">{campania.nombre}</h2>
 
-      <p className="campanias__fechas">{textoFechas}</p>
+      <p className="campanias__fechas">
+        {formatearFecha(campania.fechaInicio)} / {formatearFecha(campania.fechaFin)}
+      </p>
 
       <CampaniaEstado activa={campania.activa} />
     </button>
   );
 }
 
-function obtenerTextoFechas(fechaInicio, fechaFin) {
-  if (!fechaInicio || !fechaFin) {
-    return "dd/mm/aa - dd/mm/aa";
+function formatearFecha(fechaISO) {
+  if (!fechaISO) {
+    return "dd/mm/aa";
   }
 
-  return `${formatearFecha(fechaInicio)} / ${formatearFecha(fechaFin)}`;
-}
-
-function formatearFecha(fechaISO) {
-  const fecha = new Date(fechaISO);
+  const fecha = crearFechaLocalDesdeISO(fechaISO);
 
   if (Number.isNaN(fecha.getTime())) {
     return fechaISO;
@@ -46,4 +50,16 @@ function formatearFecha(fechaISO) {
     month: "2-digit",
     year: "2-digit",
   });
+}
+
+function crearFechaLocalDesdeISO(fechaISO) {
+  const partesFecha = fechaISO.split("-").map(Number);
+
+  if (partesFecha.length !== 3 || partesFecha.some(Number.isNaN)) {
+    return new Date(NaN);
+  }
+
+  const [anio, mes, dia] = partesFecha;
+
+  return new Date(anio, mes - 1, dia);
 }
