@@ -74,12 +74,11 @@ public class EntidadesController {
             List <CampaniaDTO> campanias = this.campaniaService.listarTodas();
 
             // Obtenemos las tiendas pertenecientes a cada campaña de la entidad
-            Map <CampaniaDTO, List <TiendaDTO>> tiendasCampania = this.entidadService.devolverCampaniasConTodasTiendas(entidadId);
+            Map <Long, List <TiendaDTO>> tiendasCampania = this.entidadService.devolverCampaniasConTodasTiendas(entidadId);
 
             // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
-            Map <CampaniaDTO, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
+            Map <Long, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
 
-            //tiendasCampania.keySet().con
 
             // Pasamos todas las campañas
             model.addAttribute("campanias", campanias);

@@ -155,15 +155,15 @@ public class EntidadColaboradoraService {
     }
 
     // Devuelve todas las campañas en las que participa junto a todas sus tiendas
-    public Map <CampaniaDTO, List <TiendaDTO>> devolverCampaniasConTiendas (Long entidadId) {
+    public Map <Long, List <TiendaDTO>> devolverCampaniasConTiendas (Long entidadId) {
 
         List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
 
-        Map <CampaniaDTO, List <TiendaDTO>> res = new HashMap<>();
+        Map <Long, List <TiendaDTO>> res = new HashMap<>();
 
         for (CampaniaDTO c : campaniasEntidad) {
             if (c != null) {
-                res.put(c, this.campaniaService.devolverTiendas(c.getId()));
+                res.put(c.getId(), this.campaniaService.devolverTiendas(c.getId()));
             }
         }
 
@@ -171,15 +171,15 @@ public class EntidadColaboradoraService {
     }
 
     // Devuelve todas las campañas en las que participa junto a las tiendas respectivas en las que participa 
-    public Map <CampaniaDTO, List <TiendaDTO>> devolverCampaniasConTodasTiendas (Long entidadId) {
+    public Map <Long, List <TiendaDTO>> devolverCampaniasConTodasTiendas (Long entidadId) {
 
         List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
 
-        Map <CampaniaDTO, List <TiendaDTO>> res = new HashMap<>();
+        Map <Long, List <TiendaDTO>> res = new HashMap<>();
 
         for (CampaniaDTO c : campaniasEntidad) {
             if (c != null) {
-                res.put(c, devolverTiendasPorCampania(entidadId, c.getId()));
+                res.put(c.getId(), devolverTiendasPorCampania(entidadId, c.getId()));
             }
         }
 

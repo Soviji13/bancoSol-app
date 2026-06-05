@@ -186,11 +186,13 @@
             </section>
 
             <%-- Ver todas sus campañas con tiendas respectivas --%>
+
             <section class="bloque-seccion border-bottom">
                 <span class="etiqueta" style="display: block; margin-bottom: 10px;">Historial de Campañas:</span>
                 <div id="check-campanias-panel" class="scroll-checks-panel">
                     <c:if test="${campanias != null && campanias.size() > 0 && tiendasCampania != null && tiendasCampania.size() > 0}">
                         <c:forEach var="campania" items="${campanias}">
+
                             <div class="campania-panel-item">
                                 <label>
                                     <input 
@@ -200,12 +202,30 @@
                                         class="check-campania-master panel-cb" 
                                         disabled 
                                         style="flex-shrink: 0; width: 16px; height: 16px; margin: 0;"
-                                        ${tiendasCampania.keySet().contains(campania) ? "checked" : ""}
+                                        ${not empty tiendasCampania[campania.id] ? "checked" : ""}
                                     >
                                     <span style="line-height: 1.4; flex: 1; white-space: normal; text-align: left; word-break: break-word;">${campania.nombre}</span>
                                 </label>
-
                                 
+                                <c:if test="${not empty tiendasCampania[campania.id]}">
+                                    <p>hola!</p>
+                                    <div id="tiendas-campania-panel-${campania.id}" class="campania-panel-item-tiendas">
+                                        <p>Sigo aquí...</p>
+                                        <c:forEach var="tienda" items="${tiendasCampania[campania.id]}">
+                                            <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 0.9em; cursor: pointer; color: #334155; width: 100%; box-sizing: border-box;">
+                                                <input 
+                                                    name="nueva-tienda-campania"
+                                                    type="checkbox" 
+                                                    value="${tienda.id}-${campania.id}" 
+                                                    class="check-tienda-sub panel-cb" 
+                                                    disabled 
+                                                    style="margin-top: 3px; flex-shrink: 0; width: 14px; height: 14px; margin-left: 0;"
+                                                >
+                                                <span style="flex: 1; white-space: normal; text-align: left; line-height: 1.3; word-break: break-word;">${tienda.nombre}</span>
+                                            </label>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
                             </div>
                         </c:forEach>
                     </c:if>
