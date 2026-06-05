@@ -7,5 +7,6 @@ public class LocalidadDTO {
     private Long id;
     private String nombre;
     
-    private Long zonaGeoId; // Referencia a la zona geográfica
+    // Refactorización Sofía (0% IA GENERATIVA)
+    private String zonaGeo; // Referencia a la zona geográfica
 }

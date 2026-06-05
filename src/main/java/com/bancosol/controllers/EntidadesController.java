@@ -56,10 +56,13 @@ public class EntidadesController {
         // -- Devolver entidad en el lateral (solo info) --
         // Si se seleccionó una entidad
         if (entidadId != null) {
+            
             // Pasamos la entidad colaboradora además
             EntidadColaboradoraDTO e = (entidadId == null)
                 ? null
                 : this.entidadService.findByCampaniaId(campaniaId, entidadId);
+
+            
 
             model.addAttribute("entidadSelec", e);
             model.addAttribute("panelIzquierdo", "entidades_colaboradoras/info-entidad.jsp");

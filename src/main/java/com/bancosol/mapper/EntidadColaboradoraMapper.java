@@ -8,20 +8,24 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.bancosol.dao.ResponsableEntidadRepository;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.ResponsableEntidad;
+
+import lombok.AllArgsConstructor;
+
 import com.bancosol.entities.Campania;
 
 
 @Component
+@AllArgsConstructor
 public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO, EntidadColaboradora> {
 
     private final ResponsableEntidadMapper responsableEntidadMapper;
+    private final DireccionMapper direccionMapper;
 
-    EntidadColaboradoraMapper(ResponsableEntidadMapper responsableEntidadMapper) {
-        this.responsableEntidadMapper = responsableEntidadMapper;
-    }
+    private final ResponsableEntidadRepository responsableEntidadRepository;
 
     public EntidadColaboradoraDTO toDTO (EntidadColaboradora entidad) {
 
@@ -83,33 +87,20 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
         );
         */
 
-        dto.setCalle (
-            entidad.getDireccion() != null ? 
-            entidad.getDireccion().getCalle()
-            : "-"
-        );
-
-        dto.setNumero (
-            entidad.getDireccion() != null ? 
-            entidad.getDireccion().getNumero()
+        dto.setContactoPrincipal (
+            entidad.getResponsables() != null ?
+            this.responsableEntidadMapper.toDTO(
+                this.responsableEntidadRepository
+                .findPrincipalByEntidadId(entidad.getId()) 
+            )
             : null
         );
 
-        dto.setZonaGeo (
-            entidad.getDireccion()  != null && entidad.getDireccion().getLocalidad() != null ? 
-            entidad.getDireccion().getLocalidad().getNombre()
-            : "-"
+        dto.setDireccion (
+            entidad.getDireccion() != null ?
+            this.direccionMapper.toDTO(entidad.getDireccion())
+            : null
         );
-
-        dto.setContactoPrincipal (
-        entidad.getResponsables() != null ?
-        entidad.getResponsables().stream()
-            .filter(ResponsableEntidad::getEsContactoPrincipal) 
-            .findFirst()                                        
-            .map(responsableEntidadMapper::toDTO)                      
-            .orElse(null)                              
-        : null
-    );
 
         return dto;
     }

@@ -20,9 +20,9 @@ public class LocalidadMapper extends MapperDTO <LocalidadDTO, Localidad> {
         dto.setId(loc.getId());
         dto.setNombre(loc.getNombre());
 
-        dto.setZonaGeoId (
+        dto.setZonaGeo (
             loc.getZonaGeografica() != null ? 
-                loc.getZonaGeografica().getId()
+                loc.getZonaGeografica().getNombre()
                 : null
         );
 
