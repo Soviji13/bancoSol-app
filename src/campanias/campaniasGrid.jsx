@@ -3,7 +3,8 @@ import { CampaniaCard } from "./CampaniaCard";
 export function CampaniasGrid({
   campanias,
   campaniaSeleccionadaId,
-  onSeleccionarCampania,
+  modoSeleccionAccion,
+  onClickCampania,
 }) {
   return (
     <div className="campanias__grid">
@@ -12,7 +13,8 @@ export function CampaniasGrid({
           key={campania.id}
           campania={campania}
           seleccionada={campania.id === campaniaSeleccionadaId}
-          onSeleccionar={onSeleccionarCampania}
+          modoSeleccionAccion={modoSeleccionAccion}
+          onClickCampania={onClickCampania}
         />
       ))}
     </div>

@@ -1,10 +1,12 @@
 export function CampaniaEstado({ activa }) {
-  const claseEstado = activa
-    ? "campanias__estado campanias__estado--activa"
-    : "campanias__estado campanias__estado--terminada";
-
   return (
-    <p className={claseEstado}>
+    <p
+      className={
+        activa
+          ? "campanias__estado campanias__estado--activa"
+          : "campanias__estado campanias__estado--terminada"
+      }
+    >
       {activa ? "Activa" : "Terminada"}
     </p>
   );
