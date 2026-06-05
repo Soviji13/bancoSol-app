@@ -3,9 +3,12 @@ package com.bancosol.services;
 import com.bancosol.dao.CadenaRepository;
 import com.bancosol.dao.CampaniaRepository;
 import com.bancosol.dao.CoordinadorRepository;
+import com.bancosol.dao.TiendaColaboradorRepository;
 import com.bancosol.dto.CampaniaDTO;
+import com.bancosol.dto.TiendaDTO;
 import com.bancosol.entities.*;
 import com.bancosol.mapper.CampaniaMapper;
+import com.bancosol.mapper.TiendaMapper;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +25,11 @@ public class CampaniaService {
     private final CampaniaMapper campaniaMapper;
     private final CoordinadorRepository coordinadorRepo;
     private final CadenaRepository cadenaRepo;
+
+    // Adición Sofía (0% IA)
+    private final TiendaColaboradorRepository tiendaColabRepo;
+    private final TiendaMapper tiendaMapper;
+    // Final adición Sofía (más abajo)
 
     public List<CampaniaDTO> listarTodas() {
         return campaniaMapper.toDTOList(repo.findAll());
@@ -43,6 +52,16 @@ public class CampaniaService {
             );
 
         return campaniaMapper.toDTO(c);
+    }
+
+    // Devuelve todas las tiendas de una campaña
+    public List <TiendaDTO> devolverTiendas (Long idCampania) {
+        List <TiendaColaborador> todasTiendasCampania = this.tiendaColabRepo.findByCampaniaId(idCampania);
+
+        return todasTiendasCampania.stream()
+        .map(tc -> this.tiendaMapper.toDTO(tc.getTienda())) 
+        .distinct()                                                       
+        .collect(Collectors.toList());
     }
 
     //------------------------------------------------------------------------------------------------

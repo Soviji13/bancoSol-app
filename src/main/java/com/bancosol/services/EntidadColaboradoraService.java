@@ -2,13 +2,21 @@ package com.bancosol.services;
 
 import com.bancosol.dao.EntidadColaboradoraRepository;
 import com.bancosol.dao.TiendaColaboradorRepository;
+import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
+import com.bancosol.dto.TiendaDTO;
+import com.bancosol.entities.Campania;
 import com.bancosol.entities.TiendaColaborador;
+import com.bancosol.mapper.CampaniaMapper;
 import com.bancosol.mapper.EntidadColaboradoraMapper;
+import com.bancosol.mapper.TiendaMapper;
 
 import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,12 +24,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class EntidadColaboradoraService {
 
-    // Refactorización de Sofía (IA para acceso a tabla de triple entidad)
+    // Refactorización de Sofía (IA para acceso a tabla de triple entidad SOLO DONDE SE INDICA)
 
     private final EntidadColaboradoraRepository entidadRepo;
     private final EntidadColaboradoraMapper entidadMapper;
 
     private final TiendaColaboradorRepository tiendaColabRepo;
+
+    private final TiendaMapper tiendaMapper;
+
+    private final CampaniaMapper campaniaMapper;
+    private final CampaniaService campaniaService;
 
     public List <EntidadColaboradoraDTO> listarTodas () {
         return entidadMapper.toDTOList(entidadRepo.findAll());
@@ -43,7 +56,7 @@ public class EntidadColaboradoraService {
         
         // Se obtiene la tabla intermedia
         List <TiendaColaborador> tiendasConColaboradorEnCampania =
-            this.tiendaColabRepo.findByCampaniaId(campaniaId);
+            this.tiendaColabRepo.findTiendaColabByCampaniaId(campaniaId);
 
         
         List <EntidadColaboradoraDTO> entidadesConTiendas = 
@@ -82,7 +95,7 @@ public class EntidadColaboradoraService {
         
         // Se obtiene la tabla intermedia
         List <TiendaColaborador> tiendasConColaboradorEnCampania =
-            this.tiendaColabRepo.findByCampaniaId(campaniaId);
+            this.tiendaColabRepo.findTiendaColabByCampaniaId(campaniaId);
 
         // Se filtran solo las que el id del colaborador coincide con entidadId
         List <TiendaColaborador> tiendasEntidadFiltrada =
@@ -106,6 +119,74 @@ public class EntidadColaboradoraService {
 
         return dto;
     }
+
+    // Devuelve todos las tiendas de la entidad colaboradora 
+    public List <TiendaDTO> devolverTodasLasTiendas (Long entidadId) {
+
+        List <TiendaColaborador> todasTiendasEntidad = this.tiendaColabRepo.findByColaboradorId(entidadId);
+
+        return todasTiendasEntidad.stream()
+        .map(tc -> this.tiendaMapper.toDTO(tc.getTienda())) 
+        .distinct()                                                       
+        .collect(Collectors.toList());
+    }
+
+    // Devuelve las campañas de la entidad colaboradora
+    public List <CampaniaDTO> devolverTodasLasCampanias (Long entidadId) {
+
+        List <TiendaColaborador> todasTiendasEntidad = this.tiendaColabRepo.findByColaboradorId(entidadId);
+
+        return todasTiendasEntidad.stream()
+        .map(tc -> this.campaniaMapper.toDTO(tc.getCampania())) 
+        .distinct()                                                       
+        .collect(Collectors.toList());
+    }
+
+    // Devuelve todos los nombres de tiendas de la entidad colaboradora y de la campaña concreta
+    public List <TiendaDTO> devolverTiendasPorCampania (Long entidadId, Long campaniaId) {
+
+        List <TiendaColaborador> todasTiendasEntidad = this.tiendaColabRepo.findByColaboradorId(entidadId);
+
+        return todasTiendasEntidad.stream()
+        .filter(tc -> tc.getColaborador().getId().equals(entidadId) && tc.getCampania().getId().equals(campaniaId))
+        .map(tc -> this.tiendaMapper.toDTO(tc.getTienda())) 
+        .distinct()                                                       
+        .collect(Collectors.toList());
+    }
+
+    // Devuelve todas las campañas en las que participa junto a todas sus tiendas
+    public Map <CampaniaDTO, List <TiendaDTO>> devolverCampaniasConTiendas (Long entidadId) {
+
+        List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
+
+        Map <CampaniaDTO, List <TiendaDTO>> res = new HashMap<>();
+
+        for (CampaniaDTO c : campaniasEntidad) {
+            if (c != null) {
+                res.put(c, this.campaniaService.devolverTiendas(c.getId()));
+            }
+        }
+
+        return res;
+    }
+
+    // Devuelve todas las campañas en las que participa junto a las tiendas respectivas en las que participa 
+    public Map <CampaniaDTO, List <TiendaDTO>> devolverCampaniasConTodasTiendas (Long entidadId) {
+
+        List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
+
+        Map <CampaniaDTO, List <TiendaDTO>> res = new HashMap<>();
+
+        for (CampaniaDTO c : campaniasEntidad) {
+            if (c != null) {
+                res.put(c, devolverTiendasPorCampania(entidadId, c.getId()));
+            }
+        }
+
+        return res;
+    }
+
+    // Devuelve todo el par tienda-campania existente
 
 
 

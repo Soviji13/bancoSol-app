@@ -58,7 +58,7 @@
                         required 
                         disabled
                     >
-                        <%-- Opción por defecto --%>
+                        <%-- Opción por defecto (Localidad) --%>
                         <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidad : ''}" selected>
                             ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidad : '-'}
                         </option>
@@ -73,7 +73,7 @@
                         required 
                         disabled
                     >
-                        <%-- Opción por defecto --%>
+                        <%-- Opción por defecto (CP) --%>
                         <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostal : ''}" selected>
                             ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostal : '-'}
                         </option>
@@ -89,7 +89,7 @@
                         class="input-linea" 
                         disabled
                     >
-                        <%-- Opción por defecto --%>
+                        <%-- Opción por defecto (Zona Geográfica) --%>
                         <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeografica : ''}" selected>
                             ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeografica : '-'}
                         </option>
@@ -97,6 +97,7 @@
                 </div>
 
 
+                <%-- Es Capital --%>
                 <div class="fila-flex">
                     <label style="cursor:pointer; display: flex; align-items: center;">
                         <span class="etiqueta" style="width: auto; margin-right: 10px;">¿Es Capital?</span>
@@ -116,25 +117,102 @@
                 </div>
             </section>
 
+            <%-- Mostrar responsables de entidad --%>
             <section class="bloque-seccion border-bottom p-0">
                 <table class="tabla-contactos">
-                    <tbody id="tabla-contactos-dinamica"></tbody>
+                    <tbody id="tabla-contactos-dinamica">
+                        <c:if test="${entidadSelec != null && entidadSelec.responsablesEntidad != null && entidadSelec.responsablesEntidad.size() > 0}">
+                            <c:forEach var="res" items="${entidadSelec.responsablesEntidad}">
+                                <tr class="contacto-header">
+                                    <td 
+                                        rowspan="${3}"
+                                        style="width: 90px; text-align: center; vertical-align: top; background-color: #f8fafc;"
+                                    >
+                                        <strong style="color: #1e3a8a;">Contacto ${entidadSelec.responsablesEntidad.indexOf(res)}</strong>
+                                        <br>
+                                        <label for="esPrincipalIdResp">
+                                            <span style="color: #dc2626; font-size: 12px; display: block; margin-bottom: 2px;">Principal</span>
+                                            <input 
+                                                type="radio" 
+                                                name="nuevo-contacto-principal" 
+                                                class="check-inline r-principal" 
+                                                disabled
+                                                ${res.esContactoPrincipal ? "checked" : ""}
+                                            >
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <span class="etiqueta-tabla">Nombre</span>
+                                        <input type="text" class="input-linea r-nombre" value="${res.contacto.nombre}">
+                                    </td>
+                                </tr>
+                                <tr><td>
+                                    <span span class="etiqueta-tabla">Email</span>
+                                    <input type="email" class="input-linea r-email" value="${res.contacto.email}">
+                                </td></tr>
+                                <tr><td>
+                                    <span span class="etiqueta-tabla">Tel</span>
+                                    <input type="tel" class="input-linea r-telefono" value="${res.contacto.telefono}">
+                                </td></tr>
+                            </c:forEach>
+                        </c:if>
+                    </tbody>
                 </table>
                 <div id="btn-add-contacto-container" style="padding: 10px; text-align: center;">
                     <button type="button" id="btn-add-contacto" style="background: none; border: 1px dashed #ccc; padding: 5px 10px; cursor: pointer; width: 100%;">+ Añadir Contacto</button>
                 </div>
             </section>
 
+            <%-- Ver todas sus tiendas --%>
             <section class="bloque-seccion border-bottom">
                 <span class="etiqueta" style="display: block; margin-bottom: 10px;">Tiendas Asignadas:</span>
-                <div id="check-tiendas-panel" class="scroll-checks-panel"></div>
+                <div id="check-tiendas-panel" class="scroll-checks-panel">
+                    <c:if test="${tiendas != null && tiendas.size() > 0 && tiendasColab != null && tiendasColab.size() > 0}">
+                        <c:forEach var="tienda" items="${tiendas}">
+                            <label>
+                                <input 
+                                    name="nueva-tienda"
+                                    type="checkbox" 
+                                    value="${tienda.id}" 
+                                    class="check-tienda-panel" 
+                                    disabled
+                                    ${tiendasColab.contains(tienda) ? "checked" : ""}
+                                > 
+                                ${tienda.nombre}
+                            </label>
+                        </c:forEach>
+                    </c:if>
+                </div>
             </section>
 
+            <%-- Ver todas sus campañas con tiendas respectivas --%>
             <section class="bloque-seccion border-bottom">
                 <span class="etiqueta" style="display: block; margin-bottom: 10px;">Historial de Campañas:</span>
-                <div id="check-campanias-panel" class="scroll-checks-panel"></div>
+                <div id="check-campanias-panel" class="scroll-checks-panel">
+                    <c:if test="${campanias != null && campanias.size() > 0 && tiendasCampania != null && tiendasCampania.size() > 0}">
+                        <c:forEach var="campania" items="${campanias}">
+                            <div class="campania-panel-item">
+                                <label>
+                                    <input 
+                                        type="checkbox" 
+                                        value="${campania.id}"
+                                        name="nueva-campania"
+                                        class="check-campania-master panel-cb" 
+                                        disabled 
+                                        style="flex-shrink: 0; width: 16px; height: 16px; margin: 0;"
+                                        ${tiendasCampania.keySet().contains(campania) ? "checked" : ""}
+                                    >
+                                    <span style="line-height: 1.4; flex: 1; white-space: normal; text-align: left; word-break: break-word;">${campania.nombre}</span>
+                                </label>
+
+                                
+                            </div>
+                        </c:forEach>
+                    </c:if>
+                </div>
             </section>
 
+            <%-- Observaciones y si participa en la campaña actual --%>
             <section class="bloque-seccion border-bottom">
                 <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="width: auto; margin-right: 10px;">Participa en campaña actual:</span> 
