@@ -72,7 +72,7 @@ if (seccionEntidades) {
 
         const idCampania = seccionEntidades.dataset.idCampaniaActual;
 
-        botonCerrar.addEventListener('click', () => {
+        botonCerrarLateral.addEventListener('click', () => {
         window.location.href = `http://localhost:8080/entidades?campaniaId=${idCampania}`;
     })
     }

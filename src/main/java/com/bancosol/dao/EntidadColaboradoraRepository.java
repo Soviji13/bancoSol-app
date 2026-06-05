@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface EntidadColaboradoraRepository extends JpaRepository<EntidadColaboradora, Long> {
     
-    List<EntidadColaboradora> findByCoordinador_Id(Long coordinadorId);
+    List <EntidadColaboradora> findByCoordinador_Id(Long coordinadorId);
 }

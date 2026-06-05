@@ -228,7 +228,7 @@ body { font-family: Arial, sans-serif; background-color: #fff; color: #333; }
 
 #entidades .campania-panel-item-tiendas
 {
-    display: none; 
+    display: block;
     margin-left: 15px; 
     border-left: 2px solid #cbd5e1; 
     padding-left: 12px; 

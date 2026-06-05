@@ -43,14 +43,14 @@
                         <td>${e.direccion != null ? e.direccion.calle : "-"}, ${e.direccion != null ? e.direccion.numero : "-"}</td>
                         <td>${e.direccion != null ? e.direccion.zonaGeografica : "-"}</td>
                         <td>
-                            ${e.contactoPrincipal.nombre}
+                            ${e.contactoPrincipal.contacto.nombre}
                             <br>
                             <c:choose>
-                                <c:when test="${e.contactoPrincipal.email != null}">
-                                    <small>${e.contactoPrincipal.email}</small>
+                                <c:when test="${e.contactoPrincipal.contacto.email != null}">
+                                    <small>${e.contactoPrincipal.contacto.email}</small>
                                 </c:when>
-                                <c:when test="${e.contactoPrincipal.telefono != null}">
-                                    <small>${e.contactoPrincipal.telefono}</small>
+                                <c:when test="${e.contactoPrincipal.contacto.telefono != null}">
+                                    <small>${e.contactoPrincipal.contacto.telefono}</small>
                                 </c:when>
                                 <c:otherwise>
                                     <small>No tiene ningún contacto asociado</small>

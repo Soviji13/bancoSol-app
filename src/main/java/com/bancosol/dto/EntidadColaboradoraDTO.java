@@ -15,7 +15,7 @@ public class EntidadColaboradoraDTO {
     private Long direccionId;
 
 
-    private List<Long> idsTiendas;       // Sustituye a TiendaColaborador
+    private List<Long> idsTiendas;          // Sustituye a TiendaColaborador
     private List<Long> idsResponsables;     // Sustituye a ResponsableEntidad
 
     // Código añadido por Sofía (0% IA Generativa) --------------------------
@@ -23,11 +23,12 @@ public class EntidadColaboradoraDTO {
 
 
     // Para la tabla
-    private List <String> nombresTiendas;
+    private List <String> nombresTiendas;   // Dependiendo de la campaña
     private ResponsableEntidadDTO contactoPrincipal;
 
     // Para la tabla y modificación
     private DireccionDTO direccion;
 
     // Para menú lateral y modificación
+    private List <ResponsableEntidadDTO> responsablesEntidad;
 }

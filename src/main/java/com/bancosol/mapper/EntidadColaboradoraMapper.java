@@ -39,7 +39,7 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
         // Ayuda de la IA generativa para saber asignar IDs de tiendas
         /* Ya no me es necesario
         dto.setIdsTiendas (
-            entidad. != null ? 
+            entidad.getTiendas() != null ? 
             entidad.getTiendas().stream()
                 .map(Tienda::getId)
                 .collect(Collectors.toList()) 
@@ -99,6 +99,12 @@ public class EntidadColaboradoraMapper extends MapperDTO <EntidadColaboradoraDTO
         dto.setDireccion (
             entidad.getDireccion() != null ?
             this.direccionMapper.toDTO(entidad.getDireccion())
+            : null
+        );
+
+        dto.setResponsablesEntidad (
+            entidad.getResponsables() != null && entidad.getResponsables().size() > 0 ?
+            this.responsableEntidadMapper.toDTOList(entidad.getResponsables())
             : null
         );
 

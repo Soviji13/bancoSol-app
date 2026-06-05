@@ -26,5 +26,8 @@ public interface TiendaColaboradorRepository extends JpaRepository<TiendaColabor
         "JOIN FETCH tc.colaborador c " +
         "JOIN FETCH tc.tienda t " +
         "WHERE tc.campania.id = :idCampania")
-    List<TiendaColaborador> findByCampaniaId(@Param("idCampania") Long idCampania);
+    List<TiendaColaborador> findTiendaColabByCampaniaId(@Param("idCampania") Long idCampania);
+
+    List<TiendaColaborador> findByColaboradorId(Long colaboradorId);
+    List<TiendaColaborador> findByCampaniaId(Long campaniaId);
 }

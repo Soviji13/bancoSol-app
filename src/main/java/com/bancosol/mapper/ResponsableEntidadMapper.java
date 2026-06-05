@@ -8,10 +8,15 @@ import org.springframework.stereotype.Component;
 import com.bancosol.dto.ResponsableEntidadDTO;
 import com.bancosol.entities.ResponsableEntidad;
 
+import lombok.AllArgsConstructor;
+
 
 
 @Component
+@AllArgsConstructor
 public class ResponsableEntidadMapper extends MapperDTO <ResponsableEntidadDTO, ResponsableEntidad> {
+
+    private ContactoMapper contactoMapper;
 
     public ResponsableEntidadDTO toDTO (ResponsableEntidad responsable) {
 
@@ -28,21 +33,9 @@ public class ResponsableEntidadMapper extends MapperDTO <ResponsableEntidadDTO, 
 
         // Datos aplanados para acceder más fácilmente
 
-        dto.setEmail (
+        dto.setContacto (
             responsable.getContacto() != null ?
-            responsable.getContacto().getEmail()
-            : null
-        );
-
-        dto.setNombre (
-            responsable.getContacto() != null ?
-            responsable.getContacto().getNombre()
-            : "-"
-        );
-
-        dto.setTelefono (
-            responsable.getContacto() != null ? 
-            responsable.getContacto().getTelefono()
+            this.contactoMapper.toDTO(responsable.getContacto())
             : null
         );
 

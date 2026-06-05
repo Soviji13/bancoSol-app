@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
+import com.bancosol.dto.TiendaDTO;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.EntidadColaboradoraService;
+import com.bancosol.services.TiendaService;
 
 import java.util.List;
-
+import java.util.Map;
 
 
 @Controller
@@ -27,6 +29,7 @@ public class EntidadesController {
 
     private final CampaniaService campaniaService;
     private final EntidadColaboradoraService entidadService;
+    private final TiendaService tiendaService;
 
     // Relacionadas con mostrar datos --------------------------------------------------------------
 
@@ -62,8 +65,31 @@ public class EntidadesController {
                 ? null
                 : this.entidadService.findByCampaniaId(campaniaId, entidadId);
 
-            
+            // Pasamos todas sus tiendas
+            List <TiendaDTO> tiendasColab = this.entidadService.devolverTodasLasTiendas(entidadId);
+            // Pasamos todas las tiendas
+            List <TiendaDTO> tiendas = this.tiendaService.listarTodas();
 
+            // Pasamos todas las campañas
+            List <CampaniaDTO> campanias = this.campaniaService.listarTodas();
+
+            // Obtenemos las tiendas pertenecientes a cada campaña de la entidad
+            Map <Long, List <TiendaDTO>> tiendasCampania = this.entidadService.devolverCampaniasConTodasTiendas(entidadId);
+
+            // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
+            Map <Long, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
+
+
+            // Pasamos todas las campañas
+            model.addAttribute("campanias", campanias);
+            model.addAttribute("tiendasCampania", tiendasCampania);
+            model.addAttribute("tiendasCampaniaEntidad", tiendasCampaniaEntidad);
+
+            // Pasamos todas las tiendas
+            model.addAttribute("tiendas", tiendas);
+            model.addAttribute("tiendasColab", tiendasColab);
+
+            // Pasamos datos de la entidad y dónde se tiene que ubicar
             model.addAttribute("entidadSelec", e);
             model.addAttribute("panelIzquierdo", "entidades_colaboradoras/info-entidad.jsp");
         }
