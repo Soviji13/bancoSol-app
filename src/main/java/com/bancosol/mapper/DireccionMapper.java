@@ -39,6 +39,25 @@ public class DireccionMapper extends MapperDTO <DireccionDTO, Direccion> {
                 : null
         );
 
+        // Para mostrarse en la tabla (Refactorización Sofía 0% IA)
+        dto.setZonaGeografica (
+            dir.getLocalidad() != null && dir.getLocalidad().getZonaGeografica() != null ?
+            dir.getLocalidad().getZonaGeografica().getNombre()
+            : null
+        );
+
+        dto.setLocalidad (
+            dir.getLocalidad() != null ?
+            dir.getLocalidad().getNombre()
+            : null
+        );
+
+        dto.setCodigoPostal (
+            dir.getCodigoPostal() != null ?
+            dir.getCodigoPostal().getCodigo()
+            : null
+        );
+
         return dto;
     }
 }

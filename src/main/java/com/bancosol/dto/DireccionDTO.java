@@ -13,4 +13,9 @@ public class DireccionDTO {
     private Long localidadId;
     private Long codigoPostalId;
     private Long distritoId;
+
+    // Refactorización Sofía (0% IA Generativa)
+    private String zonaGeografica;
+    private String localidad;
+    private Short codigoPostal;
 }

@@ -34,7 +34,7 @@
                         class="input-linea" 
                         required 
                         readonly
-                        value="${entidadSelec != null ? entidadSelec.calle : "-"}"
+                        value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.calle : "-"}"
                     >
                 </div>
                 <div class="fila-flex">
@@ -46,27 +46,68 @@
                         class="input-linea" 
                         required 
                         readonly
-                        value="${entidadSelec != null ? entidadSelec.numero : "-"}"
+                        value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.numero : "-"}"
                     >
                 </div>
                 <div class="fila-flex">
                     <span class="etiqueta">Localidad:</span> 
-                    <select id="edit-localidad" name="nombreLocalidad" class="input-linea" required disabled></select>
+                    <select 
+                        id="edit-localidad" 
+                        name="nueva-localidad" 
+                        class="input-linea" 
+                        required 
+                        disabled
+                    >
+                        <%-- Opción por defecto --%>
+                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidad : ''}" selected>
+                            ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidad : '-'}
+                        </option>
+                    </select>
                 </div>
                 <div class="fila-flex">
                     <span class="etiqueta">Cód. postal:</span> 
-                    <select id="edit-cp" name="numeroCP" class="input-linea" required disabled></select>
+                    <select 
+                        id="edit-cp" 
+                        name="nuevo-cp" 
+                        class="input-linea" 
+                        required 
+                        disabled
+                    >
+                        <%-- Opción por defecto --%>
+                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostal : ''}" selected>
+                            ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostal : '-'}
+                        </option>
+                    </select>
                 </div>
-            
+                
+
                 <div class="fila-flex">
                     <span class="etiqueta">Zona Geo:</span> 
-                    <select id="edit-zona" name="nombreZonaGeografica" class="input-linea" disabled></select>
+                    <select 
+                        id="edit-zona" 
+                        name="nueva-zona" 
+                        class="input-linea" 
+                        disabled
+                    >
+                        <%-- Opción por defecto --%>
+                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeografica : ''}" selected>
+                            ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeografica : '-'}
+                        </option>
+                    </select>
                 </div>
+
 
                 <div class="fila-flex">
                     <label style="cursor:pointer; display: flex; align-items: center;">
                         <span class="etiqueta" style="width: auto; margin-right: 10px;">¿Es Capital?</span>
-                        <input type="checkbox" id="check-es-capital-panel" name="esCapital" class="check-inline" disabled>
+                        <input 
+                            type="checkbox" 
+                            id="check-es-capital-panel" 
+                            name="esCapital" 
+                            class="check-inline" 
+                            disabled
+                            ${entidadSelec != null && entidadSelec.direccion != null && entidadSelec.direccion.esCapital ? "checked": ''}
+                        >
                     </label>
                 </div>
                 <div class="fila-flex" id="campo-distrito-panel" style="display: none;">
