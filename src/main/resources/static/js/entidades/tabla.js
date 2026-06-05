@@ -66,9 +66,9 @@ if (seccionEntidades) {
     });
 
     // PARA QUITAR MENÚ LATERAL
-    const botonCerrar = document.getElementById('btn-cerrar-panel');
+    const botonCerrarLateral = document.getElementById('btn-cerrar-panel');
 
-    if (botonCerrar) {
+    if (botonCerrarLateral) {
 
         const idCampania = seccionEntidades.dataset.idCampaniaActual;
 
