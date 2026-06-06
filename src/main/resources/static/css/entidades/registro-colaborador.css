@@ -218,7 +218,6 @@
     /* Fondo negro con un 70% de opacidad para oscurecer y desenfocar la tabla de atrás */
     background: rgba(0, 0, 0, 0.7); 
     /* Oculto por defecto al arrancar la vista (JS cambiará el estado según se requiera) */
-    display: none; 
     /* Preparado para centrar el formulario perfectamente en los ejes X e Y cuando se active */
     justify-content: center;
     align-items: center;

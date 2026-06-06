@@ -148,6 +148,10 @@
                     <jsp:include page="entidades_colaboradoras/tabla.jsp" />
                 </c:when>
 
+                <c:when test="${pagina == 'aniadir-entidad'}">
+                    <jsp:include page="entidades_colaboradoras/aniadir-entidad.jsp" />
+                </c:when>
+
                 <c:otherwise>
                     <p>No se ha encontrado la página solicitada.</p>
                 </c:otherwise>

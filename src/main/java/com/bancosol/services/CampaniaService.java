@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,7 +27,6 @@ public class CampaniaService {
     private final CadenaRepository cadenaRepo;
 
     // Adición Sofía (0% IA)
-    private final TiendaColaboradorRepository tiendaColabRepo;
     private final TiendaMapper tiendaMapper;
     private final TiendaRepository tiendaRepository;
     // Final adición Sofía (más abajo)

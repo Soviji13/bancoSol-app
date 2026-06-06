@@ -2,10 +2,14 @@ package com.bancosol.services;
 
 import com.bancosol.dao.EntidadColaboradoraRepository;
 import com.bancosol.dao.TiendaColaboradorRepository;
+
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
+
+// Intentar no hacerlo
 import com.bancosol.entities.TiendaColaborador;
+
 import com.bancosol.mapper.CampaniaMapper;
 import com.bancosol.mapper.EntidadColaboradoraMapper;
 import com.bancosol.mapper.TiendaMapper;
@@ -25,6 +29,8 @@ import java.util.stream.Collectors;
 public class EntidadColaboradoraService {
 
     // Refactorización de Sofía (IA para acceso a tabla de triple entidad SOLO DONDE SE INDICA)
+
+    // MOSTRAR INFO ----------------------------------------------------------------------------------------
 
     private final EntidadColaboradoraRepository entidadRepo;
     private final EntidadColaboradoraMapper entidadMapper;
@@ -198,6 +204,8 @@ public class EntidadColaboradoraService {
             .orElse(null);
         
     }
+
+    // CREAR ENTIDAD -------------------------------------------------------------------------------
 
 
     // Final parte Sofía

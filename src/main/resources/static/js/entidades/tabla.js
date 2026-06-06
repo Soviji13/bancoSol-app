@@ -65,15 +65,42 @@ if (seccionEntidades) {
         //abrirDetalleColaborador(fila.dataset.id);
     });
 
-    // PARA QUITAR MENÚ LATERAL
-    const botonCerrarLateral = document.getElementById('btn-cerrar-panel');
+    // PARA QUITAR MENÚ LATERAL -----------------------------------------------------------------------------------------
+    const botonCerrarLateral = document.getElementById ('btn-cerrar-panel');
 
     if (botonCerrarLateral) {
 
         const idCampania = seccionEntidades.dataset.idCampaniaActual;
 
         botonCerrarLateral.addEventListener('click', () => {
-        window.location.href = `http://localhost:8080/entidades?campaniaId=${idCampania}`;
-    })
+            window.location.href = `http://localhost:8080/entidades?campaniaId=${idCampania}`;
+        })
     }
+
+    // PARA ABRIR PANEL DE CREAR ENTIDAD -------------------------------------------------------------------------------
+    const botonAbrirRegistro = document.getElementById ('btn-abrir-registro');
+
+    if (botonAbrirRegistro) {
+
+        // Lo pasamos para que si se le da al botón cerrar, se muestre el listado donde estaba la campaña
+        const idCampania = seccionEntidades.dataset.idCampaniaActual;
+
+        botonAbrirRegistro.addEventListener('click', () => {
+            window.location.href = `http://localhost:8080/entidades/crear?campaniaId=${idCampania}`;
+        })
+    }
+
+    // PARA CERRAR PANEL DE CREAR ENTIDAD ---------------------------------------------------------------------------------------
+    const botonCerrarRegistro = document.getElementById ('btn-cerrar-modal');
+
+    if (botonCerrarRegistro) {
+
+        // Lo pasamos para que si se le da al botón cerrar, se muestre el listado donde estaba la campaña
+        const idCampania = seccionEntidades.dataset.idCampaniaActual;
+
+        botonAbrirRegistro.addEventListener('click', () => {
+            window.location.href = `http://localhost:8080/entidades/?campaniaId=${idCampania}`;
+        })
+    }
+
 }
