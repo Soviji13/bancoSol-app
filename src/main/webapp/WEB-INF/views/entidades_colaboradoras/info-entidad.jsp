@@ -186,7 +186,6 @@
             </section>
 
             <%-- Ver todas sus campañas con tiendas respectivas --%>
-
             <section class="bloque-seccion border-bottom">
                 <span class="etiqueta" style="display: block; margin-bottom: 10px;">Historial de Campañas:</span>
                 <div id="check-campanias-panel" class="scroll-checks-panel">
@@ -259,6 +258,29 @@
             </section>
 
             <%-- Campos de ultima campaña, nTiendas y nTurnos --%>
+            <section class="bloque-seccion border-bottom">
+                <div class="fila-flex" style="margin-bottom: 15px;">
+                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Número de tiendas:</span> 
+                    <%-- Lo dejo en input por su estilo, pero no tiene funcionalidad --%>
+                    <input 
+                        type="text" 
+                        disabled
+                        ${tiendasColab.size()}
+                    >
+                </div>
+                <div>
+                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Última campaña:</span>
+                    <textarea 
+                        id="edit-observaciones" 
+                        name="observations" 
+                        class="input-linea" 
+                        readonly 
+                        style="width: 100%; min-height: 80px; padding: 10px; background: #f8fafc;"
+                    >
+                        ${entidadSelec != null ? entidadSelec.observaciones : ""}
+                    </textarea>
+                </div>
+            </section>
 
             <section class="bloque-seccion" id="btn-guardar-container">
                 <button type="submit" class="btn-guardar-lateral">Guardar Cambios</button>
