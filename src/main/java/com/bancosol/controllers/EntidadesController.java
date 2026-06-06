@@ -15,7 +15,9 @@ import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.services.CampaniaService;
+import com.bancosol.services.CoordinadorService;
 import com.bancosol.services.EntidadColaboradoraService;
+import com.bancosol.services.ResponsableEntidadService;
 import com.bancosol.services.TiendaService;
 
 import java.util.List;
@@ -30,6 +32,8 @@ public class EntidadesController {
     private final CampaniaService campaniaService;
     private final EntidadColaboradoraService entidadService;
     private final TiendaService tiendaService;
+    //private final ResponsableEntidadService responsableEntidadService;
+    private final CoordinadorService coordinadorService;
 
     // Relacionadas con mostrar datos --------------------------------------------------------------
 
@@ -107,5 +111,21 @@ public class EntidadesController {
     public List <CampaniaDTO> getCampanias () {
         return campaniaService.listarTodas();
     }
+
+    // Relacionados con añadir colaborador -----------------------------------------------------
+
+    @GetMapping("/crear")
+    public String AbrirRegistroColab (
+        Model model,
+        @RequestParam("campaniaId") Long campaniaId
+    ) {
+
+        model.addAttribute("coordinadores", this.coordinadorService.listarTodos());
+        model.addAttribute("campaniaId", campaniaId);
+        model.addAttribute("pagina", "aniadir-entidad");
+
+        return "inicio";
+    }
+    
 
 }
