@@ -202,15 +202,13 @@
                                         class="check-campania-master panel-cb" 
                                         disabled 
                                         style="flex-shrink: 0; width: 16px; height: 16px; margin: 0;"
-                                        ${not empty tiendasCampania[campania.id] ? "checked" : ""}
+                                        ${tiendasCampaniaEntidad.containsKey(campania.id) ? "checked" : ""}
                                     >
                                     <span style="line-height: 1.4; flex: 1; white-space: normal; text-align: left; word-break: break-word;">${campania.nombre}</span>
                                 </label>
                                 
-                                <c:if test="${not empty tiendasCampania[campania.id]}">
-                                    <p>hola!</p>
-                                    <div id="tiendas-campania-panel-${campania.id}" class="campania-panel-item-tiendas">
-                                        <p>Sigo aquí...</p>
+                                <c:if test="${tiendasCampaniaEntidad.containsKey(campania.id)}">
+                                    <div id="tiendas-campania-panel-${campania.id}" class="campania-panel-item-tiendas" style="display: block;">
                                         <c:forEach var="tienda" items="${tiendasCampania[campania.id]}">
                                             <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 0.9em; cursor: pointer; color: #334155; width: 100%; box-sizing: border-box;">
                                                 <input 
@@ -220,6 +218,7 @@
                                                     class="check-tienda-sub panel-cb" 
                                                     disabled 
                                                     style="margin-top: 3px; flex-shrink: 0; width: 14px; height: 14px; margin-left: 0;"
+                                                    ${tiendasCampaniaEntidad[campania.id].contains(tienda) ? "checked" : ""}
                                                 >
                                                 <span style="flex: 1; white-space: normal; text-align: left; line-height: 1.3; word-break: break-word;">${tienda.nombre}</span>
                                             </label>
