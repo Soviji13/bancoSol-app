@@ -268,7 +268,7 @@
                     <p style="color:#1e3a8a">${tiendasColab.size()}</p> 
                 </div>
                 <div class="fila-flex" style="margin-bottom: 15px;">
-                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de turnos:</span>
+                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de voluntarios:</span>
                     <br>
                     <p>(Cuando fran arregle los turnos lo pondré)</p>
                 </div>
