@@ -72,20 +72,16 @@ public class EntidadesController {
 
             // Pasamos todas las campañas
             List <CampaniaDTO> campanias = this.campaniaService.listarTodas();
-
             // Obtenemos las tiendas pertenecientes a cada campaña de la entidad
             Map <Long, List <TiendaDTO>> tiendasCampania = this.entidadService.devolverCampaniasConTodasTiendas(entidadId);
-
             // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
             Map <Long, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
 
-            System.out.print(tiendasCampaniaEntidad.keySet());
+            System.out.print(tiendasCampaniaEntidad.keySet()); 
 
-            // Traemos también el id de la campaña actual para ver si participa 
-            Long idCampaniaActual = this.campaniaService.devolverCampaniaActiva().getId();
-
-            // Pasamos la campaña actual (id)
-            model.addAttribute("idCampaniaActual", idCampaniaActual);
+            // Pasamos la campaña actual (id) y la última campaña
+            model.addAttribute("idCampaniaActual", this.campaniaService.devolverCampaniaActiva().getId());
+            model.addAttribute("ultimaCampania", this.entidadService.obtenerUltimaCampania(entidadId));
 
             // Pasamos todas las campañas
             model.addAttribute("campanias", campanias);
