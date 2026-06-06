@@ -155,7 +155,7 @@ public class EntidadColaboradoraService {
     }
 
     // Devuelve todas las campañas en las que participa junto a todas sus tiendas
-    public Map <Long, List <TiendaDTO>> devolverCampaniasConTiendas (Long entidadId) {
+    public Map <Long, List <TiendaDTO>> devolverCampaniasConTodasTiendas (Long entidadId) {
 
         List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
 
@@ -171,7 +171,7 @@ public class EntidadColaboradoraService {
     }
 
     // Devuelve todas las campañas en las que participa junto a las tiendas respectivas en las que participa 
-    public Map <Long, List <TiendaDTO>> devolverCampaniasConTodasTiendas (Long entidadId) {
+    public Map <Long, List <TiendaDTO>> devolverCampaniasConTiendas (Long entidadId) {
 
         List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
 

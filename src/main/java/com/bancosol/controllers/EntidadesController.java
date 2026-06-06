@@ -79,6 +79,13 @@ public class EntidadesController {
             // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
             Map <Long, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
 
+            System.out.print(tiendasCampaniaEntidad.keySet());
+
+            // Traemos también el id de la campaña actual para ver si participa 
+            Long idCampaniaActual = this.campaniaService.devolverCampaniaActiva().getId();
+
+            // Pasamos la campaña actual (id)
+            model.addAttribute("idCampaniaActual", idCampaniaActual);
 
             // Pasamos todas las campañas
             model.addAttribute("campanias", campanias);

@@ -4,6 +4,7 @@ import com.bancosol.dao.CadenaRepository;
 import com.bancosol.dao.CampaniaRepository;
 import com.bancosol.dao.CoordinadorRepository;
 import com.bancosol.dao.TiendaColaboradorRepository;
+import com.bancosol.dao.TiendaRepository;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.entities.*;
@@ -29,6 +30,7 @@ public class CampaniaService {
     // Adición Sofía (0% IA)
     private final TiendaColaboradorRepository tiendaColabRepo;
     private final TiendaMapper tiendaMapper;
+    private final TiendaRepository tiendaRepository;
     // Final adición Sofía (más abajo)
 
     public List<CampaniaDTO> listarTodas() {
@@ -54,14 +56,9 @@ public class CampaniaService {
         return campaniaMapper.toDTO(c);
     }
 
-    // Devuelve todas las tiendas de una campaña
     public List <TiendaDTO> devolverTiendas (Long idCampania) {
-        List <TiendaColaborador> todasTiendasCampania = this.tiendaColabRepo.findByCampaniaId(idCampania);
 
-        return todasTiendasCampania.stream()
-        .map(tc -> this.tiendaMapper.toDTO(tc.getTienda())) 
-        .distinct()                                                       
-        .collect(Collectors.toList());
+        return this.tiendaMapper.toDTOList(this.tiendaRepository.findByCampaniaId(idCampania));
     }
 
     //------------------------------------------------------------------------------------------------
