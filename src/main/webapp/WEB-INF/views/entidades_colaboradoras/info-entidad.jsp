@@ -235,7 +235,14 @@
             <section class="bloque-seccion border-bottom">
                 <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="width: auto; margin-right: 10px;">Participa en campaña actual:</span> 
-                    <input type="checkbox" id="check-campania" name="estadoActivo" class="check-inline" disabled>
+                    <input 
+                        type="checkbox" 
+                        id="check-campania" 
+                        name="estadoActivo" 
+                        class="check-inline" 
+                        disabled
+                        ${tiendasCampaniaEntidad.containsKey(idCampaniaActual) ? "checked" : ""}
+                    >
                 </div>
                 <div>
                     <span class="etiqueta" style="margin-bottom: 5px; display: block;">Observaciones:</span>
@@ -250,6 +257,8 @@
                     </textarea>
                 </div>
             </section>
+
+            <%-- Campos de ultima campaña, nTiendas y nTurnos --%>
 
             <section class="bloque-seccion" id="btn-guardar-container">
                 <button type="submit" class="btn-guardar-lateral">Guardar Cambios</button>
