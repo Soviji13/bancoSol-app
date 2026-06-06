@@ -5,7 +5,6 @@ import com.bancosol.dao.TiendaColaboradorRepository;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
-import com.bancosol.entities.Campania;
 import com.bancosol.entities.TiendaColaborador;
 import com.bancosol.mapper.CampaniaMapper;
 import com.bancosol.mapper.EntidadColaboradoraMapper;
