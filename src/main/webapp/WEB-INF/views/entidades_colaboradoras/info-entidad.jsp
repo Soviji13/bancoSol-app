@@ -232,17 +232,6 @@
 
             <%-- Observaciones y si participa en la campaña actual --%>
             <section class="bloque-seccion border-bottom">
-                <div class="fila-flex" style="margin-bottom: 15px;">
-                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Participa en campaña actual:</span> 
-                    <input 
-                        type="checkbox" 
-                        id="check-campania" 
-                        name="estadoActivo" 
-                        class="check-inline" 
-                        disabled
-                        ${tiendasCampaniaEntidad.containsKey(idCampaniaActual) ? "checked" : ""}
-                    >
-                </div>
                 <div>
                     <span class="etiqueta" style="margin-bottom: 5px; display: block;">Observaciones:</span>
                     <textarea 
@@ -257,28 +246,31 @@
                 </div>
             </section>
 
-            <%-- Campos de ultima campaña, nTiendas y nTurnos --%>
+            <%-- Campos de ultima campaña, participa en campaña actual, nTiendas y nTurnos --%>
             <section class="bloque-seccion border-bottom">
                 <div class="fila-flex" style="margin-bottom: 15px;">
-                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Número de tiendas:</span> 
-                    <%-- Lo dejo en input por su estilo, pero no tiene funcionalidad --%>
+                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Participa en campaña actual:</span> 
                     <input 
-                        type="text" 
+                        type="checkbox" 
+                        id="check-campania" 
+                        name="estadoActivo" 
+                        class="check-inline" 
                         disabled
-                        ${tiendasColab.size()}
+                        ${tiendasCampaniaEntidad.containsKey(idCampaniaActual) ? "checked" : ""}
                     >
                 </div>
-                <div>
+                <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="margin-bottom: 5px; display: block;">Última campaña:</span>
-                    <textarea 
-                        id="edit-observaciones" 
-                        name="observations" 
-                        class="input-linea" 
-                        readonly 
-                        style="width: 100%; min-height: 80px; padding: 10px; background: #f8fafc;"
-                    >
-                        ${entidadSelec != null ? entidadSelec.observaciones : ""}
-                    </textarea>
+                    <p style="color:#1e3a8a">${ultimaCampania != null ? ultimaCampania : "-"}</p> 
+                </div>
+                <div class="fila-flex" style="margin-bottom: 15px;">
+                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Número de tiendas:</span> 
+                    <p style="color:#1e3a8a">${tiendasColab.size()}</p> 
+                </div>
+                <div class="fila-flex" style="margin-bottom: 15px;">
+                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de turnos:</span>
+                    <br>
+                    <p>(Cuando fran arregle los turnos lo pondré)</p>
                 </div>
             </section>
 

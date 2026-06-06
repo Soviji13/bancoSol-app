@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -186,8 +187,18 @@ public class EntidadColaboradoraService {
         return res;
     }
 
-    // Devuelve todo el par tienda-campania existente
+    // Devuelve la última campaña (Solo su nombre)
+    public String obtenerUltimaCampania (Long entidadId) {
 
+        List <CampaniaDTO> campaniasEntidad = devolverTodasLasCampanias(entidadId);
+
+        // Ayuda IA para obtenerla
+        return campaniasEntidad.stream()
+            .max(Comparator.comparing(CampaniaDTO::getFechaInicio))
+            .map(CampaniaDTO::getNombre)
+            .orElse(null);
+        
+    }
 
 
     // Final parte Sofía
