@@ -1,7 +1,5 @@
 /* Ajustes específicos para el Formulario/Modal de Registro */
 #entidades .god-form {
-    /* Le damos un ancho generoso y fijo para que todos los grids y columnas respiren bien debido a la complejidad de los datos */
-    width: 700px; 
     /* Evitamos que el formulario se desborde verticalmente en pantallas pequeñas limitándolo al 90% del alto de la ventana (Viewport Height) */
     max-height: 90vh;
     /* Espaciado interno general para que los elementos no peguen contra los bordes del contenedor */
@@ -209,10 +207,6 @@
 
 /* Telón de fondo oscuro para el comportamiento de modal clásico */
 #entidades .modal-overlay {
-    /* Posicionamiento fijo para que cubra toda la pantalla del navegador */
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     /* Fondo negro con un 70% de opacidad para oscurecer y desenfocar la tabla de atrás */

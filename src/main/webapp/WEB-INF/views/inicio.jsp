@@ -36,6 +36,13 @@
         </script>
     </c:if>
 
+    <c:if test="${pagina == 'aniadir-entidad'}">
+        <script type="module"
+                src="${pageContext.request.contextPath}/js/entidades/aniadirEntidad.js"
+                defer>
+        </script>
+    </c:if>
+
     <%-- COORDINADORES: LISTADO --%>
     <c:if test="${pagina == 'gestionar-coordinadores'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/encabezado.css" />

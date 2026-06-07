@@ -17,7 +17,6 @@ import com.bancosol.dto.TiendaDTO;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.CoordinadorService;
 import com.bancosol.services.EntidadColaboradoraService;
-import com.bancosol.services.ResponsableEntidadService;
 import com.bancosol.services.TiendaService;
 
 import java.util.List;

@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <section id="entidades" data-id-campania-actual="${campaniaId}" style="width: 100%;">
-    <div id="modal-registro" class="modal-overlay" style="width: 75%;">
+    <div id="modal-registro" class="modal-overlay">
         <div class="modal-content god-form">
             <header class="modal-header">
                 <h2>Registrar Nueva Entidad Colaboradora</h2>
@@ -26,8 +26,7 @@
                     <%-- Recolecta si está activo (por defecto sí) --%>
                     <div class="form-row">
                         <label>
-                            <input type="checkbox" name="estadoActivo" checked> 
-                            ¿Estado Activo?
+                            <input type="checkbox" name="estadoActivo" checked> ¿Estado Activo?
                         </label>
                         <textarea name="observaciones" placeholder="Observaciones adicionales..."></textarea>
                     </div>
