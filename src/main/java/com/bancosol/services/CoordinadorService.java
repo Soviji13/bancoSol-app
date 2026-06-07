@@ -462,6 +462,18 @@ public class CoordinadorService {
     // He decidido reusar código de mi compañero, y no romperle ninguna funcionalidad en el resto de capas
     // para asegurar de que su parte vaya bien
 
+    private List<Long> obtenerIdsCampanias(Coordinador coordinador) {
+        if (coordinador.getCampanias() == null) {
+        return List.of();
+        }
+
+        return coordinador.getCampanias()
+        .stream()
+        .filter(campania -> campania.getId() != null)
+        .map(Campania::getId)
+        .toList();
+    }
+
     // Obtiene campañas con tiendas de la entidad correspondiente
     public Map<CampaniaDTO, List<TiendaDTO>> obtenerCampaniasConTiendas (Long coordinadorId) {
 
