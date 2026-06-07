@@ -14,6 +14,7 @@ import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.Usuario;
 import com.bancosol.entities.enums.TipoRol;
 import com.bancosol.mapper.CoordinadorMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,48 +24,48 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class CoordinadorService {
 
     private static final String PASSWORD_TEMPORAL = "changeme";
 
-    private final CoordinadorRepository repo;
-    private final ContactoRepository contactoRepo;
-    private final EntidadColaboradoraRepository entidadRepo;
-    private final UsuarioRepository usuarioRepo;
-    private final CampaniaRepository campaniaRepo;
+    private final CoordinadorRepository coordinadorRepository;
+    private final ContactoRepository contactoRepository;
+    private final EntidadColaboradoraRepository entidadRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final CampaniaRepository campaniaRepository;
     private final CoordinadorMapper coordinadorMapper;
 
-    @Transactional(readOnly = true)
     public List<CoordinadorDTO> listarTodos() {
-        return repo.findAll()
+        return coordinadorRepository.findAll()
                 .stream()
                 .map(this::convertirAListado)
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public CoordinadorDTO findById(Long id) {
-        return repo.findById(id)
+        if (id == null) {
+            return null;
+        }
+
+        return coordinadorRepository.findById(id)
                 .map(this::convertirAListado)
                 .orElse(null);
     }
 
-    @Transactional(readOnly = true)
     public List<CoordinadorDTO> findAllById(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
 
-        return repo.findAllById(ids)
+        return coordinadorRepository.findAllById(ids)
                 .stream()
                 .map(this::convertirAListado)
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public CoordinadorFormDTO buscarFormularioPorId(Long id) {
-        Coordinador coordinador = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Coordinador no encontrado"));
+        Coordinador coordinador = buscarCoordinadorPorId(id);
 
         return convertirAFormulario(coordinador);
     }
@@ -75,9 +76,11 @@ public class CoordinadorService {
 
         Coordinador coordinador = new Coordinador();
 
-        aplicarDatosFormulario(coordinador, dto);
+        cargarDatosBasicos(coordinador, dto);
+        cargarContacto(coordinador, dto);
+        cargarUsuario(coordinador, dto);
 
-        Coordinador coordinadorGuardado = repo.save(coordinador);
+        Coordinador coordinadorGuardado = coordinadorRepository.save(coordinador);
 
         actualizarCampanias(coordinadorGuardado, dto.getIdsCampanias());
         actualizarEntidad(coordinadorGuardado, dto.getEntidadId());
@@ -89,17 +92,20 @@ public class CoordinadorService {
     public Long actualizar(Long id, CoordinadorFormDTO dto) {
         validarFormulario(dto);
 
-        Coordinador coordinador = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Coordinador no encontrado"));
+        Coordinador coordinador = buscarCoordinadorPorId(id);
 
-        aplicarDatosFormulario(coordinador, dto);
+        cargarDatosBasicos(coordinador, dto);
+        cargarContacto(coordinador, dto);
+        cargarUsuario(coordinador, dto);
 
-        Coordinador coordinadorGuardado = repo.save(coordinador);
+        actualizarCampanias(coordinador, dto.getIdsCampanias());
+        actualizarEntidad(coordinador, dto.getEntidadId());
 
-        actualizarCampanias(coordinadorGuardado, dto.getIdsCampanias());
-        actualizarEntidad(coordinadorGuardado, dto.getEntidadId());
-
-        return coordinadorGuardado.getId();
+        /*
+         * No llamamos a save().
+         * El coordinador ya está gestionado por JPA dentro de la transacción.
+         */
+        return coordinador.getId();
     }
 
     @Transactional
@@ -117,7 +123,11 @@ public class CoordinadorService {
 
     @Transactional
     public void eliminar(Long id) {
-        Coordinador coordinador = repo.findById(id).orElse(null);
+        if (id == null) {
+            return;
+        }
+
+        Coordinador coordinador = coordinadorRepository.findById(id).orElse(null);
 
         if (coordinador == null) {
             return;
@@ -129,11 +139,20 @@ public class CoordinadorService {
         desasociarEntidades(coordinador);
         desasociarCampanias(coordinador);
 
-        repo.delete(coordinador);
-        repo.flush();
+        coordinadorRepository.delete(coordinador);
+        coordinadorRepository.flush();
 
         eliminarContactoSiProcede(contacto);
         eliminarUsuarioSiProcede(usuario);
+    }
+
+    private Coordinador buscarCoordinadorPorId(Long id) {
+        validarId(id, "coordinador");
+
+        return coordinadorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe el coordinador con id: " + id
+                ));
     }
 
     private CoordinadorDTO convertirAListado(Coordinador coordinador) {
@@ -188,72 +207,37 @@ public class CoordinadorService {
         return formDTO;
     }
 
-    private void aplicarDatosFormulario(Coordinador coordinador, CoordinadorFormDTO dto) {
-        coordinador.setArea(normalizarTexto(dto.getArea()));
-        coordinador.setTiendas(dto.getTiendas() != null ? dto.getTiendas() : 0);
-        coordinador.setPermisoModificar(dto.getPermisoModificar() != null ? dto.getPermisoModificar() : false);
+    private void cargarDatosBasicos(Coordinador coordinador, CoordinadorFormDTO dto) {
+        coordinador.setArea(normalizarTextoObligatorio(dto.getArea(), "área"));
+        coordinador.setTiendas(obtenerTiendas(dto));
+        coordinador.setPermisoModificar(Boolean.TRUE.equals(dto.getPermisoModificar()));
+    }
 
-        Contacto contacto = obtenerOcrearContacto(
+    private void cargarContacto(Coordinador coordinador, CoordinadorFormDTO dto) {
+        Contacto contacto = obtenerContacto(
                 coordinador.getContacto(),
-                dto.getContactoId(),
-                dto.getNombre(),
-                dto.getEmail(),
-                dto.getTelefono()
+                dto.getContactoId()
         );
 
-        coordinador.setContacto(contacto);
+        contacto.setNombre(normalizarTextoObligatorio(dto.getNombre(), "nombre"));
+        contacto.setEmail(normalizarEmailObligatorio(dto.getEmail()));
+        contacto.setTelefono(normalizarTextoOpcional(dto.getTelefono()));
 
-        Usuario usuario = obtenerOcrearUsuario(
+        coordinador.setContacto(contactoRepository.save(contacto));
+    }
+
+    private void cargarUsuario(Coordinador coordinador, CoordinadorFormDTO dto) {
+        String emailNormalizado = normalizarEmailObligatorio(dto.getEmail());
+
+        Usuario usuario = obtenerUsuario(
                 coordinador.getUsuario(),
                 dto.getUsuarioId(),
-                dto.getEmail()
+                emailNormalizado
         );
-
-        coordinador.setUsuario(usuario);
-    }
-
-    private Contacto obtenerOcrearContacto(Contacto contactoActual,
-                                           Long contactoId,
-                                           String nombre,
-                                           String email,
-                                           String telefono) {
-        Contacto contacto;
-
-        if (contactoId != null) {
-            contacto = contactoRepo.findById(contactoId)
-                    .orElseThrow(() -> new RuntimeException("Contacto no encontrado"));
-        } else if (contactoActual != null) {
-            contacto = contactoActual;
-        } else {
-            contacto = new Contacto();
-        }
-
-        contacto.setNombre(normalizarTexto(nombre));
-        contacto.setEmail(normalizarEmail(email));
-        contacto.setTelefono(normalizarTexto(telefono));
-
-        return contactoRepo.save(contacto);
-    }
-
-    private Usuario obtenerOcrearUsuario(Usuario usuarioActual,
-                                         Long usuarioId,
-                                         String email) {
-        Usuario usuario;
-        String emailNormalizado = normalizarEmail(email);
-
-        if (usuarioId != null) {
-            usuario = usuarioRepo.findById(usuarioId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        } else if (usuarioActual != null) {
-            usuario = usuarioActual;
-        } else {
-            usuario = usuarioRepo.findByEmail(emailNormalizado)
-                    .orElseGet(Usuario::new);
-        }
 
         usuario.setEmail(emailNormalizado);
 
-        if (usuario.getContrasenia() == null || usuario.getContrasenia().isBlank()) {
+        if (!tieneTexto(usuario.getContrasenia())) {
             usuario.setContrasenia(PASSWORD_TEMPORAL);
         }
 
@@ -261,7 +245,38 @@ public class CoordinadorService {
             usuario.setRol(TipoRol.RESPONSABLE_TIENDA);
         }
 
-        return usuarioRepo.save(usuario);
+        coordinador.setUsuario(usuarioRepository.save(usuario));
+    }
+
+    private Contacto obtenerContacto(Contacto contactoActual, Long contactoId) {
+        if (contactoId != null) {
+            return contactoRepository.findById(contactoId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "No existe el contacto con id: " + contactoId
+                    ));
+        }
+
+        if (contactoActual != null) {
+            return contactoActual;
+        }
+
+        return new Contacto();
+    }
+
+    private Usuario obtenerUsuario(Usuario usuarioActual, Long usuarioId, String email) {
+        if (usuarioId != null) {
+            return usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "No existe el usuario con id: " + usuarioId
+                    ));
+        }
+
+        if (usuarioActual != null) {
+            return usuarioActual;
+        }
+
+        return usuarioRepository.findByEmail(email)
+                .orElseGet(Usuario::new);
     }
 
     private void actualizarCampanias(Coordinador coordinador, List<Long> idsCampanias) {
@@ -271,21 +286,25 @@ public class CoordinadorService {
             return;
         }
 
-        List<Campania> campanias = campaniaRepo.findAllById(idsCampanias);
+        List<Campania> campanias = campaniaRepository.findAllById(idsCampanias);
 
         if (coordinador.getCampanias() == null) {
             coordinador.setCampanias(new ArrayList<>());
         }
 
         for (Campania campania : campanias) {
-            if (!coordinador.getCampanias().contains(campania)) {
-                coordinador.getCampanias().add(campania);
-            }
+            asociarCampania(coordinador, campania);
+        }
+    }
 
-            if (campania.getCoordinadores() != null
-                    && !campania.getCoordinadores().contains(coordinador)) {
-                campania.getCoordinadores().add(coordinador);
-            }
+    private void asociarCampania(Coordinador coordinador, Campania campania) {
+        if (!coordinador.getCampanias().contains(campania)) {
+            coordinador.getCampanias().add(campania);
+        }
+
+        if (campania.getCoordinadores() != null
+                && !campania.getCoordinadores().contains(coordinador)) {
+            campania.getCoordinadores().add(coordinador);
         }
     }
 
@@ -314,8 +333,10 @@ public class CoordinadorService {
             return;
         }
 
-        EntidadColaboradora entidad = entidadRepo.findById(entidadId)
-                .orElseThrow(() -> new RuntimeException("Entidad colaboradora no encontrada"));
+        EntidadColaboradora entidad = entidadRepository.findById(entidadId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe la entidad colaboradora con id: " + entidadId
+                ));
 
         entidad.setCoordinador(coordinador);
     }
@@ -325,7 +346,7 @@ public class CoordinadorService {
             return;
         }
 
-        List<EntidadColaboradora> entidades = entidadRepo.findByCoordinador_Id(coordinador.getId());
+        List<EntidadColaboradora> entidades = entidadRepository.findByCoordinador_Id(coordinador.getId());
 
         for (EntidadColaboradora entidad : entidades) {
             entidad.setCoordinador(null);
@@ -337,7 +358,7 @@ public class CoordinadorService {
             return null;
         }
 
-        return entidadRepo.findByCoordinador_Id(coordinador.getId())
+        return entidadRepository.findByCoordinador_Id(coordinador.getId())
                 .stream()
                 .filter(entidad -> entidad.getId() != null)
                 .map(EntidadColaboradora::getId)
@@ -359,75 +380,98 @@ public class CoordinadorService {
 
     private void eliminarContactoSiProcede(Contacto contacto) {
         if (contacto != null) {
-            contactoRepo.delete(contacto);
+            contactoRepository.delete(contacto);
         }
     }
 
     private void eliminarUsuarioSiProcede(Usuario usuario) {
-        if (usuario != null && !repo.existsByUsuario_Id(usuario.getId())) {
-            usuarioRepo.delete(usuario);
+        if (usuario != null && !coordinadorRepository.existsByUsuario_Id(usuario.getId())) {
+            usuarioRepository.delete(usuario);
         }
     }
 
     private void validarFormulario(CoordinadorFormDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Los datos del coordinador son obligatorios.");
+        }
+
         validarDatosBasicos(
-                dto,
-                dto != null ? dto.getNombre() : null,
-                dto != null ? dto.getEmail() : null,
-                dto != null ? dto.getArea() : null,
-                dto != null ? dto.getTiendas() : null
+                dto.getNombre(),
+                dto.getEmail(),
+                dto.getArea(),
+                dto.getTiendas()
         );
     }
 
     private void validarDTO(CoordinadorDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Los datos del coordinador son obligatorios.");
+        }
+
         validarDatosBasicos(
-                dto,
-                dto != null ? dto.getNombre() : null,
-                dto != null ? dto.getEmail() : null,
-                dto != null ? dto.getArea() : null,
-                dto != null ? dto.getTiendas() : null
+                dto.getNombre(),
+                dto.getEmail(),
+                dto.getArea(),
+                dto.getTiendas()
         );
     }
 
-    private void validarDatosBasicos(Object dto,
-                                     String nombre,
+    private void validarDatosBasicos(String nombre,
                                      String email,
                                      String area,
                                      Short tiendas) {
-        if (dto == null) {
-            throw new RuntimeException("Los datos del coordinador son obligatorios.");
-        }
-
-        if (nombre == null || nombre.isBlank()) {
-            throw new RuntimeException("El nombre del coordinador es obligatorio.");
-        }
-
-        if (email == null || email.isBlank()) {
-            throw new RuntimeException("El email del coordinador es obligatorio.");
-        }
-
-        if (area == null || area.isBlank()) {
-            throw new RuntimeException("El área del coordinador es obligatoria.");
-        }
+        validarTextoObligatorio(nombre, "nombre");
+        validarTextoObligatorio(email, "email");
+        validarTextoObligatorio(area, "área");
 
         if (tiendas != null && tiendas < 0) {
-            throw new RuntimeException("El número de tiendas no es válido.");
+            throw new IllegalArgumentException("El número de tiendas no es válido.");
         }
     }
 
-    private String normalizarTexto(String texto) {
-        if (texto == null || texto.isBlank()) {
+    private void validarId(Long id, String nombreCampo) {
+        if (id == null) {
+            throw new IllegalArgumentException("El id de " + nombreCampo + " es obligatorio.");
+        }
+
+        if (id <= 0) {
+            throw new IllegalArgumentException("El id de " + nombreCampo + " no es válido: " + id);
+        }
+    }
+
+    private void validarTextoObligatorio(String texto, String nombreCampo) {
+        if (!tieneTexto(texto)) {
+            throw new IllegalArgumentException("El campo " + nombreCampo + " es obligatorio.");
+        }
+    }
+
+    private Short obtenerTiendas(CoordinadorFormDTO dto) {
+        if (dto.getTiendas() == null) {
+            return 0;
+        }
+
+        return dto.getTiendas();
+    }
+
+    private String normalizarTextoObligatorio(String texto, String nombreCampo) {
+        validarTextoObligatorio(texto, nombreCampo);
+        return texto.trim();
+    }
+
+    private String normalizarTextoOpcional(String texto) {
+        if (!tieneTexto(texto)) {
             return null;
         }
 
         return texto.trim();
     }
 
-    private String normalizarEmail(String email) {
-        if (email == null || email.isBlank()) {
-            return null;
-        }
-
+    private String normalizarEmailObligatorio(String email) {
+        validarTextoObligatorio(email, "email");
         return email.trim().toLowerCase();
+    }
+
+    private boolean tieneTexto(String texto) {
+        return texto != null && !texto.isBlank();
     }
 }

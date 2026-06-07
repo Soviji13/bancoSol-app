@@ -10,14 +10,18 @@ import com.bancosol.entities.ResponsableEntidad;
 import com.bancosol.entities.ResponsableTienda;
 import com.bancosol.entities.enums.EstadoIncidencia;
 import com.bancosol.mapper.IncidenciaMapper;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class IncidenciaService {
+
+    private static final EstadoIncidencia ESTADO_POR_DEFECTO = EstadoIncidencia.PENDIENTE;
 
     private final IncidenciaRepository incidenciaRepository;
     private final ResponsableTiendaRepository responsableTiendaRepository;
@@ -41,11 +45,11 @@ public class IncidenciaService {
     }
 
     public List<IncidenciaDTO> listarPorEstado(String estado) {
-        if (estado == null || estado.isBlank()) {
+        if (!tieneTexto(estado)) {
             return listarTodas();
         }
 
-        EstadoIncidencia estadoIncidencia = parsearEstado(estado);
+        EstadoIncidencia estadoIncidencia = convertirEstado(estado);
 
         return incidenciaMapper.toDTOList(
                 incidenciaRepository.findByEstadoOrderByFechaHoraDesc(estadoIncidencia)
@@ -53,16 +57,17 @@ public class IncidenciaService {
     }
 
     public IncidenciaDTO buscarPorId(Long id) {
-        Incidencia incidencia = obtenerEntidadPorId(id);
-
-        return incidenciaMapper.toDTO(incidencia);
+        return incidenciaMapper.toDTO(
+                buscarEntidadPorId(id)
+        );
     }
 
     @Transactional
     public IncidenciaDTO crear(IncidenciaFormDTO formDTO) {
-        Incidencia incidencia = new Incidencia();
+        validarFormulario(formDTO);
 
-        aplicarDatosFormulario(incidencia, formDTO);
+        Incidencia incidencia = new Incidencia();
+        cargarDatosFormulario(incidencia, formDTO);
 
         Incidencia incidenciaGuardada = incidenciaRepository.save(incidencia);
 
@@ -71,124 +76,163 @@ public class IncidenciaService {
 
     @Transactional
     public IncidenciaDTO actualizar(Long id, IncidenciaFormDTO formDTO) {
-        Incidencia incidencia = obtenerEntidadPorId(id);
+        validarFormulario(formDTO);
 
-        aplicarDatosFormulario(incidencia, formDTO);
+        Incidencia incidencia = buscarEntidadPorId(id);
+        cargarDatosFormulario(incidencia, formDTO);
 
-        Incidencia incidenciaActualizada = incidenciaRepository.save(incidencia);
-
-        return incidenciaMapper.toDTO(incidenciaActualizada);
+        /*
+         * No hace falta llamar a save().
+         * La entidad ya está gestionada por JPA dentro de la transacción.
+         * Al finalizar el método, Hibernate sincroniza los cambios automáticamente.
+         */
+        return incidenciaMapper.toDTO(incidencia);
     }
 
     @Transactional
     public void eliminar(Long id) {
-        if (!incidenciaRepository.existsById(id)) {
-            throw new RuntimeException("No existe la incidencia con id: " + id);
-        }
-
-        incidenciaRepository.deleteById(id);
+        Incidencia incidencia = buscarEntidadPorId(id);
+        incidenciaRepository.delete(incidencia);
     }
 
     @Transactional
     public IncidenciaDTO cambiarEstado(Long id, String nuevoEstado) {
-        Incidencia incidencia = obtenerEntidadPorId(id);
+        Incidencia incidencia = buscarEntidadPorId(id);
+        incidencia.setEstado(convertirEstado(nuevoEstado));
 
-        incidencia.setEstado(parsearEstado(nuevoEstado));
-
-        Incidencia incidenciaActualizada = incidenciaRepository.save(incidencia);
-
-        return incidenciaMapper.toDTO(incidenciaActualizada);
+        /*
+         * Tampoco hace falta save().
+         * La incidencia está gestionada por la transacción.
+         */
+        return incidenciaMapper.toDTO(incidencia);
     }
 
-    private Incidencia obtenerEntidadPorId(Long id) {
+    private Incidencia buscarEntidadPorId(Long id) {
+        validarId(id, "incidencia");
+
         return incidenciaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No existe la incidencia con id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe la incidencia con id: " + id
+                ));
     }
 
-    private void aplicarDatosFormulario(Incidencia incidencia, IncidenciaFormDTO formDTO) {
-        validarFormulario(formDTO);
+    private void cargarDatosFormulario(Incidencia incidencia, IncidenciaFormDTO formDTO) {
+        incidencia.setFechaHora(obtenerFechaHora(formDTO));
+        incidencia.setAsunto(normalizarTextoObligatorio(formDTO.getAsunto(), "asunto"));
+        incidencia.setDescripcion(normalizarTextoOpcional(formDTO.getDescripcion()));
+        incidencia.setEstado(convertirEstado(formDTO.getEstado()));
 
-        incidencia.setFechaHora(
-                formDTO.getFechaHora() != null
-                        ? formDTO.getFechaHora()
-                        : LocalDateTime.now()
-        );
-
-        incidencia.setAsunto(normalizarTexto(formDTO.getAsunto()));
-        incidencia.setDescripcion(normalizarTexto(formDTO.getDescripcion()));
-        incidencia.setEstado(parsearEstado(formDTO.getEstado()));
-
-        asignarResponsable(
-                incidencia,
-                formDTO.getResponsableTiendaId(),
-                formDTO.getResponsableEntidadId()
-        );
+        cargarResponsable(incidencia, formDTO);
     }
 
     private void validarFormulario(IncidenciaFormDTO formDTO) {
         if (formDTO == null) {
-            throw new RuntimeException("Los datos de la incidencia son obligatorios.");
+            throw new IllegalArgumentException("Los datos de la incidencia son obligatorios.");
         }
 
-        if (formDTO.getAsunto() == null || formDTO.getAsunto().isBlank()) {
-            throw new RuntimeException("El asunto de la incidencia es obligatorio.");
-        }
+        validarTextoObligatorio(formDTO.getAsunto(), "asunto");
+        validarResponsableUnico(formDTO);
+    }
 
+    private void validarResponsableUnico(IncidenciaFormDTO formDTO) {
         boolean tieneResponsableTienda = formDTO.getResponsableTiendaId() != null;
         boolean tieneResponsableEntidad = formDTO.getResponsableEntidadId() != null;
 
         if (!tieneResponsableTienda && !tieneResponsableEntidad) {
-            throw new RuntimeException("La incidencia debe tener un responsable asociado.");
+            throw new IllegalArgumentException("La incidencia debe tener un responsable asociado.");
         }
 
         if (tieneResponsableTienda && tieneResponsableEntidad) {
-            throw new RuntimeException("La incidencia no puede tener responsable de tienda y responsable de entidad a la vez.");
+            throw new IllegalArgumentException(
+                    "La incidencia no puede tener responsable de tienda y responsable de entidad a la vez."
+            );
         }
     }
 
-    private void asignarResponsable(Incidencia incidencia,
-                                    Long responsableTiendaId,
-                                    Long responsableEntidadId) {
+    private void cargarResponsable(Incidencia incidencia, IncidenciaFormDTO formDTO) {
         incidencia.setResponsableTienda(null);
         incidencia.setResponsableEntidad(null);
 
-        if (responsableTiendaId != null) {
-            ResponsableTienda responsableTienda = responsableTiendaRepository.findById(responsableTiendaId)
-                    .orElseThrow(() -> new RuntimeException(
-                            "No existe el responsable de tienda con id: " + responsableTiendaId
-                    ));
-
-            incidencia.setResponsableTienda(responsableTienda);
+        if (formDTO.getResponsableTiendaId() != null) {
+            incidencia.setResponsableTienda(
+                    buscarResponsableTienda(formDTO.getResponsableTiendaId())
+            );
             return;
         }
 
-        if (responsableEntidadId != null) {
-            ResponsableEntidad responsableEntidad = responsableEntidadRepository.findById(responsableEntidadId)
-                    .orElseThrow(() -> new RuntimeException(
-                            "No existe el responsable de entidad con id: " + responsableEntidadId
-                    ));
-
-            incidencia.setResponsableEntidad(responsableEntidad);
-        }
+        incidencia.setResponsableEntidad(
+                buscarResponsableEntidad(formDTO.getResponsableEntidadId())
+        );
     }
 
-    private EstadoIncidencia parsearEstado(String estado) {
-        if (estado == null || estado.isBlank()) {
-            return EstadoIncidencia.PENDIENTE;
+    private ResponsableTienda buscarResponsableTienda(Long id) {
+        validarId(id, "responsable de tienda");
+
+        return responsableTiendaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe el responsable de tienda con id: " + id
+                ));
+    }
+
+    private ResponsableEntidad buscarResponsableEntidad(Long id) {
+        validarId(id, "responsable de entidad");
+
+        return responsableEntidadRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe el responsable de entidad con id: " + id
+                ));
+    }
+
+    private LocalDateTime obtenerFechaHora(IncidenciaFormDTO formDTO) {
+        if (formDTO.getFechaHora() != null) {
+            return formDTO.getFechaHora();
+        }
+
+        return LocalDateTime.now();
+    }
+
+    private EstadoIncidencia convertirEstado(String estado) {
+        if (!tieneTexto(estado)) {
+            return ESTADO_POR_DEFECTO;
         }
 
         try {
             return EstadoIncidencia.valueOf(estado.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Estado de incidencia no válido: " + estado);
+            throw new IllegalArgumentException("Estado de incidencia no válido: " + estado);
         }
     }
 
-    private String normalizarTexto(String texto) {
-        if (texto == null || texto.isBlank()) {
+    private void validarId(Long id, String nombreCampo) {
+        if (id == null) {
+            throw new IllegalArgumentException("El id de " + nombreCampo + " es obligatorio.");
+        }
+
+        if (id <= 0) {
+            throw new IllegalArgumentException("El id de " + nombreCampo + " no es válido: " + id);
+        }
+    }
+
+    private void validarTextoObligatorio(String texto, String nombreCampo) {
+        if (!tieneTexto(texto)) {
+            throw new IllegalArgumentException("El campo " + nombreCampo + " es obligatorio.");
+        }
+    }
+
+    private String normalizarTextoObligatorio(String texto, String nombreCampo) {
+        validarTextoObligatorio(texto, nombreCampo);
+        return texto.trim();
+    }
+
+    private String normalizarTextoOpcional(String texto) {
+        if (!tieneTexto(texto)) {
             return null;
         }
 
         return texto.trim();
+    }
+
+    private boolean tieneTexto(String texto) {
+        return texto != null && !texto.isBlank();
     }
 }
