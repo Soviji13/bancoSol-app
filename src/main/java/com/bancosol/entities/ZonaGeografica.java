@@ -1,5 +1,8 @@
 package com.bancosol.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,4 +28,13 @@ public class ZonaGeografica {
     private void asegurarMayusculas() {
         if (this.nombre != null) this.nombre = this.nombre.toUpperCase();
     }
+
+    // Añadido por Sofía Si Villalba Jiménez
+    // Hecho con IA Generativa
+
+    // RELACIÓN: UNA zona geográfica tiene MUCHAS localidades
+    // mappedBy indica que el "dueño" de la clave foránea en la BBDD es la clase Localidad
+    @OneToMany(mappedBy = "zonaGeografica", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default 
+    private List<Localidad> localidades = new ArrayList<>();
 }

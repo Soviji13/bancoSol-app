@@ -31,6 +31,13 @@ public class CodigoPostalService {
         return cpMapper.toDTOList(cpRepo.findAllById(ids));
     }
 
+    // Devuelve todos los que no tengan distrito
+    public List <CodigoPostalDTO> findSinDistrito () {
+        return cpMapper.toDTOList(cpRepo.findCpsSinDistrito());
+    }
+
+    // Devuelve todos los que no pertenecen a un distrito
+
     // Final parte Sofía ------------------------------------------
 
     /* 

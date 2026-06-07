@@ -31,6 +31,11 @@ public class LocalidadService {
         return locMapper.toDTOList(locRepo.findAllById(ids));
     }
 
+    // Devuelve las localidades según la zona geográfica
+    public List <LocalidadDTO> findByZonaGeo (Long idZona) {
+        return locMapper.toDTOList(locRepo.findByZonaGeografica_Id(idZona));
+    }
+
     // Final parte Sofía ------------------------------------------
 
     /* 

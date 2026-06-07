@@ -7,6 +7,23 @@
     margin-bottom: 90px; /* Evita que el pie de página fijo tape las últimas filas */
 }
 
+#entidades .modal-overlay-campanias {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Fondo negro con un 70% de opacidad para oscurecer y desenfocar la tabla de atrás */
+    background: rgba(0, 0, 0, 0.7); 
+    /* Oculto por defecto al arrancar la vista (JS cambiará el estado según se requiera) */
+    display: none; 
+    /* Preparado para centrar el formulario perfectamente en los ejes X e Y cuando se active */
+    justify-content: center;
+    align-items: center;
+    /* Capa de prioridad alta para asegurar que flota por encima de la tabla y del pie de página */
+    z-index: 9999; 
+}
+
 #entidades table {
     width: 100%;
     border-collapse: collapse;

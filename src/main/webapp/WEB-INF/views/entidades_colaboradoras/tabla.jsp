@@ -107,7 +107,7 @@
     </div>
 
     <%-- Interfaz de seleccionar otra campaña (oculta en principio) --%>
-    <div id="modal-campanias" class="modal-overlay" style="display: none;">
+    <div id="modal-campanias" class="modal-overlay-campanias" style="display: none;">
         <div class="modal-content">
             <header class="modal-header">
                 <h2>Seleccionar Campaña</h2>

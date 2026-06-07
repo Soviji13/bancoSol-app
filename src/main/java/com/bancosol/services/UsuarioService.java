@@ -1,18 +1,14 @@
 package com.bancosol.services;
 
-import com.bancosol.dao.ContactoRepository;
+
 import com.bancosol.dao.UsuarioRepository;
-import com.bancosol.dto.ContactoDTO;
 import com.bancosol.dto.UsuarioDTO;
-import com.bancosol.entities.Usuario;
-import com.bancosol.mapper.ContactoMapper;
 import com.bancosol.mapper.UsuarioMapper;
 
 import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor

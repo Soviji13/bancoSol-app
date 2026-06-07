@@ -4,6 +4,8 @@
     padding: 30px;
     /* Dejamos un colchón enorme abajo; clave para que al hacer scroll el botón flotante o el footer no tapen los últimos inputs */
     padding-bottom: 100px;
+
+    max-height: 90vh;
 }
 
 #entidades fieldset {
