@@ -1,8 +1,10 @@
 // Sofía Si Villalba Jiménez (IA generativa 0%)
 // Ayuda de IA para saber cómo unificar JS con JSP sin necesidad de RestController
+// IA para saber como aplanar correctamente un Map a JSON
 
 package com.bancosol.controllers;
 
+import com.bancosol.services.DistritoService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +17,12 @@ import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.services.CampaniaService;
+import com.bancosol.services.CodigoPostalService;
 import com.bancosol.services.CoordinadorService;
 import com.bancosol.services.EntidadColaboradoraService;
+import com.bancosol.services.LocalidadService;
 import com.bancosol.services.TiendaService;
+import com.bancosol.services.ZonaGeograficaService;
 
 import java.util.List;
 import java.util.Map;
@@ -28,11 +33,15 @@ import java.util.Map;
 @RequestMapping("/entidades")
 public class EntidadesController {
 
+    private final DistritoService distritoService;
     private final CampaniaService campaniaService;
     private final EntidadColaboradoraService entidadService;
     private final TiendaService tiendaService;
     //private final ResponsableEntidadService responsableEntidadService;
     private final CoordinadorService coordinadorService;
+    private final LocalidadService localidadService;
+    private final CodigoPostalService codigoPostalService;
+    private final ZonaGeograficaService zonaGeograficaService;
 
     // Relacionadas con mostrar datos --------------------------------------------------------------
 
@@ -118,14 +127,33 @@ public class EntidadesController {
         Model model,
         @RequestParam("campaniaId") Long campaniaId
     ) {
-
-        //model.addAttribute("localidades")
+        model.addAttribute("distritos", this.distritoService.listarTodos());
+        model.addAttribute("cps", this.codigoPostalService.listarTodas());
         model.addAttribute("coordinadores", this.coordinadorService.listarTodos());
         model.addAttribute("campaniaId", campaniaId);
         model.addAttribute("pagina", "aniadir-entidad");
 
         return "inicio";
     }
+
+    // AYUDA DE LA IA PARA QUE FUNCIONE MI IDEA 
+    public record CampaniaTiendasResponse(CampaniaDTO campania, List<TiendaDTO> tiendas) {}
+
+    @GetMapping("/obtener-campanias-json-crear")
+    @ResponseBody
+    public List<CampaniaTiendasResponse> obtenerCampaniasConTiendasDeCoordinador (
+        @RequestParam ("idCoordinador") Long idCoordinador
+    ) {
+
+        // Antes yo solo devolvía esto
+        Map<CampaniaDTO, List<TiendaDTO>> mapa = this.coordinadorService.obtenerCampaniasConTiendas(idCoordinador);
+
+        // Se transforma a mapa (lógica totalmente de IA)
+        return mapa.entrySet().stream()
+            .map(entry -> new CampaniaTiendasResponse(entry.getKey(), entry.getValue()))
+            .toList();
+    }
+    
     
 
 }

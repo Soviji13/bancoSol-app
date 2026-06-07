@@ -1,5 +1,6 @@
 package com.bancosol.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;

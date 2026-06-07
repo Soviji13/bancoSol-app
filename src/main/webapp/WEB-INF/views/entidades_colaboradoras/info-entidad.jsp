@@ -246,7 +246,7 @@
                 </div>
             </section>
 
-            <%-- Campos de ultima campaña, participa en campaña actual, nTiendas y nTurnos --%>
+            <%-- Campos de ultima campaña, participa en campaña actual, nTiendas, nTurnos y si está activo --%>
             <section class="bloque-seccion border-bottom">
                 <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="width: auto; margin-right: 10px;">Participa en campaña actual:</span> 
@@ -269,8 +269,18 @@
                 </div>
                 <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de voluntarios:</span>
-                    <br>
                     <p>(Cuando fran arregle los turnos lo pondré)</p>
+                </div>
+                <div class="fila-flex" style="margin-bottom: 15px;">
+                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de voluntarios:</span>
+                    <label>
+                        <input 
+                            type="checkbox" 
+                            name="estaActiva" 
+                            ${entidadSelec.estadoActivo ? "checked" : ""}
+                        >
+                        Está activa
+                    </label>
                 </div>
             </section>
 

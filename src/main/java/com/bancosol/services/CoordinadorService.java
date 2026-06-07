@@ -13,6 +13,7 @@ import com.bancosol.entities.Coordinador;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.Usuario;
 import com.bancosol.entities.enums.TipoRol;
+import com.bancosol.mapper.CampaniaMapper;
 import com.bancosol.mapper.CoordinadorMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+// Sofía
+import java.util.Map;
+import com.bancosol.dto.TiendaDTO;
+import com.bancosol.dto.CampaniaDTO;
+import com.bancosol.services.TiendaService;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +43,9 @@ public class CoordinadorService {
     private final UsuarioRepository usuarioRepository;
     private final CampaniaRepository campaniaRepository;
     private final CoordinadorMapper coordinadorMapper;
+
+    private final CampaniaService campaniaService; // Sofía
+    private final TiendaService tiendaService;
 
     public List<CoordinadorDTO> listarTodos() {
         return coordinadorRepository.findAll()
@@ -473,5 +484,35 @@ public class CoordinadorService {
 
     private boolean tieneTexto(String texto) {
         return texto != null && !texto.isBlank();
+    }
+
+    // Añado código Sofía Si Villalba Jiménez (0% IA generativa) --------------------------
+
+    // He decidido reusar código de mi compañero, y no romperle ninguna funcionalidad en el resto de capas
+    // para asegurar de que su parte vaya bien
+
+    // Obtiene campañas con tiendas de la entidad correspondiente
+    public Map<CampaniaDTO, List<TiendaDTO>> obtenerCampaniasConTiendas (Long coordinadorId) {
+
+        Map <CampaniaDTO, List<TiendaDTO>> campaniasConTienda = new HashMap<>();
+
+        // Obtenemos el coordinador correspondiente
+        Coordinador coordinador = this.coordinadorRepository.findById(coordinadorId).get();
+
+        // Obtenemos los Ids de sus campañas
+        List <Long> idCampaniasCoordinador = obtenerIdsCampanias(coordinador);
+
+        // Obtenemos todas las campañas
+        List <CampaniaDTO> campaniasCoordinador = this.campaniaService.findAllById(idCampaniasCoordinador);
+
+        // Pasamos por cada campaña, obteniendo además cada tienda de la campaña
+        for (CampaniaDTO c : campaniasCoordinador) {
+            List<TiendaDTO> tiendasCampania = this.tiendaService.findAllById(c.getIdsTiendas());
+
+            campaniasConTienda.put(c, tiendasCampania);
+        }
+
+        return campaniasConTienda;
+
     }
 }

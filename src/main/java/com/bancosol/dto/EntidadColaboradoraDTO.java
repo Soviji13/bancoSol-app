@@ -1,3 +1,6 @@
+// Plantilla básica por Alejandro 
+// Refactorización casi completa por Sofía Si Villalba Jiménez (0% IA)
+
 package com.bancosol.dto;
 
 import lombok.*;

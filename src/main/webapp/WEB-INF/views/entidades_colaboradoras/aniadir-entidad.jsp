@@ -2,7 +2,11 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<section id="entidades" data-id-campania-actual="${campaniaId}" style="width: 100%;">
+<section 
+    id="entidades" 
+    data-id-campania-actual="${campaniaId}" 
+    style="width: 100%;"
+>
     <div id="modal-registro" class="modal-overlay">
         <div class="modal-content god-form">
             <header class="modal-header">
@@ -18,7 +22,7 @@
                         <label>Nombre de la Entidad:</label>
                         <input 
                             type="text" 
-                            name="nombre" 
+                            name="nuevoNombre" 
                             required 
                             placeholder="Ej: Asociación Alimentos para Todos"
                         >
@@ -50,38 +54,51 @@
                     <legend>Localización</legend>
                     <%-- Calle y Número --%>
                     <div class="form-row">
-                        <input type="text" name="calle" placeholder="Calle/Av" required>
-                        <input type="number" name="numero" placeholder="Nº" required style="width: 80px;">
+                        <input type="text" name="nuevaCalle" placeholder="Calle/Av" required>
+                        <input type="number" name="nuevoNumero" placeholder="Nº" required style="width: 80px;">
                     </div>
                     <div class="form-row">
-                        <select id="lista-localidades" name="nombreLocalidad" required>
-                            <option value="">Localidad...</option>
+                        <%-- Localidad --%>
+                        <label for="lista-localidades">Localidad:</label>
+                        <select id="lista-localidades" name="nuevaLocalidad" required>
+                            <option value="">Cargando...</option>
                         </select>
 
-                        <select id="lista-cps" name="numeroCP" required>
-                            <option value="">CP...</option>
+                        <%-- CP --%>
+                        <label for="lista-cps">Código postal:</label>
+                        <select id="lista-cps" name="CPNuevo" required>
+                            <option value="">Cargando...</option>
+
                         </select>
                     </div>
                     <div class="form-row">
-                        <label>Zona Geográfica:</label>
-                        <select id="lista-zonas" name="nombreZonaGeografica" required>
-                            <option value="">Zona Geográfica...</option>
+                        <%-- Zona Geo --%>
+                        <label for="lista-zonas">Zona Geográfica:</label>
+                        <select id="lista-zonas" name="zonaGeoNueva" required>
+                            <option value="">Cargando...</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label><input type="checkbox" id="check-es-capital" name="esCapital" onchange="toggleDistrito(this)"> ¿Es Capital?</label>
+                        <%-- Es Capital --%>
+                        <label><input type="checkbox" id="check-es-capital" name="esCapital" disabled> ¿Es Capital?</label>
                         <div id="campo-distrito" style="display: none; margin-top: 10px;">
+                            <label for="lista-distritos">Seleccione un distrito:</label>
                             <select id="lista-distritos" name="nombreDistrito">
-                                <option value="">Nombre del Distrito...</option>
+                                <c:if test="${distritos != null && distritos.size() > 0}">
+                                    <c:forEach var="d" items="${distritos}">
+                                        <option value="${d.id}">${d.nombre}</option>
+                                    </c:forEach>
+                                </c:if>
                             </select>
                         </div>
                     </div>
                 </fieldset>
 
+                <%-- Responsables --%>
                 <fieldset>
                     <legend>Responsables de la Entidad</legend>
                     <div id="contenedor-responsables"></div>
-                    <button type="button" class="btn-secundario" onclick="agregarBloqueResponsable()">+ Añadir Responsable</button>
+                    <button id="btn-aniadir-resp" type="button" class="btn-secundario">+ Añadir Responsable</button>
                 </fieldset>
 
                 <fieldset style="border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
@@ -97,7 +114,7 @@
                 </fieldset>
 
                 <footer class="modal-footer">
-                    <button type="button" class="btn-cancelar" onclick="cerrarModalRegistro()">Cancelar</button>
+                    <button type="button" class="btn-cancelar">Cancelar</button>
                     <button type="submit" class="btn-guardar">Guardar Entidad</button>
                 </footer>
             </form>
