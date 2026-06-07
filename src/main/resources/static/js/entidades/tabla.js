@@ -89,18 +89,4 @@ if (seccionEntidades) {
             window.location.href = `http://localhost:8080/entidades/crear?campaniaId=${idCampania}`;
         })
     }
-
-    // PARA CERRAR PANEL DE CREAR ENTIDAD ---------------------------------------------------------------------------------------
-    const botonCerrarRegistro = document.getElementById ('btn-cerrar-modal');
-
-    if (botonCerrarRegistro) {
-
-        // Lo pasamos para que si se le da al botón cerrar, se muestre el listado donde estaba la campaña
-        const idCampania = seccionEntidades.dataset.idCampaniaActual;
-
-        botonAbrirRegistro.addEventListener('click', () => {
-            window.location.href = `http://localhost:8080/entidades/?campaniaId=${idCampania}`;
-        })
-    }
-
 }
