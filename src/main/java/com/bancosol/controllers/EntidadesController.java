@@ -119,6 +119,7 @@ public class EntidadesController {
         @RequestParam("campaniaId") Long campaniaId
     ) {
 
+        //model.addAttribute("localidades")
         model.addAttribute("coordinadores", this.coordinadorService.listarTodos());
         model.addAttribute("campaniaId", campaniaId);
         model.addAttribute("pagina", "aniadir-entidad");

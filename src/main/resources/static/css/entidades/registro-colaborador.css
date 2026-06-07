@@ -1,7 +1,5 @@
 /* Ajustes específicos para el Formulario/Modal de Registro */
 #entidades .god-form {
-    /* Evitamos que el formulario se desborde verticalmente en pantallas pequeñas limitándolo al 90% del alto de la ventana (Viewport Height) */
-    max-height: 90vh;
     /* Espaciado interno general para que los elementos no peguen contra los bordes del contenedor */
     padding: 30px;
     /* Dejamos un colchón enorme abajo; clave para que al hacer scroll el botón flotante o el footer no tapen los últimos inputs */
