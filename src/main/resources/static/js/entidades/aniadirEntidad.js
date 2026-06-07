@@ -521,7 +521,8 @@ if (seccionEntidades) {
                 campanias: campaniasAsignadas
             };
 
-            alert("esto va megaguachiii");
+            // A PARTIR DE AQUÍ NO IA GENERATIVA ----------------------------------------------------------
+            
         })
     }
 
