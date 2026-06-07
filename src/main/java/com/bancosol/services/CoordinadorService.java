@@ -5,17 +5,23 @@ import com.bancosol.dao.ContactoRepository;
 import com.bancosol.dao.CoordinadorRepository;
 import com.bancosol.dao.EntidadColaboradoraRepository;
 import com.bancosol.dao.UsuarioRepository;
+
 import com.bancosol.dto.CoordinadorDTO;
 import com.bancosol.dto.CoordinadorFormDTO;
+
 import com.bancosol.entities.Campania;
 import com.bancosol.entities.Contacto;
 import com.bancosol.entities.Coordinador;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.Usuario;
 import com.bancosol.entities.enums.TipoRol;
+
 import com.bancosol.mapper.CoordinadorMapper;
+
 import jakarta.persistence.EntityNotFoundException;
+
 import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +43,10 @@ public class CoordinadorService {
     private final CoordinadorMapper coordinadorMapper;
 
     public List<CoordinadorDTO> listarTodos() {
-        return coordinadorRepository.findAll()
-                .stream()
-                .map(this::convertirAListado)
-                .toList();
+        List<CoordinadorDTO> coordinadores =
+                coordinadorMapper.toDTOList(coordinadorRepository.findAll());
+
+        return completarEntidadId(coordinadores);
     }
 
     public CoordinadorDTO findById(Long id) {
@@ -58,16 +64,22 @@ public class CoordinadorService {
             return List.of();
         }
 
-        return coordinadorRepository.findAllById(ids)
-                .stream()
-                .map(this::convertirAListado)
-                .toList();
+        List<CoordinadorDTO> coordinadores =
+                coordinadorMapper.toDTOList(coordinadorRepository.findAllById(ids));
+
+        return completarEntidadId(coordinadores);
     }
 
     public CoordinadorFormDTO buscarFormularioPorId(Long id) {
         Coordinador coordinador = buscarCoordinadorPorId(id);
 
-        return convertirAFormulario(coordinador);
+        CoordinadorFormDTO dto = coordinadorMapper.toFormDTO(coordinador);
+
+        if (dto != null) {
+            dto.setEntidadId(obtenerEntidadId(coordinador.getId()));
+        }
+
+        return dto;
     }
 
     @Transactional
@@ -112,7 +124,7 @@ public class CoordinadorService {
     public Long guardar(CoordinadorDTO dto) {
         validarDTO(dto);
 
-        CoordinadorFormDTO formDTO = convertirDTOAFormulario(dto);
+        CoordinadorFormDTO formDTO = coordinadorMapper.toFormDTO(dto);
 
         if (dto.getId() == null) {
             return crear(formDTO);
@@ -162,49 +174,19 @@ public class CoordinadorService {
             return null;
         }
 
-        dto.setEntidadId(obtenerEntidadId(coordinador));
+        dto.setEntidadId(obtenerEntidadId(coordinador.getId()));
 
         return dto;
     }
 
-    private CoordinadorFormDTO convertirAFormulario(Coordinador coordinador) {
-        CoordinadorFormDTO dto = new CoordinadorFormDTO();
+    private List<CoordinadorDTO> completarEntidadId(List<CoordinadorDTO> coordinadores) {
+        if (coordinadores == null || coordinadores.isEmpty()) {
+            return List.of();
+        }
 
-        Contacto contacto = coordinador.getContacto();
-        Usuario usuario = coordinador.getUsuario();
+        coordinadores.forEach(dto -> dto.setEntidadId(obtenerEntidadId(dto.getId())));
 
-        dto.setNombre(contacto != null ? contacto.getNombre() : null);
-        dto.setEmail(contacto != null ? contacto.getEmail() : null);
-        dto.setTelefono(contacto != null ? contacto.getTelefono() : null);
-
-        dto.setArea(coordinador.getArea());
-        dto.setTiendas(coordinador.getTiendas());
-        dto.setPermisoModificar(coordinador.getPermisoModificar());
-
-        dto.setUsuarioId(usuario != null ? usuario.getId() : null);
-        dto.setContactoId(contacto != null ? contacto.getId() : null);
-
-        dto.setEntidadId(obtenerEntidadId(coordinador));
-        dto.setIdsCampanias(obtenerIdsCampanias(coordinador));
-
-        return dto;
-    }
-
-    private CoordinadorFormDTO convertirDTOAFormulario(CoordinadorDTO dto) {
-        CoordinadorFormDTO formDTO = new CoordinadorFormDTO();
-
-        formDTO.setNombre(dto.getNombre());
-        formDTO.setEmail(dto.getEmail());
-        formDTO.setTelefono(dto.getTelefono());
-        formDTO.setArea(dto.getArea());
-        formDTO.setTiendas(dto.getTiendas());
-        formDTO.setPermisoModificar(dto.getPermisoModificar());
-        formDTO.setUsuarioId(dto.getUsuarioId());
-        formDTO.setContactoId(dto.getContactoId());
-        formDTO.setEntidadId(dto.getEntidadId());
-        formDTO.setIdsCampanias(dto.getIdsCampanias());
-
-        return formDTO;
+        return coordinadores;
     }
 
     private void cargarDatosBasicos(Coordinador coordinador, CoordinadorFormDTO dto) {
@@ -346,36 +328,25 @@ public class CoordinadorService {
             return;
         }
 
-        List<EntidadColaboradora> entidades = entidadRepository.findByCoordinador_Id(coordinador.getId());
+        List<EntidadColaboradora> entidades =
+                entidadRepository.findByCoordinador_Id(coordinador.getId());
 
         for (EntidadColaboradora entidad : entidades) {
             entidad.setCoordinador(null);
         }
     }
 
-    private Long obtenerEntidadId(Coordinador coordinador) {
-        if (coordinador == null || coordinador.getId() == null) {
+    private Long obtenerEntidadId(Long coordinadorId) {
+        if (coordinadorId == null) {
             return null;
         }
 
-        return entidadRepository.findByCoordinador_Id(coordinador.getId())
+        return entidadRepository.findByCoordinador_Id(coordinadorId)
                 .stream()
                 .filter(entidad -> entidad.getId() != null)
                 .map(EntidadColaboradora::getId)
                 .findFirst()
                 .orElse(null);
-    }
-
-    private List<Long> obtenerIdsCampanias(Coordinador coordinador) {
-        if (coordinador.getCampanias() == null) {
-            return List.of();
-        }
-
-        return coordinador.getCampanias()
-                .stream()
-                .filter(campania -> campania.getId() != null)
-                .map(Campania::getId)
-                .toList();
     }
 
     private void eliminarContactoSiProcede(Contacto contacto) {

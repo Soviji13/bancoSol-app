@@ -4,7 +4,10 @@ import com.bancosol.dto.IncidenciaDTO;
 import com.bancosol.entities.Incidencia;
 import com.bancosol.entities.ResponsableEntidad;
 import com.bancosol.entities.ResponsableTienda;
+
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class IncidenciaMapper extends MapperDTO<IncidenciaDTO, Incidencia> {
@@ -50,6 +53,16 @@ public class IncidenciaMapper extends MapperDTO<IncidenciaDTO, Incidencia> {
                         obtenerReportadoPorNombre(responsableTienda, responsableEntidad)
                 )
                 .build();
+    }
+
+    public List<IncidenciaDTO> toDTOList(List<Incidencia> incidencias) {
+        if (incidencias == null || incidencias.isEmpty()) {
+            return List.of();
+        }
+
+        return incidencias.stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     public Incidencia toEntity(IncidenciaDTO dto) {
