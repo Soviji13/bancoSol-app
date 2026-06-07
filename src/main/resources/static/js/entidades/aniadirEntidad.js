@@ -427,4 +427,102 @@ if (seccionEntidades) {
             }
         }
     })
+
+    // PARA REGISTRAR UNA ENTIDAD COLABORADORA ---------------------------------------------------------
+
+
+    // Uso de la IA para recoger todos los campos, ya que es una tarea muy automatizable
+    const botonGuardarEntidadCreada = document.querySelector ('#btn-guardar-creacion');
+
+    if (botonGuardarEntidadCreada) {
+        botonGuardarEntidadCreada.addEventListener('click', (event) => {
+            // Prompt que le he dado:
+            // Debes recoger todos los campos, no hagas ninguna lógica más
+            // No debes hacer redirecciones, urls,... solo debes obtener todos
+            // Los campos del formulario, absolutamente todos, y almacenarlos aquí
+            // De paso, pon un comentario sobre los campos obtenidos a los que no les haya puesto required
+
+            event.preventDefault();
+
+            // =========================================================
+            // 1. INFORMACIÓN GENERAL
+            // =========================================================
+            const nombre = document.querySelector('input[name="nuevoNombre"]').value;
+            const idCoordinador = document.querySelector('select[name="idCoordinador"]').value;
+            
+            // 📌 CAMPOS NO REQUIRED:
+            // estadoActivo [cite: 6] -> Es un checkbox, recogemos su estado checked
+            const estadoActivo = document.querySelector('input[name="estadoActivo"]').checked; 
+            // observaciones [cite: 7] -> Es un textarea, no tiene required
+            const observaciones = document.querySelector('textarea[name="observaciones"]').value; 
+
+            // =========================================================
+            // 2. LOCALIZACIÓN
+            // =========================================================
+            const calle = document.querySelector('input[name="nuevaCalle"]').value;
+            const numero = document.querySelector('input[name="nuevoNumero"]').value;
+            const localidad = document.querySelector('select[name="nuevaLocalidad"]').value;
+            const cp = document.querySelector('select[name="CPNuevo"]').value;
+            const zonaGeo = document.querySelector('select[name="zonaGeoNueva"]').value;
+
+            // 📌 CAMPOS NO REQUIRED:
+            // esCapital [cite: 18] -> Checkbox deshabilitado, comprobamos si está checked
+            const esCapital = document.getElementById('check-es-capital').checked;
+            // nombreDistrito [cite: 19] -> Select dinámico que aparece y desaparece
+            const idDistrito = document.querySelector('select[name="nombreDistrito"]').value;
+
+            // =========================================================
+            // 3. RESPONSABLES (DINÁMICOS)
+            // =========================================================
+            const responsables = [];
+            document.querySelectorAll('.responsable-card').forEach(card => {
+                responsables.push({
+                    nombre: card.querySelector('.r-nombre').value,
+                    email: card.querySelector('.r-email').value,
+                    telefono: card.querySelector('.r-telefono').value,
+                    user: card.querySelector('.r-user').value,
+                    pass: card.querySelector('.r-pass').value,
+                    
+                    // 📌 CAMPO NO REQUIRED:
+                    // El radio button de si es principal no tiene required explícito
+                    esPrincipal: card.querySelector('.r-principal').checked 
+                });
+            });
+
+            // =========================================================
+            // 4. CAMPAÑAS Y TIENDAS ASIGNADAS (DINÁMICAS)
+            // =========================================================
+            // 📌 CAMPOS NO REQUIRED: Ninguno de estos checkboxes dinámicos es obligatorio para crear la entidad
+            const campaniasAsignadas = [];
+            document.querySelectorAll('.campania-block-item').forEach(block => {
+                const checkCampania = block.querySelector('.check-campania-master');
+                
+                // Si la campaña está marcada, recogemos sus tiendas
+                if (checkCampania && checkCampania.checked) {
+                    const idsTiendasSeleccionadas = [];
+                    block.querySelectorAll('.check-tienda-sub:checked').forEach(checkTienda => {
+                        idsTiendasSeleccionadas.push(checkTienda.value);
+                    });
+
+                    campaniasAsignadas.push({
+                        idCampania: checkCampania.value,
+                        idsTiendas: idsTiendasSeleccionadas
+                    });
+                }
+            });
+
+            // =========================================================
+            // OBJETO FINAL RECOLECTOR
+            // =========================================================
+            const entidadCompleta = {
+                informacionGeneral: { nombre, estadoActivo, observaciones, idCoordinador },
+                localizacion: { calle, numero, localidad, cp, zonaGeo, esCapital, idDistrito },
+                responsables: responsables,
+                campanias: campaniasAsignadas
+            };
+
+            alert("esto va megaguachiii");
+        })
+    }
+
 }

@@ -115,7 +115,7 @@
 
                 <footer class="modal-footer">
                     <button type="button" class="btn-cancelar">Cancelar</button>
-                    <button type="submit" class="btn-guardar">Guardar Entidad</button>
+                    <button type="submit" class="btn-guardar" id="btn-guardar-creacion">Guardar Entidad</button>
                 </footer>
             </form>
         </div>
