@@ -3,6 +3,8 @@ package com.bancosol.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "\"Voluntario\"", schema = "public")
@@ -26,6 +28,10 @@ public class Voluntario {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsable_entidad_id", nullable = false)
     private ResponsableEntidad responsable;
+
+    //añadir debajo del responsable:
+    @OneToMany(mappedBy = "voluntario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TiendaTurno> tiendaTurnos = new ArrayList<>();
 
     // Validación manual de la regla de horas sueltas antes de guardar
     @PrePersist @PreUpdate

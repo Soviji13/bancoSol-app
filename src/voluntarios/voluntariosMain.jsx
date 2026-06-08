@@ -3,7 +3,6 @@ import { HeaderVoluntarios } from "./contenido/HeaderVoluntarios";
 import { TablaVoluntarios } from "./contenido/TablaVoluntarios";
 import { FooterVoluntarios } from "./contenido/FooterVoluntarios";
 import { ModalCampanias } from "./usosVarios/ModalCampanias";
-import { mockVoluntarios } from "./mockDataVoluntarios";
 import "./contenido/voluntarioContenido.css";
 
 export function MainVoluntarios({
@@ -25,19 +24,44 @@ export function MainVoluntarios({
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
   const [modalCampaniasAbierto, setModalCampaniasAbierto] = useState(false);
 
+  //funcion para pedir los voluntarios al backend
+  const cargarVoluntarios = async () => {
+    setCargando(true);
+
+    try {
+      const respuesta = await fetch(
+        `http://localhost:8080/api/voluntarios?campaniaId=${campaniaActiva.id}`,
+      );
+
+      if (!respuesta.ok) {
+        throw new Error("Error al cargar voluntarios");
+      }
+
+      const data = await respuesta.json();
+      setVoluntarios(data);
+    } catch (error) {
+      console.error("Error cargando voluntarios:", error);
+      setVoluntarios([]);
+    } finally {
+      setCargando(false);
+    }
+  };
+
   // se activa cada vez q cambia el id de la campania activa
   useEffect(() => {
-    setCargando(true); //enciende funcion cargar
-
-    //simulamos q los datos tardan x tiempo en llegar
-    const temporizador = setTimeout(() => {
-      setVoluntarios(mockVoluntarios); //guardamos los datos en la memoria
-      setCargando(false); //apagamos el texto de carga
-    }, 1000);
-
-    //funcion de limpieza para eliminar el temporizador si cambiamos de pantalla!!!!
-    return () => clearTimeout(temporizador);
+    cargarVoluntarios();
   }, [campaniaActiva.id]); //el trigger del cambio (cuando cambia la campaña)
+
+  //escucha cuando algun componente pide refrescar la tabla
+  useEffect(() => {
+    window.addEventListener("refrescarTablaVoluntarios", cargarVoluntarios);
+
+    return () =>
+      window.removeEventListener(
+        "refrescarTablaVoluntarios",
+        cargarVoluntarios,
+      );
+  }, [campaniaActiva.id]);
 
   //cuando el usuario elige otra campania en el modal cambiamos estado
   const handleCambioCampania = (nuevaCampania) => {
@@ -72,9 +96,7 @@ export function MainVoluntarios({
       <div className="voluntarios-tabla-scroll">
         {/*si esta cargando muestra el cargando, sino pinta tabla*/}
         {cargando ? (
-          <div className="texto-cargando">
-            Cargando voluntarios de la campaña...
-          </div>
+          <div name="texto-cargando">Cargando voluntarios de la campaña...</div>
         ) : (
           <TablaVoluntarios
             voluntarios={voluntarios}
