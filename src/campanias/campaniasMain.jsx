@@ -5,6 +5,8 @@ import { CampaniasGrid } from "./campaniasGrid";
 import { CampaniasAcciones } from "./campaniasAcciones";
 import { CampaniaDetalle } from "./campaniaDetalle";
 import { FormularioCampania } from "./formularioCampania";
+import { obtenerCadenas } from "../api/cadenasApi";
+import { obtenerCoordinadores } from "../api/coordinadoresApi";
 import {
   actualizarCampania,
   actualizarCadenasCampania,
@@ -19,6 +21,8 @@ export function MainCampanias({
   manejaContenidoInicial,
 }) {
   const [campanias, setCampanias] = useState([]);
+  const [cadenasDisponibles, setCadenasDisponibles] = useState([]);
+  const [coordinadoresDisponibles, setCoordinadoresDisponibles] = useState([]);
   const [campaniaSeleccionadaId, setCampaniaSeleccionadaId] = useState(null);
   const [campaniaFormulario, setCampaniaFormulario] = useState(null);
   const [mostrandoDetalle, setMostrandoDetalle] = useState(false);
@@ -36,8 +40,27 @@ export function MainCampanias({
       setCargando(true);
       setError("");
 
-      const datos = await obtenerCampanias();
-      setCampanias(normalizarCampanias(datos));
+      const [datosCampanias, datosCadenas, datosCoordinadores] =
+        await Promise.all([
+          obtenerCampanias(),
+          obtenerCadenas(),
+          obtenerCoordinadores(),
+        ]);
+
+      const cadenasNormalizadas = normalizarCadenas(datosCadenas);
+      const coordinadoresNormalizados =
+        normalizarCoordinadores(datosCoordinadores);
+
+      setCadenasDisponibles(cadenasNormalizadas);
+      setCoordinadoresDisponibles(coordinadoresNormalizados);
+
+      setCampanias(
+        normalizarCampanias(
+          datosCampanias,
+          cadenasNormalizadas,
+          coordinadoresNormalizados
+        )
+      );
     } catch (errorCarga) {
       console.error(errorCarga);
       setError("No se han podido cargar las campañas desde la API.");
@@ -148,6 +171,7 @@ export function MainCampanias({
 
     try {
       setError("");
+
       await eliminarCampania(campania.id);
 
       setCampanias((campaniasActuales) =>
@@ -177,7 +201,11 @@ export function MainCampanias({
 
       if (modoFormulario === "crear") {
         const campaniaCreada = await crearCampania(campaniaParaApi);
-        const nuevaCampaniaNormalizada = normalizarCampania(campaniaCreada);
+        const nuevaCampaniaNormalizada = normalizarCampania(
+          campaniaCreada,
+          cadenasDisponibles,
+          coordinadoresDisponibles
+        );
 
         setCampanias((campaniasActuales) => [
           ...campaniasActuales,
@@ -192,8 +220,11 @@ export function MainCampanias({
           campaniaFormulario.id,
           campaniaParaApi
         );
+
         const campaniaActualizadaNormalizada = normalizarCampania(
-          campaniaActualizada
+          campaniaActualizada,
+          cadenasDisponibles,
+          coordinadoresDisponibles
         );
 
         setCampanias((campaniasActuales) =>
@@ -215,13 +246,15 @@ export function MainCampanias({
     }
   };
 
-  const guardarCadenasCampania = async (idCampania, idsCadenas) => {
+  const actualizarCadenasDeCampania = async (idCampania, idsCadenas) => {
     try {
       setError("");
+
       const campaniaActualizada = await actualizarCadenasCampania(
         idCampania,
         idsCadenas
       );
+
       actualizarCampaniaEnEstado(campaniaActualizada);
     } catch (errorGuardado) {
       console.error(errorGuardado);
@@ -230,16 +263,18 @@ export function MainCampanias({
     }
   };
 
-  const guardarCoordinadoresCampania = async (
+  const actualizarCoordinadoresDeCampania = async (
     idCampania,
     idsCoordinadores
   ) => {
     try {
       setError("");
+
       const campaniaActualizada = await actualizarCoordinadoresCampania(
         idCampania,
         idsCoordinadores
       );
+
       actualizarCampaniaEnEstado(campaniaActualizada);
     } catch (errorGuardado) {
       console.error(errorGuardado);
@@ -249,7 +284,11 @@ export function MainCampanias({
   };
 
   const actualizarCampaniaEnEstado = (campaniaActualizada) => {
-    const campaniaNormalizada = normalizarCampania(campaniaActualizada);
+    const campaniaNormalizada = normalizarCampania(
+      campaniaActualizada,
+      cadenasDisponibles,
+      coordinadoresDisponibles
+    );
 
     setCampanias((campaniasActuales) =>
       campaniasActuales.map((campania) =>
@@ -294,8 +333,8 @@ export function MainCampanias({
           onVolver={volverAlListado}
           onAnterior={irACampaniaAnterior}
           onSiguiente={irACampaniaSiguiente}
-          onGuardarCadenas={guardarCadenasCampania}
-          onGuardarCoordinadores={guardarCoordinadoresCampania}
+          onGuardarCadenas={actualizarCadenasDeCampania}
+          onGuardarCoordinadores={actualizarCoordinadoresDeCampania}
         />
       </>
     );
@@ -363,22 +402,97 @@ function obtenerIdsParticipantes(elementos) {
     .map((elemento) => elemento.id);
 }
 
-function normalizarCampanias(campanias) {
+function normalizarCampanias(
+  campanias,
+  cadenasDisponibles,
+  coordinadoresDisponibles
+) {
   if (!Array.isArray(campanias)) {
     return [];
   }
 
-  return campanias.map(normalizarCampania);
+  return campanias.map((campania) =>
+    normalizarCampania(
+      campania,
+      cadenasDisponibles,
+      coordinadoresDisponibles
+    )
+  );
 }
 
-function normalizarCampania(campania) {
+function normalizarCampania(
+  campania,
+  cadenasDisponibles = [],
+  coordinadoresDisponibles = []
+) {
+  const idsCadenas = Array.isArray(campania?.idsCadenas)
+    ? campania.idsCadenas
+    : [];
+
+  const idsCoordinadores = Array.isArray(campania?.idsCoordinadores)
+    ? campania.idsCoordinadores
+    : [];
+
   return {
     ...campania,
-    cadenas: Array.isArray(campania?.cadenas) ? campania.cadenas : [],
-    coordinadores: Array.isArray(campania?.coordinadores)
-      ? campania.coordinadores
-      : [],
+    cadenas: construirCadenasDeCampania(cadenasDisponibles, idsCadenas),
+    coordinadores: construirCoordinadoresDeCampania(
+      coordinadoresDisponibles,
+      idsCoordinadores
+    ),
   };
+}
+
+function normalizarCadenas(cadenas) {
+  if (!Array.isArray(cadenas)) {
+    return [];
+  }
+
+  return cadenas.map((cadena) => ({
+    id: cadena.id,
+    nombre: cadena.nombre,
+    codigo: cadena.codigo,
+  }));
+}
+
+function normalizarCoordinadores(coordinadores) {
+  if (!Array.isArray(coordinadores)) {
+    return [];
+  }
+
+  return coordinadores.map((coordinador) => ({
+    id: coordinador.id,
+    nombre:
+      coordinador.nombre ??
+      coordinador.nombreContacto ??
+      coordinador.emailContacto ??
+      `Coordinador ${coordinador.id}`,
+  }));
+}
+
+function construirCadenasDeCampania(cadenasDisponibles, idsCadenasCampania) {
+  if (!Array.isArray(cadenasDisponibles)) {
+    return [];
+  }
+
+  return cadenasDisponibles.map((cadena) => ({
+    ...cadena,
+    participa: idsCadenasCampania.includes(cadena.id),
+  }));
+}
+
+function construirCoordinadoresDeCampania(
+  coordinadoresDisponibles,
+  idsCoordinadoresCampania
+) {
+  if (!Array.isArray(coordinadoresDisponibles)) {
+    return [];
+  }
+
+  return coordinadoresDisponibles.map((coordinador) => ({
+    ...coordinador,
+    participa: idsCoordinadoresCampania.includes(coordinador.id),
+  }));
 }
 
 function crearFechaLocalDesdeISO(fechaISO) {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FormularioCrearCadena } from "./formularioCrearCadena";
+import { crearCadena } from "../api/cadenasApi";
 
 export function CampaniaDetalle({
   campania,
@@ -20,28 +21,34 @@ export function CampaniaDetalle({
   const [nombreNuevaCadena, setNombreNuevaCadena] = useState("");
   const [acronimoNuevaCadena, setAcronimoNuevaCadena] = useState("");
 
+  const [cadenasLocales, setCadenasLocales] = useState(
+    campania.cadenas ?? []
+  );
+
   const [idsCadenasSeleccionadas, setIdsCadenasSeleccionadas] = useState(
-    campania.cadenas
+    (campania.cadenas ?? [])
       .filter((cadena) => cadena.participa)
       .map((cadena) => cadena.id)
   );
 
   const [idsCoordinadoresSeleccionados, setIdsCoordinadoresSeleccionados] =
     useState(
-      campania.coordinadores
+      (campania.coordinadores ?? [])
         .filter((coordinador) => coordinador.participa)
         .map((coordinador) => coordinador.id)
     );
 
   useEffect(() => {
+    setCadenasLocales(campania.cadenas ?? []);
+
     setIdsCadenasSeleccionadas(
-      campania.cadenas
+      (campania.cadenas ?? [])
         .filter((cadena) => cadena.participa)
         .map((cadena) => cadena.id)
     );
 
     setIdsCoordinadoresSeleccionados(
-      campania.coordinadores
+      (campania.coordinadores ?? [])
         .filter((coordinador) => coordinador.participa)
         .map((coordinador) => coordinador.id)
     );
@@ -53,7 +60,7 @@ export function CampaniaDetalle({
   const hayModoEdicion = modoAsignarCadenas || modoGestionarCoordinadores;
   const hayFormularioAbierto = mostrarFormularioCadena;
 
-  const cadenasOrdenadas = [...campania.cadenas].sort((a, b) => {
+  const cadenasOrdenadas = [...cadenasLocales].sort((a, b) => {
     const aParticipa = idsCadenasSeleccionadas.includes(a.id);
     const bParticipa = idsCadenasSeleccionadas.includes(b.id);
 
@@ -72,16 +79,18 @@ export function CampaniaDetalle({
     (cadena) => !idsCadenasSeleccionadas.includes(cadena.id)
   );
 
-  const coordinadoresOrdenados = [...campania.coordinadores].sort((a, b) => {
-    const aParticipa = idsCoordinadoresSeleccionados.includes(a.id);
-    const bParticipa = idsCoordinadoresSeleccionados.includes(b.id);
+  const coordinadoresOrdenados = [...(campania.coordinadores ?? [])].sort(
+    (a, b) => {
+      const aParticipa = idsCoordinadoresSeleccionados.includes(a.id);
+      const bParticipa = idsCoordinadoresSeleccionados.includes(b.id);
 
-    if (aParticipa === bParticipa) {
-      return a.nombre.localeCompare(b.nombre);
+      if (aParticipa === bParticipa) {
+        return a.nombre.localeCompare(b.nombre);
+      }
+
+      return aParticipa ? -1 : 1;
     }
-
-    return aParticipa ? -1 : 1;
-  });
+  );
 
   const activarAsignacionCadenas = () => {
     setModoAsignarCadenas(true);
@@ -126,23 +135,41 @@ export function CampaniaDetalle({
     setAcronimoNuevaCadena(nuevoAcronimo);
   };
 
-  const guardarNuevaCadena = (evento) => {
-    evento.preventDefault();
+  const guardarNuevaCadena = async () => {
+  const nombreLimpio = nombreNuevaCadena.trim();
+  const acronimoLimpio = acronimoNuevaCadena.trim().toUpperCase();
 
-    const nombreLimpio = nombreNuevaCadena.trim();
-    const acronimoLimpio = acronimoNuevaCadena.trim().toUpperCase();
+  if (!nombreLimpio || !acronimoLimpio) {
+    return;
+  }
 
-    if (!nombreLimpio || !acronimoLimpio) {
-      return;
-    }
+  try {
+    setGuardandoCambios(true);
 
-    console.log("Crear cadena:", {
-      nombreCompleto: nombreLimpio,
-      acronimo: acronimoLimpio,
+    const cadenaCreada = await crearCadena({
+      nombre: nombreLimpio,
+      codigo: acronimoLimpio,
     });
 
+    const cadenaParaPantalla = {
+      id: cadenaCreada.id,
+      nombre: cadenaCreada.nombre,
+      codigo: cadenaCreada.codigo,
+      participa: false,
+    };
+
+    setCadenasLocales((cadenasActuales) => [
+      ...cadenasActuales,
+      cadenaParaPantalla,
+    ]);
+
     cerrarFormularioCadena();
-  };
+  } catch (error) {
+    console.error("Error creando cadena:", error);
+  } finally {
+    setGuardandoCambios(false);
+  }
+};
 
   const alternarCadena = (idCadena) => {
     if (!modoAsignarCadenas) {
@@ -173,14 +200,16 @@ export function CampaniaDetalle({
   };
 
   const descartarCambios = () => {
+    setCadenasLocales(campania.cadenas ?? []);
+
     setIdsCadenasSeleccionadas(
-      campania.cadenas
+      (campania.cadenas ?? [])
         .filter((cadena) => cadena.participa)
         .map((cadena) => cadena.id)
     );
 
     setIdsCoordinadoresSeleccionados(
-      campania.coordinadores
+      (campania.coordinadores ?? [])
         .filter((coordinador) => coordinador.participa)
         .map((coordinador) => coordinador.id)
     );
@@ -195,6 +224,13 @@ export function CampaniaDetalle({
 
       if (modoAsignarCadenas) {
         await onGuardarCadenas(campania.id, idsCadenasSeleccionadas);
+
+        setCadenasLocales((cadenasActuales) =>
+          cadenasActuales.map((cadena) => ({
+            ...cadena,
+            participa: idsCadenasSeleccionadas.includes(cadena.id),
+          }))
+        );
       }
 
       if (modoGestionarCoordinadores) {
@@ -304,7 +340,9 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__accion"
               onClick={abrirFormularioCadena}
-              disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
+              disabled={
+                hayModoEdicion || hayFormularioAbierto || guardandoCambios
+              }
             >
               Crear cadena
             </button>
@@ -313,7 +351,9 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__accion"
               onClick={activarAsignacionCadenas}
-              disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
+              disabled={
+                hayModoEdicion || hayFormularioAbierto || guardandoCambios
+              }
             >
               Asignar cadenas
             </button>
@@ -322,7 +362,9 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__accion"
               onClick={activarGestionCoordinadores}
-              disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
+              disabled={
+                hayModoEdicion || hayFormularioAbierto || guardandoCambios
+              }
             >
               Gestionar coordinadores
             </button>
@@ -335,7 +377,12 @@ export function CampaniaDetalle({
           type="button"
           className="detalle-campania__flecha"
           onClick={onAnterior}
-          disabled={!puedeIrAnterior || hayModoEdicion || hayFormularioAbierto || guardandoCambios}
+          disabled={
+            !puedeIrAnterior ||
+            hayModoEdicion ||
+            hayFormularioAbierto ||
+            guardandoCambios
+          }
           aria-label="Campaña anterior"
         >
           ←
