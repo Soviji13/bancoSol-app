@@ -9,11 +9,13 @@ export function HeaderVoluntarios({
         <button
           className="btn-icono-cuadrado"
           onClick={() => manejaContenidoLateral("filtros-voluntarios")}
-          title="Abrir filtros de voluntarios"
         >
-          <img src="/assets/embudo.png" alt="Filtro" className="icono-filtro" />
+          <img
+            src="/assets/filter_alt.svg"
+            alt="Filtro"
+            className="icono-filtro"
+          />
         </button>
-        {/* Disparador del modal */}
         <button className="btn-secundario-outline" onClick={onAbrirModal}>
           Seleccionar otra campaña
         </button>
@@ -27,7 +29,7 @@ export function HeaderVoluntarios({
 
       <div className="topbar-info-contenedor">
         <span className="topbar-info-texto">
-          Para ver más información, haga doble
+          Para ver más información, haga
           <br />
           click sobre su fila correspondiente
         </span>
