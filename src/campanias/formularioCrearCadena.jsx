@@ -6,11 +6,16 @@ export function FormularioCrearCadena({
   onCerrar,
   onGuardar,
 }) {
-  return (
-    <div className="modal-cadena" role="dialog" aria-modal="true">
-      <div className="modal-cadena__fondo" onClick={onCerrar} />
+  const manejarSubmit = (evento) => {
+    evento.preventDefault();
+    onGuardar(evento);
+  };
 
-      <form className="modal-cadena__formulario" onSubmit={onGuardar}>
+  return (
+    <div className="modal-cadena">
+      <div className="modal-cadena__fondo" onClick={onCerrar}></div>
+
+      <form className="modal-cadena__formulario" onSubmit={manejarSubmit}>
         <header className="modal-cadena__cabecera">
           <h2>Crear cadena</h2>
 
@@ -31,10 +36,8 @@ export function FormularioCrearCadena({
               type="text"
               value={nombre}
               onChange={onCambiarNombre}
-              maxLength={80}
-              required
-              autoFocus
               placeholder="Ejemplo: Mercadona"
+              required
             />
           </label>
 
@@ -44,19 +47,19 @@ export function FormularioCrearCadena({
               type="text"
               value={acronimo}
               onChange={onCambiarAcronimo}
+              placeholder="MERC"
               maxLength={4}
               required
-              placeholder="MERC"
             />
           </label>
 
           <p className="modal-cadena__ayuda">
-            El acrónimo se genera automáticamente con las 4 primeras letras del
-            nombre, pero puede modificarse manualmente.
+            El acrónimo se genera automáticamente con las primeras letras del
+            nombre, pero puedes modificarlo manualmente.
           </p>
         </div>
 
-        <footer className="modal-cadena__acciones">
+        <div className="modal-cadena__acciones">
           <button
             type="button"
             className="modal-cadena__btn modal-cadena__btn--secundario"
@@ -71,7 +74,7 @@ export function FormularioCrearCadena({
           >
             Guardar cadena
           </button>
-        </footer>
+        </div>
       </form>
     </div>
   );
