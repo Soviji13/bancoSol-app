@@ -44,7 +44,7 @@ public class CoordinadorController {
                     ? campania.getIdsCoordinadores()
                     : List.of();
 
-            coordinadores = coordinadorService.findAllById(idsCoordinadores);
+            coordinadores = coordinadorService.buscarTodosPorId(idsCoordinadores);
 
             model.addAttribute("campaniaSeleccionada", campania);
             model.addAttribute("campaniaIdSeleccionada", campaniaId);
