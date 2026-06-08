@@ -77,6 +77,68 @@ if (seccionEntidades) {
         })
     }
 
+    // PARA ACTIVAR MODO MODIFICACIÓN DE ENTIDAD -------------------------------------------------------
+
+    // Función obtenida del JS de Clientes
+    // Función para activar/desactivar el modo edición
+    function toggleModoEdicion() {
+
+        // Obtenemos del documento el formulario de edición
+        const form = document.getElementById('form-edicion-lateral');
+        
+        // Si nos encontrábamos en modo lectura, pasamos a modo edición
+        if (form.classList.contains('modo-lectura')) {
+            form.classList.replace('modo-lectura', 'modo-edicion');
+            
+            // Ponemos todos los inputs, textArea y select activos
+            form.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.name !== "nueva-tienda") {
+                    el.removeAttribute('readonly');
+                    el.removeAttribute('disabled');
+                }
+            });
+
+            // Mostramos los botones para poder actualizar la información, añadir un nuevo responsable de entidad, hacemos focus automático a edit-calle
+            document.getElementById('btn-guardar-container').style.display = 'block';
+            document.getElementById('btn-add-contacto-container').style.display = 'block';
+            document.getElementById('edit-calle').focus();
+        } 
+        // Si nos encontrábamos en modo edición, pasamos a modo lectura
+        else 
+        {
+            // Pasamos a modo lectura y cerramos el modo edición
+            form.classList.replace('modo-edicion', 'modo-lectura');
+            
+            // Volvemos a reestablecer el modo de lectura únicamente en los inputs del form y en los textarea y selects
+            form.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio') {
+                    el.setAttribute('disabled', 'true');
+                } else {
+                    el.setAttribute('readonly', 'true');
+                }
+            });
+
+            // Ocultamos el botón de guardar y el de añadir nuevo responsable
+            document.getElementById('btn-guardar-container').style.display = 'none';
+            document.getElementById('btn-add-contacto-container').style.display = 'none';
+            
+            // Cargamos los datos del formulario
+            //cargarDatosFormulario();
+        }
+    }
+
+
+    const botonModificar = document.getElementById('btn-modificar-colaborador');
+
+    if (botonModificar && seccionEntidades.dataset.modificable === "true") {
+        botonModificar.addEventListener ('click', function () {
+            // Obtenemos todos los campos que estaban readOnly y required y los habilitamos
+            // Además de poder añadir responsables
+            toggleModoEdicion();
+        });
+    }
+
+
     // PARA ABRIR PANEL DE CREAR ENTIDAD -------------------------------------------------------------------------------
     const botonAbrirRegistro = document.getElementById ('btn-abrir-registro');
 

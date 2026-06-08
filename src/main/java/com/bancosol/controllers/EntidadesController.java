@@ -95,7 +95,10 @@ public class EntidadesController {
             // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
             Map <Long, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
 
-            System.out.print(tiendasCampaniaEntidad.keySet()); 
+            // Pasamos el distrito si es capital (se pasa así porque pueden haber direcciones corruptas, que aunque sean capital, no tienen distrito)
+            if (e.getDireccion().getEsCapital() && e.getDireccion().getDistritoId() != null) {
+                model.addAttribute("distrito", this.distritoService.findById(e.getDireccion().getDistritoId()));
+            }
 
             // Pasamos la campaña actual (id) y la última campaña
             model.addAttribute("idCampaniaActual", this.campaniaService.devolverCampaniaActiva().getId());
@@ -113,6 +116,11 @@ public class EntidadesController {
             // Pasamos datos de la entidad y dónde se tiene que ubicar
             model.addAttribute("entidadSelec", e);
             model.addAttribute("panelIzquierdo", "entidades_colaboradoras/info-entidad.jsp");
+
+            // También permitimos el modo edición
+            model.addAttribute("modoEdicion", true);
+        } else {
+            model.addAttribute("modoEdicion", false);
         }
 
         return "inicio";
