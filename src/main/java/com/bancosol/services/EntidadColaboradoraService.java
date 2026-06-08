@@ -294,6 +294,20 @@ public class EntidadColaboradoraService {
 
         // Vamos iterando sobre los responsables creados
         for (ResponsableDTO r : datos.getResponsables()) {
+
+            // Manejo de errores para atributos únicos
+            if (r.getTelefono() != null && this.contactoRepository.existsByTelefono(r.getTelefono())) {
+                throw new IllegalArgumentException("El teléfono '" + r.getTelefono() + "' ya está registrado por otro responsable.");
+            }
+            
+            if (r.getEmail() != null && this.contactoRepository.existsByEmail(r.getEmail())) {
+                throw new IllegalArgumentException("El email '" + r.getEmail() + "' ya está registrado por otro responsable.");
+            }
+            
+            if (r.getUser() != null && this.usuarioRepository.existsByEmail(r.getUser())) {
+                throw new IllegalArgumentException("El nombre de usuario '" + r.getUser() + "' ya existe.");
+            }
+
             ResponsableEntidad nuevoResponsable = new ResponsableEntidad();
             Contacto nuevoContacto = new Contacto();
             Usuario nuevoUsuario = new Usuario();

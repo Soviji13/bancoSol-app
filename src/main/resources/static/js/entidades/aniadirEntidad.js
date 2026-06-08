@@ -641,7 +641,6 @@ if (seccionEntidades) {
 
             // Si todo está bien
             if (!textoErrores) {    
-                alert("TOdos los datos están bien");
                 enviarDatosControlador (entidadCompleta);
             } else {
                 mostrarError(`Errores al enviar datos, faltan: ${textoErrores}`);
