@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormularioCrearCadena } from "./formularioCrearCadena";
 
 export function CampaniaDetalle({
@@ -8,11 +8,14 @@ export function CampaniaDetalle({
   onVolver,
   onAnterior,
   onSiguiente,
+  onGuardarCadenas,
+  onGuardarCoordinadores,
 }) {
   const [modoAsignarCadenas, setModoAsignarCadenas] = useState(false);
   const [modoGestionarCoordinadores, setModoGestionarCoordinadores] =
     useState(false);
   const [mostrarFormularioCadena, setMostrarFormularioCadena] = useState(false);
+  const [guardandoCambios, setGuardandoCambios] = useState(false);
 
   const [nombreNuevaCadena, setNombreNuevaCadena] = useState("");
   const [acronimoNuevaCadena, setAcronimoNuevaCadena] = useState("");
@@ -29,6 +32,23 @@ export function CampaniaDetalle({
         .filter((coordinador) => coordinador.participa)
         .map((coordinador) => coordinador.id)
     );
+
+  useEffect(() => {
+    setIdsCadenasSeleccionadas(
+      campania.cadenas
+        .filter((cadena) => cadena.participa)
+        .map((cadena) => cadena.id)
+    );
+
+    setIdsCoordinadoresSeleccionados(
+      campania.coordinadores
+        .filter((coordinador) => coordinador.participa)
+        .map((coordinador) => coordinador.id)
+    );
+
+    setModoAsignarCadenas(false);
+    setModoGestionarCoordinadores(false);
+  }, [campania.id, campania.cadenas, campania.coordinadores]);
 
   const hayModoEdicion = modoAsignarCadenas || modoGestionarCoordinadores;
   const hayFormularioAbierto = mostrarFormularioCadena;
@@ -169,23 +189,26 @@ export function CampaniaDetalle({
     setModoGestionarCoordinadores(false);
   };
 
-  const guardarCambios = () => {
-    if (modoAsignarCadenas) {
-      console.log("Guardar cambios de cadenas:", {
-        campaniaId: campania.id,
-        idsCadenasSeleccionadas,
-      });
-    }
+  const guardarCambios = async () => {
+    try {
+      setGuardandoCambios(true);
 
-    if (modoGestionarCoordinadores) {
-      console.log("Guardar cambios de coordinadores:", {
-        campaniaId: campania.id,
-        idsCoordinadoresSeleccionados,
-      });
-    }
+      if (modoAsignarCadenas) {
+        await onGuardarCadenas(campania.id, idsCadenasSeleccionadas);
+      }
 
-    setModoAsignarCadenas(false);
-    setModoGestionarCoordinadores(false);
+      if (modoGestionarCoordinadores) {
+        await onGuardarCoordinadores(
+          campania.id,
+          idsCoordinadoresSeleccionados
+        );
+      }
+
+      setModoAsignarCadenas(false);
+      setModoGestionarCoordinadores(false);
+    } finally {
+      setGuardandoCambios(false);
+    }
   };
 
   return (
@@ -196,7 +219,7 @@ export function CampaniaDetalle({
           className="detalle-campania__boton-volver"
           onClick={onVolver}
           aria-label="Volver al listado de campañas"
-          disabled={hayModoEdicion || hayFormularioAbierto}
+          disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
         >
           ←
         </button>
@@ -266,7 +289,7 @@ export function CampaniaDetalle({
                         : "detalle-campania__coordinador detalle-campania__coordinador--no-participa"
                     }
                     onClick={() => alternarCoordinador(coordinador.id)}
-                    disabled={!modoGestionarCoordinadores}
+                    disabled={!modoGestionarCoordinadores || guardandoCambios}
                   >
                     <span>{coordinador.nombre}</span>
                     <small>{participa ? "Participa" : "No participa"}</small>
@@ -281,7 +304,7 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__accion"
               onClick={abrirFormularioCadena}
-              disabled={hayModoEdicion || hayFormularioAbierto}
+              disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
             >
               Crear cadena
             </button>
@@ -290,7 +313,7 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__accion"
               onClick={activarAsignacionCadenas}
-              disabled={hayModoEdicion || hayFormularioAbierto}
+              disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
             >
               Asignar cadenas
             </button>
@@ -299,7 +322,7 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__accion"
               onClick={activarGestionCoordinadores}
-              disabled={hayModoEdicion || hayFormularioAbierto}
+              disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
             >
               Gestionar coordinadores
             </button>
@@ -312,7 +335,7 @@ export function CampaniaDetalle({
           type="button"
           className="detalle-campania__flecha"
           onClick={onAnterior}
-          disabled={!puedeIrAnterior || hayModoEdicion || hayFormularioAbierto}
+          disabled={!puedeIrAnterior || hayModoEdicion || hayFormularioAbierto || guardandoCambios}
           aria-label="Campaña anterior"
         >
           ←
@@ -324,6 +347,7 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__descartar"
               onClick={descartarCambios}
+              disabled={guardandoCambios}
             >
               Descartar cambios
             </button>
@@ -332,8 +356,9 @@ export function CampaniaDetalle({
               type="button"
               className="detalle-campania__guardar"
               onClick={guardarCambios}
+              disabled={guardandoCambios}
             >
-              Guardar cambios
+              {guardandoCambios ? "Guardando..." : "Guardar cambios"}
             </button>
           </div>
         ) : (
@@ -345,7 +370,10 @@ export function CampaniaDetalle({
           className="detalle-campania__flecha"
           onClick={onSiguiente}
           disabled={
-            !puedeIrSiguiente || hayModoEdicion || hayFormularioAbierto
+            !puedeIrSiguiente ||
+            hayModoEdicion ||
+            hayFormularioAbierto ||
+            guardandoCambios
           }
           aria-label="Campaña siguiente"
         >

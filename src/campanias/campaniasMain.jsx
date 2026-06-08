@@ -1,134 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./campanias.css";
 
 import { CampaniasGrid } from "./campaniasGrid";
 import { CampaniasAcciones } from "./campaniasAcciones";
 import { CampaniaDetalle } from "./campaniaDetalle";
 import { FormularioCampania } from "./formularioCampania";
+import {
+  actualizarCampania,
+  actualizarCadenasCampania,
+  actualizarCoordinadoresCampania,
+  crearCampania,
+  eliminarCampania,
+  obtenerCampanias,
+} from "../api/campaniasApi";
 
 export function MainCampanias({
   manejaContenidoLateral,
   manejaContenidoInicial,
 }) {
+  const [campanias, setCampanias] = useState([]);
   const [campaniaSeleccionadaId, setCampaniaSeleccionadaId] = useState(null);
+  const [campaniaFormulario, setCampaniaFormulario] = useState(null);
   const [mostrandoDetalle, setMostrandoDetalle] = useState(false);
   const [modoFormulario, setModoFormulario] = useState(null);
   const [modoSeleccionAccion, setModoSeleccionAccion] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
 
-  const [campanias, setCampanias] = useState([
-    {
-      id: 1,
-      nombre: "Gran Recogida 2025",
-      fechaInicio: "2025-11-11",
-      fechaFin: "2025-11-15",
-      activa: false,
-      cadenas: [
-        { id: 1, nombre: "Alcampo", participa: true },
-        { id: 2, nombre: "Aldi", participa: true },
-        { id: 3, nombre: "El Jamón", participa: true },
-        { id: 4, nombre: "LIDL", participa: false },
-        { id: 5, nombre: "Mercadona", participa: false },
-        { id: 6, nombre: "El Corte Inglés", participa: false },
-      ],
-      coordinadores: [
-        { id: 1, nombre: "Laura Sánchez Martín", participa: true },
-        { id: 2, nombre: "Miguel Torres Ruiz", participa: true },
-        { id: 3, nombre: "Carmen López García", participa: false },
-        { id: 4, nombre: "Pablo Herrera Cano", participa: false },
-      ],
-    },
-    {
-      id: 2,
-      nombre: "Operación Kilo Navidad",
-      fechaInicio: "2025-12-01",
-      fechaFin: "2025-12-20",
-      activa: false,
-      cadenas: [
-        { id: 1, nombre: "Carrefour", participa: true },
-        { id: 2, nombre: "DIA", participa: true },
-        { id: 3, nombre: "Maskom", participa: true },
-        { id: 4, nombre: "Covirán", participa: false },
-        { id: 5, nombre: "Alcampo", participa: false },
-      ],
-      coordinadores: [
-        { id: 1, nombre: "Javier Molina Pérez", participa: true },
-        { id: 2, nombre: "Ana Romero Díaz", participa: true },
-        { id: 3, nombre: "Raúl Benítez León", participa: false },
-      ],
-    },
-    {
-      id: 3,
-      nombre: "Vuelta al Cole Solidaria",
-      fechaInicio: "2026-09-02",
-      fechaFin: "2026-09-18",
-      activa: true,
-      cadenas: [
-        { id: 1, nombre: "Alcampo", participa: true },
-        { id: 2, nombre: "Mercadona", participa: true },
-        { id: 3, nombre: "Eroski", participa: false },
-        { id: 4, nombre: "LIDL", participa: false },
-      ],
-      coordinadores: [
-        { id: 1, nombre: "Pablo Herrera Cano", participa: true },
-        { id: 2, nombre: "María Fernández Soto", participa: false },
-        { id: 3, nombre: "Daniel Vega Ramos", participa: false },
-      ],
-    },
-    {
-      id: 4,
-      nombre: "Banco de Alimentos Primavera",
-      fechaInicio: "2026-03-10",
-      fechaFin: "2026-12-25",
-      activa: true,
-      cadenas: [
-        { id: 1, nombre: "LIDL", participa: true },
-        { id: 2, nombre: "Carrefour", participa: true },
-        { id: 3, nombre: "Mercadona", participa: true },
-        { id: 4, nombre: "Aldi", participa: false },
-      ],
-      coordinadores: [
-        { id: 1, nombre: "María Fernández Soto", participa: true },
-        { id: 2, nombre: "Daniel Vega Ramos", participa: true },
-        { id: 3, nombre: "Lucía Navarro Gil", participa: false },
-      ],
-    },
-    {
-      id: 5,
-      nombre: "Campaña Empresas Colaboradoras",
-      fechaInicio: "2026-04-01",
-      fechaFin: "2026-04-30",
-      activa: false,
-      cadenas: [
-        { id: 1, nombre: "Grupo Sol", participa: true },
-        { id: 2, nombre: "Distribuciones Costa", participa: true },
-        { id: 3, nombre: "Hermanos Ruiz", participa: false },
-        { id: 4, nombre: "Central Alimentaria Sur", participa: false },
-      ],
-      coordinadores: [
-        { id: 1, nombre: "Lucía Navarro Gil", participa: true },
-        { id: 2, nombre: "Nerea Castillo Mora", participa: true },
-        { id: 3, nombre: "Sergio Campos Ruiz", participa: false },
-      ],
-    },
-    {
-      id: 6,
-      nombre: "Recogida Especial Verano",
-      fechaInicio: "2026-07-05",
-      fechaFin: "2026-07-19",
-      activa: true,
-      cadenas: [
-        { id: 1, nombre: "DIA", participa: true },
-        { id: 2, nombre: "Covirán", participa: true },
-        { id: 3, nombre: "Maskom", participa: false },
-        { id: 4, nombre: "Carrefour", participa: false },
-      ],
-      coordinadores: [
-        { id: 1, nombre: "Sergio Campos Ruiz", participa: true },
-        { id: 2, nombre: "Laura Sánchez Martín", participa: false },
-        { id: 3, nombre: "Miguel Torres Ruiz", participa: false },
-      ],
-    },
-  ]);
+  useEffect(() => {
+    cargarCampanias();
+  }, []);
+
+  const cargarCampanias = async () => {
+    try {
+      setCargando(true);
+      setError("");
+
+      const datos = await obtenerCampanias();
+      setCampanias(normalizarCampanias(datos));
+    } catch (errorCarga) {
+      console.error(errorCarga);
+      setError("No se han podido cargar las campañas desde la API.");
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const campaniasOrdenadas = [...campanias].sort((campaniaA, campaniaB) => {
     const fechaA = crearFechaLocalDesdeISO(campaniaA.fechaInicio);
@@ -159,6 +75,7 @@ export function MainCampanias({
     setCampaniaSeleccionadaId(idCampania);
 
     if (modoSeleccionAccion === "editar") {
+      setCampaniaFormulario(campania);
       setModoFormulario("editar");
       setModoSeleccionAccion(null);
       return;
@@ -198,6 +115,7 @@ export function MainCampanias({
   };
 
   const generarCampania = () => {
+    setCampaniaFormulario(null);
     setModoSeleccionAccion(null);
     setMostrandoDetalle(false);
     setModoFormulario("crear");
@@ -219,7 +137,7 @@ export function MainCampanias({
     setModoSeleccionAccion(null);
   };
 
-  const eliminarCampaniaSeleccionada = (campania) => {
+  const eliminarCampaniaSeleccionada = async (campania) => {
     const confirmada = confirm(
       `¿Seguro que quieres eliminar la campaña "${campania.nombre}"?`
     );
@@ -228,60 +146,118 @@ export function MainCampanias({
       return;
     }
 
-    setCampanias((campaniasActuales) =>
-      campaniasActuales.filter((campaniaActual) => {
-        return campaniaActual.id !== campania.id;
-      })
-    );
+    try {
+      setError("");
+      await eliminarCampania(campania.id);
 
-    setCampaniaSeleccionadaId(null);
-    setMostrandoDetalle(false);
+      setCampanias((campaniasActuales) =>
+        campaniasActuales.filter((campaniaActual) => {
+          return campaniaActual.id !== campania.id;
+        })
+      );
+
+      setCampaniaSeleccionadaId(null);
+      setMostrandoDetalle(false);
+    } catch (errorEliminacion) {
+      console.error(errorEliminacion);
+      setError("No se ha podido eliminar la campaña.");
+    }
   };
 
   const cerrarFormularioCampania = () => {
     setModoFormulario(null);
+    setCampaniaFormulario(null);
   };
 
-  const guardarCampania = (campaniaFormulario) => {
-    if (modoFormulario === "crear") {
-      const nuevoId =
-        campanias.length === 0
-          ? 1
-          : Math.max(...campanias.map((campania) => campania.id)) + 1;
+  const guardarCampania = async (campaniaFormulario) => {
+    try {
+      setError("");
 
-      const nuevaCampania = {
-        ...campaniaFormulario,
-        id: nuevoId,
-        cadenas: [],
-        coordinadores: [],
-      };
+      const campaniaParaApi = prepararCampaniaParaApi(campaniaFormulario);
 
-      setCampanias((campaniasActuales) => [
-        ...campaniasActuales,
-        nuevaCampania,
-      ]);
+      if (modoFormulario === "crear") {
+        const campaniaCreada = await crearCampania(campaniaParaApi);
+        const nuevaCampaniaNormalizada = normalizarCampania(campaniaCreada);
 
-      setCampaniaSeleccionadaId(nuevoId);
+        setCampanias((campaniasActuales) => [
+          ...campaniasActuales,
+          nuevaCampaniaNormalizada,
+        ]);
+
+        setCampaniaSeleccionadaId(nuevaCampaniaNormalizada.id);
+      }
+
+      if (modoFormulario === "editar") {
+        const campaniaActualizada = await actualizarCampania(
+          campaniaFormulario.id,
+          campaniaParaApi
+        );
+        const campaniaActualizadaNormalizada = normalizarCampania(
+          campaniaActualizada
+        );
+
+        setCampanias((campaniasActuales) =>
+          campaniasActuales.map((campania) =>
+            campania.id === campaniaActualizadaNormalizada.id
+              ? campaniaActualizadaNormalizada
+              : campania
+          )
+        );
+
+        setCampaniaSeleccionadaId(campaniaActualizadaNormalizada.id);
+      }
+
+      setModoFormulario(null);
+      setCampaniaFormulario(null);
+    } catch (errorGuardado) {
+      console.error(errorGuardado);
+      setError("No se ha podido guardar la campaña.");
     }
+  };
 
-    if (modoFormulario === "editar") {
-      setCampanias((campaniasActuales) =>
-        campaniasActuales.map((campania) =>
-          campania.id === campaniaFormulario.id
-            ? {
-                ...campania,
-                ...campaniaFormulario,
-                cadenas: campania.cadenas || [],
-                coordinadores: campania.coordinadores || [],
-              }
-            : campania
-        )
+  const guardarCadenasCampania = async (idCampania, idsCadenas) => {
+    try {
+      setError("");
+      const campaniaActualizada = await actualizarCadenasCampania(
+        idCampania,
+        idsCadenas
       );
-
-      setCampaniaSeleccionadaId(campaniaFormulario.id);
+      actualizarCampaniaEnEstado(campaniaActualizada);
+    } catch (errorGuardado) {
+      console.error(errorGuardado);
+      setError("No se han podido guardar las cadenas de la campaña.");
+      throw errorGuardado;
     }
+  };
 
-    setModoFormulario(null);
+  const guardarCoordinadoresCampania = async (
+    idCampania,
+    idsCoordinadores
+  ) => {
+    try {
+      setError("");
+      const campaniaActualizada = await actualizarCoordinadoresCampania(
+        idCampania,
+        idsCoordinadores
+      );
+      actualizarCampaniaEnEstado(campaniaActualizada);
+    } catch (errorGuardado) {
+      console.error(errorGuardado);
+      setError("No se han podido guardar los coordinadores de la campaña.");
+      throw errorGuardado;
+    }
+  };
+
+  const actualizarCampaniaEnEstado = (campaniaActualizada) => {
+    const campaniaNormalizada = normalizarCampania(campaniaActualizada);
+
+    setCampanias((campaniasActuales) =>
+      campaniasActuales.map((campania) =>
+        campania.id === campaniaNormalizada.id ? campaniaNormalizada : campania
+      )
+    );
+
+    setCampaniaSeleccionadaId(campaniaNormalizada.id);
   };
 
   const obtenerMensajeSeleccion = () => {
@@ -296,23 +272,39 @@ export function MainCampanias({
     return null;
   };
 
+  if (cargando) {
+    return (
+      <main className="campanias">
+        <p className="campanias__mensaje-seleccion">Cargando campañas...</p>
+      </main>
+    );
+  }
+
   if (mostrandoDetalle && campaniaSeleccionada) {
     return (
-      <CampaniaDetalle
-        campania={campaniaSeleccionada}
-        puedeIrAnterior={indiceCampaniaSeleccionada > 0}
-        puedeIrSiguiente={
-          indiceCampaniaSeleccionada < campaniasOrdenadas.length - 1
-        }
-        onVolver={volverAlListado}
-        onAnterior={irACampaniaAnterior}
-        onSiguiente={irACampaniaSiguiente}
-      />
+      <>
+        {error && <p className="campanias__mensaje-seleccion">{error}</p>}
+
+        <CampaniaDetalle
+          campania={campaniaSeleccionada}
+          puedeIrAnterior={indiceCampaniaSeleccionada > 0}
+          puedeIrSiguiente={
+            indiceCampaniaSeleccionada < campaniasOrdenadas.length - 1
+          }
+          onVolver={volverAlListado}
+          onAnterior={irACampaniaAnterior}
+          onSiguiente={irACampaniaSiguiente}
+          onGuardarCadenas={guardarCadenasCampania}
+          onGuardarCoordinadores={guardarCoordinadoresCampania}
+        />
+      </>
     );
   }
 
   return (
     <main className="campanias">
+      {error && <p className="campanias__mensaje-seleccion">{error}</p>}
+
       {modoSeleccionAccion !== null && (
         <div className="campanias__mensaje-seleccion">
           <span>{obtenerMensajeSeleccion()}</span>
@@ -341,15 +333,52 @@ export function MainCampanias({
       {modoFormulario !== null && (
         <FormularioCampania
           modo={modoFormulario}
-          campaniaInicial={
-            modoFormulario === "editar" ? campaniaSeleccionada : null
-          }
+          campaniaInicial={modoFormulario === "editar" ? campaniaFormulario : null}
           onCerrar={cerrarFormularioCampania}
           onGuardar={guardarCampania}
         />
       )}
     </main>
   );
+}
+
+function prepararCampaniaParaApi(campania) {
+  return {
+    nombre: campania.nombre,
+    fechaInicio: campania.fechaInicio,
+    fechaFin: campania.fechaFin,
+    activa: campania.activa,
+    idsCadenas: obtenerIdsParticipantes(campania.cadenas),
+    idsCoordinadores: obtenerIdsParticipantes(campania.coordinadores),
+  };
+}
+
+function obtenerIdsParticipantes(elementos) {
+  if (!Array.isArray(elementos)) {
+    return [];
+  }
+
+  return elementos
+    .filter((elemento) => elemento.participa)
+    .map((elemento) => elemento.id);
+}
+
+function normalizarCampanias(campanias) {
+  if (!Array.isArray(campanias)) {
+    return [];
+  }
+
+  return campanias.map(normalizarCampania);
+}
+
+function normalizarCampania(campania) {
+  return {
+    ...campania,
+    cadenas: Array.isArray(campania?.cadenas) ? campania.cadenas : [],
+    coordinadores: Array.isArray(campania?.coordinadores)
+      ? campania.coordinadores
+      : [],
+  };
 }
 
 function crearFechaLocalDesdeISO(fechaISO) {
