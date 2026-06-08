@@ -65,8 +65,18 @@
     </c:if>
 
     <%-- CAMPAÑAS --%>
-    <c:if test="${pagina == 'gestion-campanias'}">
+    <c:if test="${pagina == 'campanias/gestionar-campanias'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/gestionar-campanias.css" />
+    </c:if>
+
+    <c:if test="${pagina == 'coordinadores/detalles-coordinador'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/detallesCoordinador.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/encabezado.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/panelFiltro.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/tabla.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/pie.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/badges.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/coordinadores.css" />
     </c:if>
 
     <%-- INCIDENCIAS: LISTADO --%>
@@ -114,27 +124,31 @@
 
         <main class="bs-inicio__contenido">
             <c:choose>
-                <c:when test="${pagina == 'campanias'}">
+                <c:when test="${pagina == 'campanias/campanias'}">
                     <jsp:include page="campanias/campanias.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'generar-campania'}">
+                <c:when test="${pagina == 'campanias/generar-campania'}">
                     <jsp:include page="campanias/generar-campania.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'gestion-campanias'}">
+                <c:when test="${pagina == 'campanias/gestionar-campanias'}">
                     <jsp:include page="campanias/gestionar-campanias.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'modificar-campania'}">
+                <c:when test="${pagina == 'campanias/modificar-campania'}">
                     <jsp:include page="campanias/modificar-campania.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'gestionar-cadenas'}">
+                <c:when test="${pagina == 'cadenas/gestionar-cadenas'}">
                     <jsp:include page="cadenas/gestionar-cadenas.jsp" />
                 </c:when>
 
                 <c:when test="${pagina == 'gestionar-coordinadores'}">
+                    <jsp:include page="coordinadores/listado.jsp" />
+                </c:when>
+
+                <c:when test="${pagina == 'coordinadores/detalles-coordinador'}">
                     <jsp:include page="coordinadores/listado.jsp" />
                 </c:when>
 

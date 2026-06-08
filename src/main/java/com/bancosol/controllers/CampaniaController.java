@@ -50,7 +50,7 @@ public class CampaniaController {
 
         model.addAttribute("campanias", campaniasOrdenadas);
         model.addAttribute("usuario", session);
-        model.addAttribute("pagina", "campanias");
+        model.addAttribute("pagina", "campanias/campanias");
 
         return "inicio";
     }
@@ -61,7 +61,7 @@ public class CampaniaController {
         model.addAttribute("cadenas", cadenaService.listarTodas());
         model.addAttribute("coordinadores", coordinadorService.listarTodos());
         model.addAttribute("usuario", session);
-        model.addAttribute("pagina", "generar-campania");
+        model.addAttribute("pagina", "campanias/generar-campania");
 
         return "inicio";
     }
@@ -80,7 +80,7 @@ public class CampaniaController {
         model.addAttribute("coordinadores", coordinadorService.buscarTodosPorId(campania.getIdsCoordinadores()));
         model.addAttribute("campania", campania);
         model.addAttribute("usuario", session);
-        model.addAttribute("pagina", "gestion-campanias");
+        model.addAttribute("pagina", "campanias/gestionar-campanias");
 
         return "inicio";
     }
@@ -111,7 +111,7 @@ public class CampaniaController {
         model.addAttribute("campania", campania);
         model.addAttribute("usuario", session);
 
-        model.addAttribute("pagina", "modificar-campania");
+        model.addAttribute("pagina", "campanias/modificar-campania");
         model.addAttribute("panelIzquierdo", "campanias/panel_modificar_campania.jsp");
 
         return "inicio";
@@ -131,7 +131,7 @@ public class CampaniaController {
         model.addAttribute("campania", campania);
         model.addAttribute("usuario", session);
 
-        model.addAttribute("pagina", "gestionar-cadenas");
+        model.addAttribute("pagina", "cadenas/gestionar-cadenas");
         model.addAttribute("panelIzquierdo", "cadenas/panel_gestionar_cadenas.jsp");
 
         return "inicio";
@@ -139,27 +139,38 @@ public class CampaniaController {
 
     @GetMapping("/campanias/gestion/coordinador")
     public String verGestionCampaniaCoordinador(@RequestParam("id") Long id,
+                                                @RequestParam("campania") Long campania,
                                                 HttpSession session,
                                                 Model model) {
+
         CoordinadorDTO coordinador = coordinadorService.buscarPorId(id);
 
         if (coordinador == null) {
             return "redirect:/campanias";
         }
 
-        List<Long> idsCampanias = coordinador.getIdsCampanias() != null
-                ? coordinador.getIdsCampanias()
-                : List.of();
 
-        List<CampaniaDTO> campanias = campaniaService.findAllById(idsCampanias);
+        CampaniaDTO campaniaDTO = campaniaService.findById(campania);
 
-        model.addAttribute("campanias", campanias);
+
+        List<CoordinadorDTO> coordinadoresCampania = List.of();
+        if (campaniaDTO != null && campaniaDTO.getIdsCoordinadores() != null) {
+            coordinadoresCampania = coordinadorService.buscarTodosPorId(campaniaDTO.getIdsCoordinadores());
+        }
+
+
         model.addAttribute("coordinador", coordinador);
-        model.addAttribute("usuario", session);
         model.addAttribute("entidades", entidadService.listarTodas());
         model.addAttribute("distritos", distritoService.listarTodos());
 
-        model.addAttribute("pagina", "detalles-coordinador");
+        model.addAttribute("coordinadores", coordinadoresCampania);
+        model.addAttribute("campanias", campaniaService.listarTodas());
+        model.addAttribute("campaniaSeleccionada", campaniaDTO);
+        model.addAttribute("campaniaIdSeleccionada", campania);
+
+        model.addAttribute("usuario", session);
+
+        model.addAttribute("pagina", "coordinadores/detalles-coordinador");
         model.addAttribute("panelIzquierdo", "coordinadores/panel_info_coordinador.jsp");
 
         return "inicio";

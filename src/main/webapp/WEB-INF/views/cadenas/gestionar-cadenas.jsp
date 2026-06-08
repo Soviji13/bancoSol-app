@@ -58,7 +58,7 @@
                     <td height="250" valign="top" align="center" style="padding: 15px;">
                         <% if (coordinadores != null && !coordinadores.isEmpty()) {
                             for(CoordinadorDTO coord : coordinadores) { %>
-                        <span style="color: blue; font-size: 14px;"><%= coord.getNombreContacto() %></span><br>
+                        <span style="color: blue; font-size: 14px;"><%= coord.getNombre() %></span><br>
                         <%  }
                         } else { %>
                         <span style="color: gray; font-size: 12px; font-style: italic;">(más coordinadores, scroll si se llenan)</span>

@@ -89,7 +89,7 @@
                     <% if (coordinadores != null && !coordinadores.isEmpty()) {
                         for(CoordinadorDTO coord : coordinadores) { %>
                     <option value="<%= coord.getId() %>">
-                        <%= coord.getNombreContacto() != null ? coord.getNombreContacto() : "Sin definir" %> - <%= coord.getArea() %>
+                        <%= coord.getNombre() != null ? coord.getNombre(): "Sin definir" %> - <%= coord.getArea() %>
                     </option>
                     <%   }
                     } %>

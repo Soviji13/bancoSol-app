@@ -125,7 +125,7 @@
                                 <c:otherwise>
                                     <c:forEach var="coord" items="${coordinadores}">
                                         <div class="coordinador-item">
-                                            <a href="${pageContext.request.contextPath}/campanias/gestion/coordinador?id=${coord.id}"
+                                            <a href="${pageContext.request.contextPath}/campanias/gestion/coordinador?id=${coord.id}&campania=${campania.id}"
                                                class="link-classic">
                                                 <c:choose>
                                                     <c:when test="${not empty coord.nombre}">
