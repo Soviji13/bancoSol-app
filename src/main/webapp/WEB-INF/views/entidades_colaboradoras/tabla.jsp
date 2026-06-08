@@ -5,7 +5,11 @@
 <%-- Parte de Sofía Sí Villalba Jiménez --%>
 <%-- Se han reutilizado recursos del proyecto por parte de clientes, pero refactorizados --%>
 
-<section id="entidades" data-id-campania-actual="${campaniaSelec.id}">
+<section 
+    id="entidades" 
+    data-id-campania-actual="${campaniaSelec.id}"
+    data-modificable="${modoEdicion}"
+>
 
     <%-- Encabezado --%>
     <div class="encabezado">
@@ -100,7 +104,7 @@
     <div class="pie-pagina">
         <div class="container-interactuar">
             <div id="btn-eliminar-colaborador" class="activado" style="cursor: pointer;">Eliminar colaborador</div>
-            <div id="btn-modificar-colaborador" class="desactivado" title="Debes primero seleccionar un colaborador">Modificar colaborador</div>
+            <div id="btn-modificar-colaborador" class="${modoEdicion != null && modoEdicion ? 'activado' : 'desactivado'}" title="Debes primero seleccionar un colaborador">Modificar colaborador</div>
             <div id="btn-abrir-registro" class="activado" style="cursor: pointer;">Añadir colaborador</div>
         </div>
         <div class="csv activado">&nbsp;</div>

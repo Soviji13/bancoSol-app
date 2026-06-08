@@ -3,7 +3,10 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <%-- Se comporta tanto como formulario como no --%>
-<aside class="panel-colaborador" id="entidades" data-id-campania-actual="${campaniaSelec.id}">
+<aside class="panel-colaborador" id="entidades" 
+        data-id-campania-actual="${campaniaSelec.id}"
+        data-modificable="${modoEdicion}"
+>
         <header class="panel-cabecera">
             <div style="flex: 1;">
                 <input 
@@ -111,10 +114,15 @@
                         >
                     </label>
                 </div>
-                <div class="fila-flex" id="campo-distrito-panel" style="display: none;">
-                    <span class="etiqueta">Distrito:</span> 
-                    <select id="edit-distrito" name="nombreDistrito" class="input-linea" disabled></select>
-                </div>
+                <%-- Distritos si es capital --%>
+                <c:if test="${entidadSelec != null && entidadSelec.direccion != null && entidadSelec.direccion.esCapital}">
+                    <div class="fila-flex" id="campo-distrito-panel">
+                        <span class="etiqueta">Distrito:</span> 
+                        <select id="edit-distrito" name="nombreDistrito" class="input-linea" disabled>
+                            <option value="${distrito.id}">${distrito.nombre}</option>
+                        </select>
+                    </div>
+                </c:if>
             </section>
 
             <%-- Mostrar responsables de entidad --%>
@@ -151,7 +159,7 @@
                                     <input type="email" class="input-linea r-email" value="${res.contacto.email}">
                                 </td></tr>
                                 <tr><td>
-                                    <span span class="etiqueta-tabla">Tel</span>
+                                    <span span class="etiqueta-tabla">Teléfono</span>
                                     <input type="tel" class="input-linea r-telefono" value="${res.contacto.telefono}">
                                 </td></tr>
                             </c:forEach>
@@ -163,7 +171,7 @@
                 </div>
             </section>
 
-            <%-- Ver todas sus tiendas --%>
+            <%-- Ver todas sus tiendas (no se puede modificar desde aquí) --%>
             <section class="bloque-seccion border-bottom">
                 <span class="etiqueta" style="display: block; margin-bottom: 10px;">Tiendas Asignadas:</span>
                 <div id="check-tiendas-panel" class="scroll-checks-panel">
@@ -173,7 +181,6 @@
                                 <input 
                                     name="nueva-tienda"
                                     type="checkbox" 
-                                    value="${tienda.id}" 
                                     class="check-tienda-panel" 
                                     disabled
                                     ${tiendasColab.contains(tienda) ? "checked" : ""}
@@ -269,21 +276,21 @@
                 </div>
                 <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de voluntarios:</span>
-                    <p>(Cuando fran arregle los turnos lo pondré)</p>
+                    <p>Cuando las tiendas estén completas lo meteré, para el principio DRY</p>
                 </div>
                 <div class="fila-flex" style="margin-bottom: 15px;">
-                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de voluntarios:</span>
                     <label>
+                        <span class="etiqueta" style="margin-bottom: 5px; display: block;">Entidad activa:</span>
                         <input 
                             type="checkbox" 
                             name="estaActiva" 
                             ${entidadSelec.estadoActivo ? "checked" : ""}
                         >
-                        Está activa
                     </label>
                 </div>
             </section>
 
+            <%-- Botó guardar, solo se ve en modo edición --%>
             <section class="bloque-seccion" id="btn-guardar-container">
                 <button type="submit" class="btn-guardar-lateral">Guardar Cambios</button>
             </section>
