@@ -45,3 +45,9 @@ Además, muchos datos vienen con formatos especiales, por lo que es preferible f
 Evitamos que el controller realice más lógica de la que debe.
 
 Llamaremos al controller únicamente cuando los datos estén en orden, desde el JS.
+
+### Crear unos DTO especiales
+
+Crearé unos DTO para registrar la entidad, de forma que sea mucho más simple la recogida de datos. Como los datos los envío en formato JSON al servidor, si creamos DTO (como objetos), leerán correctamente todos los atributos y se podrán asociar de forma mucho más simple.
+
+Este planteamiento lo he obtenido con ayuda de la IA, pues mi idea era poder recoger los datos de la forma más simple posible.

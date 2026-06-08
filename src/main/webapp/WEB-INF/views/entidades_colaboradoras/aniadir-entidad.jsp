@@ -101,6 +101,7 @@
                     <button id="btn-aniadir-resp" type="button" class="btn-secundario">+ Añadir Responsable</button>
                 </fieldset>
 
+                <%-- Campañas y tiendas del responsable --%>
                 <fieldset style="border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <legend style="font-weight: bold; color: var(--color-principal); padding: 0 10px;">Asignaciones por Campaña</legend>
                     
@@ -122,13 +123,13 @@
     </div>
 
     <%-- Para mostrar mensaje de error --%>
-    <div id="modal-campanias" class="modal-overlay-campanias" style="display: none;">
-        <div class="modal-content">
+    <div id="modal-error-aniadir" class="modal-overlay-campanias" style="display: none; padding-top: 400px; padding-left: 800px; box-sizing: border-box; justify-content: center;">
+        <div class="modal-content" style="width: 500px;">
             <header class="modal-header">
-                <h2>Seleccionar Campaña</h2>
-                <button id="cerrar-selector" class="btn-cerrar-modal">X</button>
+                <h2>Ha ocurrido un error:</h2>
+                <button id="cerrar-fallo-aniadir" class="btn-cerrar-modal">X</button>
             </header>
-            <div id="lista-campanias" class="campanias-grid"></div>
+            <p id="mensaje-error-aniadir" style="color: rgb(197, 13, 13);"></p>
         </div>
     </div>
 </section>
