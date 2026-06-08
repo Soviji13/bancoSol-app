@@ -141,7 +141,7 @@ public class CampaniaController {
     public String verGestionCampaniaCoordinador(@RequestParam("id") Long id,
                                                 HttpSession session,
                                                 Model model) {
-        CoordinadorDTO coordinador = coordinadorService.findById(id);
+        CoordinadorDTO coordinador = coordinadorService.buscarPorId(id);
 
         if (coordinador == null) {
             return "redirect:/campanias";

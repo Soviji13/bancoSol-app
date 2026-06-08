@@ -33,7 +33,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CoordinadorService {
 
-    private static final String PASSWORD_TEMPORAL = "changeme";
+    private static final String CONTRASENIA_TEMPORAL = "changeme";
 
     private final CoordinadorRepository coordinadorRepository;
     private final ContactoRepository contactoRepository;
@@ -46,20 +46,14 @@ public class CoordinadorService {
         List<CoordinadorDTO> coordinadores =
                 coordinadorMapper.toDTOList(coordinadorRepository.findAll());
 
-        return completarEntidadId(coordinadores);
+        return completarIdEntidad(coordinadores);
     }
 
-    public CoordinadorDTO findById(Long id) {
-        if (id == null) {
-            return null;
-        }
-
-        return coordinadorRepository.findById(id)
-                .map(this::convertirAListado)
-                .orElse(null);
+    public CoordinadorDTO buscarPorId(Long id) {
+        return convertirADTOListado(buscarCoordinadorPorId(id));
     }
 
-    public List<CoordinadorDTO> findAllById(List<Long> ids) {
+    public List<CoordinadorDTO> buscarTodosPorId(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
@@ -67,7 +61,7 @@ public class CoordinadorService {
         List<CoordinadorDTO> coordinadores =
                 coordinadorMapper.toDTOList(coordinadorRepository.findAllById(ids));
 
-        return completarEntidadId(coordinadores);
+        return completarIdEntidad(coordinadores);
     }
 
     public CoordinadorFormDTO buscarFormularioPorId(Long id) {
@@ -135,15 +129,7 @@ public class CoordinadorService {
 
     @Transactional
     public void eliminar(Long id) {
-        if (id == null) {
-            return;
-        }
-
-        Coordinador coordinador = coordinadorRepository.findById(id).orElse(null);
-
-        if (coordinador == null) {
-            return;
-        }
+        Coordinador coordinador = buscarCoordinadorPorId(id);
 
         Contacto contacto = coordinador.getContacto();
         Usuario usuario = coordinador.getUsuario();
@@ -151,11 +137,23 @@ public class CoordinadorService {
         desasociarEntidades(coordinador);
         desasociarCampanias(coordinador);
 
+        /*
+         * Rompemos la relación antes de borrar para evitar problemas
+         * de claves foráneas al eliminar después contacto y usuario.
+         */
+        coordinador.setContacto(null);
+        coordinador.setUsuario(null);
+
         coordinadorRepository.delete(coordinador);
         coordinadorRepository.flush();
 
-        eliminarContactoSiProcede(contacto);
-        eliminarUsuarioSiProcede(usuario);
+        if (contacto != null) {
+            contactoRepository.delete(contacto);
+        }
+
+        if (usuario != null) {
+            usuarioRepository.delete(usuario);
+        }
     }
 
     private Coordinador buscarCoordinadorPorId(Long id) {
@@ -167,7 +165,7 @@ public class CoordinadorService {
                 ));
     }
 
-    private CoordinadorDTO convertirAListado(Coordinador coordinador) {
+    private CoordinadorDTO convertirADTOListado(Coordinador coordinador) {
         CoordinadorDTO dto = coordinadorMapper.toDTO(coordinador);
 
         if (dto == null) {
@@ -179,7 +177,7 @@ public class CoordinadorService {
         return dto;
     }
 
-    private List<CoordinadorDTO> completarEntidadId(List<CoordinadorDTO> coordinadores) {
+    private List<CoordinadorDTO> completarIdEntidad(List<CoordinadorDTO> coordinadores) {
         if (coordinadores == null || coordinadores.isEmpty()) {
             return List.of();
         }
@@ -220,7 +218,7 @@ public class CoordinadorService {
         usuario.setEmail(emailNormalizado);
 
         if (!tieneTexto(usuario.getContrasenia())) {
-            usuario.setContrasenia(PASSWORD_TEMPORAL);
+            usuario.setContrasenia(CONTRASENIA_TEMPORAL);
         }
 
         if (usuario.getRol() == null) {
@@ -347,18 +345,6 @@ public class CoordinadorService {
                 .map(EntidadColaboradora::getId)
                 .findFirst()
                 .orElse(null);
-    }
-
-    private void eliminarContactoSiProcede(Contacto contacto) {
-        if (contacto != null) {
-            contactoRepository.delete(contacto);
-        }
-    }
-
-    private void eliminarUsuarioSiProcede(Usuario usuario) {
-        if (usuario != null && !coordinadorRepository.existsByUsuario_Id(usuario.getId())) {
-            usuarioRepository.delete(usuario);
-        }
     }
 
     private void validarFormulario(CoordinadorFormDTO dto) {
