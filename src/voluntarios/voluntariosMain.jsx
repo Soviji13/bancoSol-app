@@ -72,7 +72,9 @@ export function MainVoluntarios({
       <div className="voluntarios-tabla-scroll">
         {/*si esta cargando muestra el cargando, sino pinta tabla*/}
         {cargando ? (
-          <div name="texto-cargando">Cargando voluntarios de la campaña...</div>
+          <div className="texto-cargando">
+            Cargando voluntarios de la campaña...
+          </div>
         ) : (
           <TablaVoluntarios
             voluntarios={voluntarios}

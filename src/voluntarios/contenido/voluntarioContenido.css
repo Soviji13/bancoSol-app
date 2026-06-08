@@ -19,7 +19,7 @@
 .texto-cargando {
   padding: 2rem;
   text-align: center;
-  color: #666;
+  color: #2c398b;
 }
 
 .voluntarios-contenedor {
@@ -233,6 +233,14 @@
 .btn-exportar {
   flex: 0 0 60px;
   border-right: none;
+}
+
+.acciones-tabla--edicion {
+  border-top: 1px solid #2c398b;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: #fff;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================

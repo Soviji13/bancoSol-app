@@ -27,16 +27,7 @@ export function FooterVoluntarios({
   //FOOTER DEL MODIFICAR
   if (modoEdicion) {
     return (
-      <div
-        className="acciones-tabla"
-        style={{
-          borderTop: "1px solid #2c398b",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          backgroundColor: "#fff",
-          flexShrink: 0,
-        }}
-      >
+      <div className="acciones-tabla">
         <button
           type="button"
           className="acciones-tabla__btn btn-cancelar"
@@ -47,7 +38,6 @@ export function FooterVoluntarios({
         >
           Cancelar
         </button>
-        {/* MAGIA: Vincula este botón con el form del menú lateral */}
         <button
           type="submit"
           form="form-modificar"
@@ -91,13 +81,8 @@ export function FooterVoluntarios({
       <button
         className="voluntarios-btn-footer btn-exportar"
         onClick={() => console.log("Descargar Excel")}
-        title="Exportar tabla actual a CSV"
       >
-        <img
-          src="/assets/file_export.svg"
-          alt="Exportar CSV"
-          className="icono-exportar"
-        />
+        <img src="/assets/file_export.svg" className="icono-exportar" />
       </button>
     </div>
   );

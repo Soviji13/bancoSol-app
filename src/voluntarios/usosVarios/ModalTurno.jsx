@@ -1,7 +1,5 @@
 import { ModalBase } from "./ModalBase";
 
-// este es nuestro modal modularizado q usaremos en aniadir y en modificar
-// recibe por props (parametros) todo lo q necesita del componente q lo invoca
 export function ModalTurno({
   isOpen,
   onClose,
@@ -30,7 +28,7 @@ export function ModalTurno({
           value={nuevoTurnoTienda}
           onChange={(e) => setNuevoTurnoTienda(e.target.value)}
         >
-          {/*RECORDATORIO: el disabled es para mostrar la opcion pero q no se pueda seleccionar y asi poder dar la indicacion*/}
+          {/*RECORDATORIO: el disabled es para mostrar la opcion pero q no se pueda seleccionar y asi poder dar la indicacion */}
           <option value="" disabled>
             Seleccione tienda...
           </option>
@@ -63,7 +61,7 @@ export function ModalTurno({
 
       <div className="modal-campo">
         <label>Franja u Horario:</label>
-        {/* logica para mostrar el desplegable o el texto de aviso segun horasSueltas*/}
+        {/*muestra desplegable o txt aviso segun horasSueltas */}
         {horasSueltas === "no" ? (
           <select
             className="select-caja select-caja-full"
@@ -83,14 +81,10 @@ export function ModalTurno({
                 Se asignará: {horaInicio} - {horaFin}
               </span>
             ) : (
-              {
-                /*CASO AÑADES TURNO CON HORASSUELTAS TRUE PERO SIN RELLENAR !!!!!!!!!*/
-              }(
-                <span className="info-horas-error">
-                  Debes rellenar la hora de inicio y fin en el formulario
-                  primero.
-                </span>,
-              )
+              /*CASO AÑADES TURNO CON HORASSUELTAS TRUE PERO SIN RELLENAR !!!!!!!!! */
+              <span className="info-horas-error">
+                Debes rellenar la hora de inicio y fin en el formulario primero.
+              </span>
             )}
           </div>
         )}
