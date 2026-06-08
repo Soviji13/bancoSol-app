@@ -10,4 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByEmail(String email);
+
+    // Sofía añadido para lanzar errores
+    boolean existsByEmail (String email);
 }
