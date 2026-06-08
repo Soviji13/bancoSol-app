@@ -77,7 +77,7 @@ public class CampaniaController {
         }
 
         model.addAttribute("cadenas", cadenaService.listarTodas());
-        model.addAttribute("coordinadores", coordinadorService.findAllById(campania.getIdsCoordinadores()));
+        model.addAttribute("coordinadores", coordinadorService.buscarTodosPorId(campania.getIdsCoordinadores()));
         model.addAttribute("campania", campania);
         model.addAttribute("usuario", session);
         model.addAttribute("pagina", "gestion-campanias");
@@ -107,7 +107,7 @@ public class CampaniaController {
         }
 
         model.addAttribute("cadenas", cadenaService.listarTodas());
-        model.addAttribute("coordinadores", coordinadorService.findAllById(campania.getIdsCoordinadores()));
+        model.addAttribute("coordinadores", coordinadorService.buscarTodosPorId(campania.getIdsCoordinadores()));
         model.addAttribute("campania", campania);
         model.addAttribute("usuario", session);
 
@@ -141,7 +141,7 @@ public class CampaniaController {
     public String verGestionCampaniaCoordinador(@RequestParam("id") Long id,
                                                 HttpSession session,
                                                 Model model) {
-        CoordinadorDTO coordinador = coordinadorService.findById(id);
+        CoordinadorDTO coordinador = coordinadorService.buscarPorId(id);
 
         if (coordinador == null) {
             return "redirect:/campanias";
