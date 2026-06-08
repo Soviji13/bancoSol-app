@@ -1,4 +1,4 @@
-import { CampaniaEstado } from "./CampaniaEstado";
+import { CampaniaEstado } from "./campaniaEstado";
 
 export function CampaniaCard({
   campania,

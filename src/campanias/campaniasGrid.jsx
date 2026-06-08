@@ -1,4 +1,4 @@
-import { CampaniaCard } from "./CampaniaCard";
+import { CampaniaCard } from "./campaniaCard";
 
 export function CampaniasGrid({
   campanias,
