@@ -58,7 +58,7 @@ if (seccionEntidades) {
                     </div>
                     <hr>
                     <input type="text" placeholder="Username (Email)" class="r-user" required>
-                    <input type="password" placeholder="Contraseña" class="r-pass" required>
+                    <input type="text" placeholder="Contraseña" class="r-pass" required>
                 </div>
             </div>
             `
@@ -431,6 +431,7 @@ if (seccionEntidades) {
     // PARA REGISTRAR UNA ENTIDAD COLABORADORA ---------------------------------------------------------
 
 
+    // EL MANEJO DE ERRORES SÍ LO HE CREADO YO
     // Uso de la IA para recoger todos los campos, ya que es una tarea muy automatizable
     const botonGuardarEntidadCreada = document.querySelector ('#btn-guardar-creacion');
 
@@ -444,11 +445,21 @@ if (seccionEntidades) {
 
             event.preventDefault();
 
+            // Iremos guardando los fallos desde aquí:
+            let textoErrores = "";
+
             // =========================================================
             // 1. INFORMACIÓN GENERAL
             // =========================================================
             const nombre = document.querySelector('input[name="nuevoNombre"]').value;
             const idCoordinador = document.querySelector('select[name="idCoordinador"]').value;
+
+            if (!nombre) {
+                textoErrores = `${textoErrores} \n-Nombre de la entidad`;
+            }
+            if (!idCoordinador) {
+                textoErrores = `${textoErrores} \n-Coordinador de la entidad`;
+            }
             
             // 📌 CAMPOS NO REQUIRED:
             // estadoActivo [cite: 6] -> Es un checkbox, recogemos su estado checked
@@ -460,34 +471,77 @@ if (seccionEntidades) {
             // 2. LOCALIZACIÓN
             // =========================================================
             const calle = document.querySelector('input[name="nuevaCalle"]').value;
-            const numero = document.querySelector('input[name="nuevoNumero"]').value;
+            const numero = document.querySelector('input[name="nuevoNumero"]').value ? parseInt (document.querySelector('input[name="nuevoNumero"]').value) : null;
             const localidad = document.querySelector('select[name="nuevaLocalidad"]').value;
             const cp = document.querySelector('select[name="CPNuevo"]').value;
-            const zonaGeo = document.querySelector('select[name="zonaGeoNueva"]').value;
+
+            if (!calle) {
+                textoErrores = `${textoErrores} \n-Domicilio: calle de la entidad`;
+            }
+            if (!numero) {
+                textoErrores = `${textoErrores} \n-Domicilio: número de calle de la entidad`;
+            }
+            if (!localidad) {
+                textoErrores = `${textoErrores} \n-Domicilio: localidad de la entidad`;
+            }
+            if (!cp) {
+                textoErrores = `${textoErrores} \n-Domicilio: código postal de la entidad`;
+            }
 
             // 📌 CAMPOS NO REQUIRED:
             // esCapital [cite: 18] -> Checkbox deshabilitado, comprobamos si está checked
             const esCapital = document.getElementById('check-es-capital').checked;
             // nombreDistrito [cite: 19] -> Select dinámico que aparece y desaparece
-            const idDistrito = document.querySelector('select[name="nombreDistrito"]').value;
+            const idDistritoValue = document.querySelector('select[name="nombreDistrito"]').value;
+            const idDistrito = idDistritoValue !== "" ? parseInt(idDistritoValue) : null;
 
             // =========================================================
             // 3. RESPONSABLES (DINÁMICOS)
             // =========================================================
             const responsables = [];
-            document.querySelectorAll('.responsable-card').forEach(card => {
-                responsables.push({
+            document.querySelectorAll('.responsable-card').forEach((card, index) => {
+
+                // Creamos al responsable: 
+                const responsable = {
                     nombre: card.querySelector('.r-nombre').value,
                     email: card.querySelector('.r-email').value,
                     telefono: card.querySelector('.r-telefono').value,
                     user: card.querySelector('.r-user').value,
                     pass: card.querySelector('.r-pass').value,
-                    
-                    // 📌 CAMPO NO REQUIRED:
-                    // El radio button de si es principal no tiene required explícito
-                    esPrincipal: card.querySelector('.r-principal').checked 
-                });
+                    esPrincipal: card.querySelector('.r-principal').checked
+                }
+
+                // Obtenemos el ID del responsable
+                const idResp = index + 1;
+                let erroresResponsable = 0;
+
+                // Manejamos errores
+                if (!responsable.nombre) {
+                    erroresResponsable++;
+                    textoErrores = `${textoErrores} \n-Responsable ${idResp} : Nombre`;
+                } 
+                if (!responsable.email && !responsable.telefono) {
+                    erroresResponsable++;
+                    textoErrores = `${textoErrores} \n-Responsable ${idResp} : Email o teléfono (uno al menos)`;
+                }
+                if (!responsable.user) {
+                    erroresResponsable++;
+                    textoErrores = `${textoErrores} \n-Responsable ${idResp} : Nombre de usuario`;
+                }
+                if (!responsable.pass) {
+                    erroresResponsable++;
+                    textoErrores = `${textoErrores} \n-Responsable ${idResp} : Contraseña de usuario`;
+                }
+
+                if (!erroresResponsable) {
+                    responsables.push(responsable);
+                }
+                
             });
+
+            if (!responsables || responsables.length < 1) {
+                textoErrores = `${textoErrores} \n-Responsables: No se ha añadido ningún responsable`;
+            }
 
             // =========================================================
             // 4. CAMPAÑAS Y TIENDAS ASIGNADAS (DINÁMICAS)
@@ -499,36 +553,98 @@ if (seccionEntidades) {
                 
                 // Si la campaña está marcada, recogemos sus tiendas
                 if (checkCampania && checkCampania.checked) {
+
                     const idsTiendasSeleccionadas = [];
                     block.querySelectorAll('.check-tienda-sub:checked').forEach(checkTienda => {
                         idsTiendasSeleccionadas.push(checkTienda.value);
                     });
 
                     // Comprobamos que se haya marcado alguna tienda
-                    if (idsTiendasSeleccionadas && idsTiendasSeleccionadas.length() > 0) {
+                    if (idsTiendasSeleccionadas && idsTiendasSeleccionadas.length > 0) {
                         campaniasAsignadas.push({
                             idCampania: checkCampania.value,
                             idsTiendas: idsTiendasSeleccionadas
                         });
-                    }
+                    } 
                 }
             });
+
+            if (!campaniasAsignadas || campaniasAsignadas.length < 1) {
+                textoErrores = `${textoErrores} \n-Campañas : Debe seleccionar al menos una campaña y una tienda por cada una`;
+            }
 
             // =========================================================
             // OBJETO FINAL RECOLECTOR
             // =========================================================
             const entidadCompleta = {
                 informacionGeneral: { nombre, estadoActivo, observaciones, idCoordinador },
-                localizacion: { calle, numero, localidad, cp, zonaGeo, esCapital, idDistrito },
+                localizacion: { calle, numero, localidad, cp, esCapital, idDistrito },
                 responsables: responsables,
                 campanias: campaniasAsignadas
             };
 
+            //------------------------------------------------------------------------------------------------
+
+            // Función para enviar datos (AYUDA IA PARA HACER POST)
+            // Ayuda de la IA para saber cómo recoger errores y enviar datos
+            async function enviarDatosControlador (entidadCompleta) {
+                const url = 'http://localhost:8080/entidades/registrar';
+
+                try {
+                    const resp = await fetch (url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(entidadCompleta)
+                    });
+
+                    if (resp.ok) {
+
+                        // Volvemos a las campañas
+                        const idCampania = seccionEntidades.dataset.idCampaniaActual;
+                        window.location.href = `/entidades/?campaniaId=${idCampania}`;
+
+                    } else {
+                        // Obtenemos los errores del servidor
+                        const datosError = await resp.json();
+                        const mensajeBack = datosError.message || "El servidor ha rechazado los datos.";
+                        mostrarError(`Error en el servidor: ${mensajeBack}`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
             // A PARTIR DE AQUÍ NO IA GENERATIVA ----------------------------------------------------------
+
             
-            // Sobretodo debemos comprobar que se ha pulsado alguna campaña y tienda:
-            if (!campaniasAsignadas) {
-                
+            
+            // Manejo de fallos (como hemos quitado prevent.default, debemos manejar cada fallo)
+
+            const error = document.getElementById ('modal-error-aniadir');
+            const mensajeError = document.getElementById ('mensaje-error-aniadir');
+
+            // Obtenemos también el botón para cerrar el mensaje
+            const cerrarError = document.getElementById ('cerrar-fallo-aniadir');
+            cerrarError.addEventListener ('click', () => {
+                error.style.display = 'none';
+            })
+
+            function mostrarError (mensaje) {
+                error.style.display = 'block';
+
+                // Para que detecte los \n
+                mensajeError.style.whiteSpace = 'pre-line';
+                mensajeError.textContent = `${mensaje}`;
+            }
+
+            // Si todo está bien
+            if (!textoErrores) {    
+                alert("TOdos los datos están bien");
+                enviarDatosControlador (entidadCompleta);
+            } else {
+                mostrarError(`Errores al enviar datos, faltan: ${textoErrores}`);
             }
         })
     }

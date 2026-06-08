@@ -6,6 +6,8 @@ package com.bancosol.controllers;
 
 import com.bancosol.services.DistritoService;
 import lombok.AllArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
+import com.bancosol.dto.registroEntidad.RegistroEntidadDTO;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.CodigoPostalService;
 import com.bancosol.services.CoordinadorService;
@@ -26,6 +29,9 @@ import com.bancosol.services.ZonaGeograficaService;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @Controller
@@ -154,6 +160,15 @@ public class EntidadesController {
             .toList();
     }
     
+    // Ayuda de la IA para saber cómo manejar una petición POST
+    @PostMapping("/registrar")
+    @ResponseBody
+    public ResponseEntity<Void> registrarEntidad (@RequestBody RegistroEntidadDTO entidadCompleta) {
+        
+        this.entidadService.crearEntidad(entidadCompleta);
+        
+        return ResponseEntity.ok().build();
+    }
     
 
 }
