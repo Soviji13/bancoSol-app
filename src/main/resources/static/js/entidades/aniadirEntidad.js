@@ -504,10 +504,13 @@ if (seccionEntidades) {
                         idsTiendasSeleccionadas.push(checkTienda.value);
                     });
 
-                    campaniasAsignadas.push({
-                        idCampania: checkCampania.value,
-                        idsTiendas: idsTiendasSeleccionadas
-                    });
+                    // Comprobamos que se haya marcado alguna tienda
+                    if (idsTiendasSeleccionadas && idsTiendasSeleccionadas.length() > 0) {
+                        campaniasAsignadas.push({
+                            idCampania: checkCampania.value,
+                            idsTiendas: idsTiendasSeleccionadas
+                        });
+                    }
                 }
             });
 
@@ -523,6 +526,10 @@ if (seccionEntidades) {
 
             // A PARTIR DE AQUÍ NO IA GENERATIVA ----------------------------------------------------------
             
+            // Sobretodo debemos comprobar que se ha pulsado alguna campaña y tienda:
+            if (!campaniasAsignadas) {
+                
+            }
         })
     }
 
