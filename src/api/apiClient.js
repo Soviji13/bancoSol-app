@@ -18,7 +18,6 @@ export async function apiRequest(endpoint, opciones = {}) {
         mensaje = texto;
       }
     } catch {
-      // Si no se puede leer el cuerpo del error, se mantiene el mensaje HTTP.
     }
 
     throw new Error(mensaje);

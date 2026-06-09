@@ -83,7 +83,12 @@ public class CadenaService {
                 cadena.getId(),
                 cadena.getNombre(),
                 cadena.getCodigo(),
-                List.of()
+                cadena.getCampanias() == null
+                        ? List.of()
+                        : cadena.getCampanias()
+                        .stream()
+                        .map(campania -> campania.getId())
+                        .toList()
         );
     }
 }

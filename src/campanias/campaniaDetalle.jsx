@@ -11,6 +11,7 @@ export function CampaniaDetalle({
   onSiguiente,
   onGuardarCadenas,
   onGuardarCoordinadores,
+  onCadenaCreada,
 }) {
   const [modoAsignarCadenas, setModoAsignarCadenas] = useState(false);
   const [modoGestionarCoordinadores, setModoGestionarCoordinadores] =
@@ -136,40 +137,44 @@ export function CampaniaDetalle({
   };
 
   const guardarNuevaCadena = async () => {
-  const nombreLimpio = nombreNuevaCadena.trim();
-  const acronimoLimpio = acronimoNuevaCadena.trim().toUpperCase();
+    const nombreLimpio = nombreNuevaCadena.trim();
+    const acronimoLimpio = acronimoNuevaCadena.trim().toUpperCase();
 
-  if (!nombreLimpio || !acronimoLimpio) {
-    return;
-  }
+    if (!nombreLimpio || !acronimoLimpio) {
+      return;
+    }
 
-  try {
-    setGuardandoCambios(true);
+    try {
+      setGuardandoCambios(true);
 
-    const cadenaCreada = await crearCadena({
-      nombre: nombreLimpio,
-      codigo: acronimoLimpio,
-    });
+      const cadenaCreada = await crearCadena({
+        nombre: nombreLimpio,
+        codigo: acronimoLimpio,
+      });
 
-    const cadenaParaPantalla = {
-      id: cadenaCreada.id,
-      nombre: cadenaCreada.nombre,
-      codigo: cadenaCreada.codigo,
-      participa: false,
-    };
+      const cadenaParaPantalla = {
+        id: cadenaCreada.id,
+        nombre: cadenaCreada.nombre,
+        codigo: cadenaCreada.codigo,
+        participa: false,
+      };
 
-    setCadenasLocales((cadenasActuales) => [
-      ...cadenasActuales,
-      cadenaParaPantalla,
-    ]);
+      setCadenasLocales((cadenasActuales) => [
+        ...cadenasActuales,
+        cadenaParaPantalla,
+      ]);
 
-    cerrarFormularioCadena();
-  } catch (error) {
-    console.error("Error creando cadena:", error);
-  } finally {
-    setGuardandoCambios(false);
-  }
-};
+      if (onCadenaCreada) {
+        onCadenaCreada(cadenaCreada);
+      }
+
+      cerrarFormularioCadena();
+    } catch (error) {
+      console.error("Error creando cadena:", error);
+    } finally {
+      setGuardandoCambios(false);
+    }
+  };
 
   const alternarCadena = (idCadena) => {
     if (!modoAsignarCadenas) {

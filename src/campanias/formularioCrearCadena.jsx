@@ -8,7 +8,7 @@ export function FormularioCrearCadena({
 }) {
   const manejarSubmit = (evento) => {
     evento.preventDefault();
-    onGuardar(evento);
+    onGuardar();
   };
 
   return (
