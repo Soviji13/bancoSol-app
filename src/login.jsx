@@ -4,13 +4,6 @@ import '../public/login.css'
 
 import { useState } from 'react';
 
-// Recordatorio de usuarios:
-
-// Email: jorge@gmail.com, psw: jorge1234, rol: Administrador
-// Email: mayte@gmail.com, psw: mayte1234, rol: Coordinador
-// Email: carlos@gmail.com, psw: carlos1234, rol: Responsable de Entidad
-// Email: hugo@gmail.com, psw: hugo1234, rol: Responsable de Tienda
-
 export function Login ({manejaLogin, error}) {
 
     // Estado para guardar datos de login

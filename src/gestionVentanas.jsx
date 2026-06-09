@@ -11,15 +11,21 @@ import { FiltrosVoluntarios } from "./voluntarios/menuLateral/FiltrosVoluntarios
 import { AniadirVoluntario } from "./voluntarios/contenido/AniadirVoluntario";
 import { ModificarVoluntario } from "./voluntarios/menuLateral/ModificarVoluntario";
 
-function NavegadorMenus({ manejaContenidoInicial, contenido }) {
+// SOFÍA - Obtengo ROL del usuario actual como prop
+function NavegadorMenus({ manejaContenidoInicial, contenido, rol}) {
   return (
     <nav className="menu-lateral" aria-label="Menú de administración">
       <button
         className={`menu-lateral__btn 
                     ${contenido === "campanias" ? "menu-lateral__btn--activo" : ""}`}
         type="button"
+        style={rol !== 'ADMIN' ? {backgroundColor: "#cbcfd4", borderColor: "grey"} : null}
         onClick={() => {
-          manejaContenidoInicial("campanias");
+          if (rol === 'ADMIN') {
+            manejaContenidoInicial("campanias");
+          } else {
+            alert(`Su rol: ${rol}, no tiene permisos para esta interfaz`);
+          }
         }}
       >
         Gestionar campañas
@@ -29,8 +35,13 @@ function NavegadorMenus({ manejaContenidoInicial, contenido }) {
         className={`menu-lateral__btn 
                     ${contenido === "coordinadores" ? "menu-lateral__btn--activo" : ""}`}
         type="button"
+        style={rol !== 'ADMIN' ? {backgroundColor: "#cbcfd4", borderColor: "grey"} : null}
         onClick={() => {
-          manejaContenidoInicial("coordinadores");
+          if (rol === 'ADMIN') {
+            manejaContenidoInicial("coordinadores");
+          } else {
+            alert(`Su rol: ${rol}, no tiene permisos para esta interfaz`);
+          }
         }}
       >
         Gestionar coordinadores
@@ -51,8 +62,13 @@ function NavegadorMenus({ manejaContenidoInicial, contenido }) {
         className={`menu-lateral__btn 
                     ${contenido === "colaboradores" ? "menu-lateral__btn--activo" : ""}`}
         type="button"
+        style={rol === 'RESPONSABLE_TIENDA' ? {backgroundColor: "#cbcfd4", borderColor: "grey"} : null}
         onClick={() => {
-          manejaContenidoInicial("colaboradores");
+          if (rol !== 'RESPONSABLE_TIENDA') {
+            manejaContenidoInicial("colaboradores");
+          } else {
+            alert(`Su rol: ${rol}, no tiene permisos para esta interfaz`);
+          }
         }}
       >
         Gestionar colaboradores
@@ -92,6 +108,7 @@ export function MenuLateral({
   manejaContenidoInicial,
   manejaContenidoLateral,
   contenidoInicial,
+  rol
 }) {
   return (
     <div className="contenedor_contenido contenedor_menu">
@@ -99,6 +116,7 @@ export function MenuLateral({
         <NavegadorMenus
           manejaContenidoInicial={manejaContenidoInicial}
           contenido={contenidoInicial}
+          rol={rol}
         />
       )}
       {tipoLateral === "test" && (
@@ -184,7 +202,7 @@ function Ok({ manejaContenidoInicial, manejaContenidoLateral }) {
   );
 }
 
-export function VentanaGestion() {
+export function VentanaGestion({rol}) {
   /*************************++++***************************************
    * GESTIÓN DE VENTANAS DE CONTENIDO INICIAL (CONTENEDOR DERECHO)
    ********************************************************************/
@@ -209,6 +227,7 @@ export function VentanaGestion() {
     <div className="panel-gestion">
       <MenuLateral
         tipoLateral={lateral}
+        rol={rol}
         manejaContenidoInicial={manejaContenidoInicial}
         manejaContenidoLateral={manejaContenidoLateral}
         contenidoInicial={contenidoInicial}

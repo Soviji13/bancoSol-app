@@ -12,17 +12,27 @@ function App() {
    *  LÓGICA DE LOGIN 
    ******************************************/
 
+  // Intentamos obtener el usuario de la memoria
+  const usuarioGuardado = localStorage.getItem("usuarioGuardado") ? JSON.parse(localStorage.getItem("usuarioGuardado")) : null;
+
   // Estado para saber si se ha iniciado sesión o no (por defecto false)
-  const [loginDone, setLoginDone] = useState(false);
+  const [loginDone, setLoginDone] = useState(() => {
+    return !!usuarioGuardado;
+  });
+
   const [errorLogin, setErrorLogin] = useState("");
 
   // Estado para manejar Rol
-  const [rol, setRol] = useState(null);
+  const [rol, setRol] = useState(() => {
+    return usuarioGuardado ? usuarioGuardado.rol : null;
+  });
 
   // Estado para cabecera
-  const [nombreCabecera, setNombreCabecera] = useState("");
+  const [nombreCabecera, setNombreCabecera] = useState(() => {
+    return usuarioGuardado ? usuarioGuardado.nombre : null;
+  });
 
-  // Función para validar login (REFACTORIZAR CUANDO SE CONECTE A API)
+  // Función para validar login
   async function manejaLogin (usuario, contrasenia) {
 
     usuario = usuario.trim().toLowerCase();
@@ -48,9 +58,21 @@ function App() {
     } else {
       try {
         const respuestaLogin = await (verificarUsuario(u));
+
         setLoginDone(true);
         setRol(respuestaLogin.rol);
         setNombreCabecera(respuestaLogin.nombre);
+
+        // Guardamos un estado para indicar que el usuario ya inició sesión
+        // Transformamos el objeto en un String que luego se puede pasar a JSON correctamente
+        const datosUsuario = {
+          nombre: respuestaLogin.nombre,
+          rol: respuestaLogin.rol,
+          id: respuestaLogin.id
+        };
+        
+        localStorage.setItem("usuarioGuardado", JSON.stringify(datosUsuario));
+
       } catch (error) {
         setErrorLogin(error.message);
       }  
@@ -60,6 +82,7 @@ function App() {
   // Para cerrar sesión
   function manejaCierreSesion ()
   {
+    localStorage.clear();
     setLoginDone(false);
   }
 
@@ -67,7 +90,7 @@ function App() {
     <>
     {!loginDone && <Login manejaLogin={manejaLogin} error={errorLogin}/>}
     {loginDone && <Cabecera user={nombreCabecera} rol={rol} cierreSesion={manejaCierreSesion}/>}
-    {loginDone && <VentanaGestion />}
+    {loginDone && <VentanaGestion rol={rol}/>}
     </>
   )
 }

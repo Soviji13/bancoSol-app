@@ -84,6 +84,7 @@ public class UsuarioService {
         // Le asignamos al usuario el nombre y el rol
         usuarioCorrecto.setNombre(nombreReal);
         usuarioCorrecto.setRol(usuario.getRol());
+        usuarioCorrecto.setId(usuario.getId());
 
         return (usuarioCorrecto);
     }
