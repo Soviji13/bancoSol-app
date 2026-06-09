@@ -23,11 +23,13 @@ export function MainCampanias({
   const [campanias, setCampanias] = useState([]);
   const [cadenasDisponibles, setCadenasDisponibles] = useState([]);
   const [coordinadoresDisponibles, setCoordinadoresDisponibles] = useState([]);
+
   const [campaniaSeleccionadaId, setCampaniaSeleccionadaId] = useState(null);
   const [campaniaFormulario, setCampaniaFormulario] = useState(null);
   const [mostrandoDetalle, setMostrandoDetalle] = useState(false);
   const [modoFormulario, setModoFormulario] = useState(null);
   const [modoSeleccionAccion, setModoSeleccionAccion] = useState(null);
+
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -201,6 +203,7 @@ export function MainCampanias({
 
       if (modoFormulario === "crear") {
         const campaniaCreada = await crearCampania(campaniaParaApi);
+
         const nuevaCampaniaNormalizada = normalizarCampania(
           campaniaCreada,
           cadenasDisponibles,
@@ -299,6 +302,32 @@ export function MainCampanias({
     setCampaniaSeleccionadaId(campaniaNormalizada.id);
   };
 
+  const registrarCadenaCreada = (cadenaCreada) => {
+    const nuevaCadena = {
+      id: cadenaCreada.id,
+      nombre: cadenaCreada.nombre,
+      codigo: cadenaCreada.codigo,
+    };
+
+    setCadenasDisponibles((cadenasActuales) => [
+      ...cadenasActuales,
+      nuevaCadena,
+    ]);
+
+    setCampanias((campaniasActuales) =>
+      campaniasActuales.map((campania) => ({
+        ...campania,
+        cadenas: [
+          ...(campania.cadenas ?? []),
+          {
+            ...nuevaCadena,
+            participa: false,
+          },
+        ],
+      }))
+    );
+  };
+
   const obtenerMensajeSeleccion = () => {
     if (modoSeleccionAccion === "editar") {
       return "Selecciona una campaña para modificarla.";
@@ -335,6 +364,7 @@ export function MainCampanias({
           onSiguiente={irACampaniaSiguiente}
           onGuardarCadenas={actualizarCadenasDeCampania}
           onGuardarCoordinadores={actualizarCoordinadoresDeCampania}
+          onCadenaCreada={registrarCadenaCreada}
         />
       </>
     );
@@ -372,7 +402,9 @@ export function MainCampanias({
       {modoFormulario !== null && (
         <FormularioCampania
           modo={modoFormulario}
-          campaniaInicial={modoFormulario === "editar" ? campaniaFormulario : null}
+          campaniaInicial={
+            modoFormulario === "editar" ? campaniaFormulario : null
+          }
           onCerrar={cerrarFormularioCampania}
           onGuardar={guardarCampania}
         />
