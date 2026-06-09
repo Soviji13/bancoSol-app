@@ -12,7 +12,7 @@ export function ModalCampanias({
   const [campanias, setCampanias] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // Traemos las campañas de la base de datos de verdad
+  //trraemos campañas de bbdd
   useEffect(() => {
     if (isOpen) {
       setCargando(true);
@@ -43,12 +43,11 @@ export function ModalCampanias({
               esViendo={camp.id === campaniaActivaId}
               onSelect={(campSeleccionada) => {
                 onSelectCampania(campSeleccionada);
-                onClose();
               }}
             />
           ))
         ) : (
-          <p style={{ textAlign: "center" }}>
+          <p className="texto-cargando">
             No hay campañas creadas en la base de datos.
           </p>
         )}

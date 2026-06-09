@@ -14,22 +14,34 @@ export function MainVoluntarios({
   const [campaniaActiva, setCampaniaActiva] = useState(() => {
     const guardada = localStorage.getItem("campaniaActivaId");
     const nombreGuardado = localStorage.getItem("campaniaActivaNombre");
+
+    // Si hay guardada la usamos, si no, la dejamos en nulo para obligar a elegir
     return guardada
       ? {
           id: parseInt(guardada),
           nombre: nombreGuardado || "Campaña Seleccionada",
         }
-      : { nombre: "SELECCIONE UNA CAMPAÑA" };
+      : { id: null, nombre: "Seleccione una campaña..." };
   });
 
   //lista voluntarios para la tabla
   const [voluntarios, setVoluntarios] = useState([]);
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(false);
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
-  const [modalCampaniasAbierto, setModalCampaniasAbierto] = useState(false);
+
+  // si no hay campaña activa guardada en cache, el modal se abre obligatoriamente al entrar
+  const [modalCampaniasAbierto, setModalCampaniasAbierto] = useState(() => {
+    return !localStorage.getItem("campaniaActivaId");
+  });
 
   //funcion para pedir los voluntarios al backend con los filtros
   const cargarVoluntarios = async () => {
+    // evitamos pedir datos a la API si todavía no han elegido campaña
+    if (!campaniaActiva.id) {
+      setCargando(false);
+      return;
+    }
+
     setCargando(true);
     try {
       //leemos de la cache si hay filtros aplicados desde el panel izquierdo
@@ -52,11 +64,12 @@ export function MainVoluntarios({
 
   //se activa cada vez q cambia el id de la campania activa (y guarda en cache)
   useEffect(() => {
-    //guardamos SIEMPRE la campaña activa en localStorage para que el añadir/modificar sepan cual es, incluso si el usuario no la ha tocado
-    localStorage.setItem("campaniaActivaId", campaniaActiva.id);
-    localStorage.setItem("campaniaActivaNombre", campaniaActiva.nombre);
-
-    cargarVoluntarios();
+    if (campaniaActiva.id) {
+      //fuardamos SIEMPRE campaña activa en localStorage, incluso si el usuario no la ha tocado
+      localStorage.setItem("campaniaActivaId", campaniaActiva.id);
+      localStorage.setItem("campaniaActivaNombre", campaniaActiva.nombre);
+      cargarVoluntarios();
+    }
   }, [campaniaActiva.id]);
 
   //escucha cuando algun componente pide refrescar la tabla
@@ -78,6 +91,7 @@ export function MainVoluntarios({
   //cuando el usuario elige otra campania en el modal cambiamos estado
   const handleCambioCampania = (nuevaCampania) => {
     setCampaniaActiva(nuevaCampania);
+    setModalCampaniasAbierto(false);
   };
 
   //cuando seleccionamos un voluntario en la tabla llama a detallevoluntario
@@ -102,13 +116,17 @@ export function MainVoluntarios({
         campaniaActiva={campaniaActiva}
         manejaContenidoLateral={manejaContenidoLateral}
         onAbrirModal={() => setModalCampaniasAbierto(true)}
+        voluntarios={voluntarios}
       />
-
       <div className="voluntarios-tabla-scroll">
-        {/*si esta cargando muestra el cargando, sino pinta tabla*/}
+        {/*si esta cargando muestra el cargando, si no hay campaña pide que seleccione, sino pinta tabla*/}
         {cargando ? (
           <div className="texto-cargando">
             Cargando voluntarios de la campaña...
+          </div>
+        ) : !campaniaActiva.id ? (
+          <div className="texto-cargando">
+            Esperando a que seleccione una campaña...
           </div>
         ) : (
           <TablaVoluntarios
@@ -118,7 +136,6 @@ export function MainVoluntarios({
           />
         )}
       </div>
-
       <FooterVoluntarios
         filaSeleccionada={filaSeleccionada}
         manejaContenidoInicial={manejaContenidoInicial}
@@ -126,10 +143,16 @@ export function MainVoluntarios({
         voluntarios={voluntarios}
         campaniaActivaNombre={campaniaActiva.nombre}
       />
-
       <ModalCampanias
         isOpen={modalCampaniasAbierto}
-        onClose={() => setModalCampaniasAbierto(false)}
+        onClose={() => {
+          //OJO:evitamos cierre del modal si no hay ninguna campaña seleccionada todavia
+          if (campaniaActiva.id) {
+            setModalCampaniasAbierto(false);
+          } else {
+            alert("Por favor, selecciona una campaña para continuar.");
+          }
+        }}
         campaniaActivaId={campaniaActiva.id}
         onSelectCampania={handleCambioCampania}
       />
