@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
+import { eliminarVoluntario } from "../../api/voluntariosApi";
+import { exportarVoluntariosCsv } from "../usosVarios/exportarVoluntariosCsv";
 
 export function FooterVoluntarios({
   filaSeleccionada,
   manejaContenidoInicial,
   manejaContenidoLateral,
+  voluntarios, // <-- Lista actual para exportar
+  campaniaActivaNombre, // <-- Nombre para el archivo
 }) {
   const [modoEdicion, setModoEdicion] = useState(false);
 
@@ -23,6 +27,26 @@ export function FooterVoluntarios({
   useEffect(() => {
     setModoEdicion(false);
   }, [filaSeleccionada]);
+
+  //logica pra el eliminar
+  const handleEliminar = async () => {
+    if (!filaSeleccionada) return;
+
+    if (
+      window.confirm(
+        "¿Seguro que deseas eliminar permanentemente a este voluntario y todos sus turnos?",
+      )
+    ) {
+      try {
+        await eliminarVoluntario(filaSeleccionada);
+        window.dispatchEvent(new Event("refrescarTablaVoluntarios")); //actualiza la tabla principal
+        manejaContenidoLateral("menuLateral"); //cierra el panel de detalle si estaba abierto
+      } catch (error) {
+        console.error("Error al eliminar el voluntario:", error);
+        alert("Hubo un error al eliminar el voluntario en el servidor.");
+      }
+    }
+  };
 
   //FOOTER DEL MODIFICAR
   if (modoEdicion) {
@@ -55,7 +79,7 @@ export function FooterVoluntarios({
       <button
         className="voluntarios-btn-footer"
         disabled={!filaSeleccionada}
-        onClick={() => console.log("Lógica eliminar ID:", filaSeleccionada)}
+        onClick={handleEliminar}
       >
         Eliminar voluntario
       </button>
@@ -64,8 +88,8 @@ export function FooterVoluntarios({
         className="voluntarios-btn-footer"
         disabled={!filaSeleccionada}
         onClick={() => {
-          setModoEdicion(true); // Cambiamos el footer
-          manejaContenidoLateral("modificar-voluntario"); // Abrimos el panel
+          setModoEdicion(true); //cambiamos el footer
+          manejaContenidoLateral("modificar-voluntario"); //abrimos el panel
         }}
       >
         Modificar voluntario
@@ -80,7 +104,9 @@ export function FooterVoluntarios({
 
       <button
         className="voluntarios-btn-footer btn-exportar"
-        onClick={() => console.log("Descargar Excel")}
+        onClick={() =>
+          exportarVoluntariosCsv(voluntarios, campaniaActivaNombre)
+        }
       >
         <img src="/assets/file_export.svg" className="icono-exportar" />
       </button>

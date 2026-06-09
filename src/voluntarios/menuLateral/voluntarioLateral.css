@@ -3,6 +3,12 @@
 /* ==========================================================================
    ESTILOS GENERALES DE PANELES LATERALES
    ========================================================================== */
+.panel-detalle-cargando {
+  padding: 2rem;
+  text-align: center;
+  color: #2c398b;
+}
+
 .panel-lateral-header {
   display: flex;
   justify-content: space-between;

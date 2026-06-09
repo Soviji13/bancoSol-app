@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { mockVoluntarios } from "../mockDataVoluntarios";
+import { useState, useEffect } from "react";
+import { apiRequest } from "../../api/apiClient";
+import { crearVoluntario } from "../../api/voluntariosApi";
 import { ModalTurno } from "../usosVarios/ModalTurno";
 
 export function AniadirVoluntario({ manejaContenidoInicial }) {
@@ -18,24 +19,39 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
   const [nuevoTurnoDia, setNuevoTurnoDia] = useState("");
   const [nuevoTurnoFranja, setNuevoTurnoFranja] = useState("");
 
-  //datos para los select DINAMICOS, posteriormente vendran de la API!!!!!!!!!!!!!!!!!
-  const entidadesUnicas = [
-    ...new Set(mockVoluntarios.map((v) => v.perteneceA)),
-  ];
-  const responsablesDisponibles = [
-    ...new Set(
-      mockVoluntarios
-        .filter((v) => v.perteneceA === entidad)
-        .map((v) => v.responsableEntidad),
-    ),
-  ];
+  const [entidadesBackend, setEntidadesBackend] = useState([]);
+  const [tiendasBackend, setTiendasBackend] = useState([]);
+  const [cargandoDatos, setCargandoDatos] = useState(true);
 
-  const tiendasUnicas = [
-    ...new Set(
-      mockVoluntarios.flatMap((v) => v.asignaciones.map((a) => a.tiendaNombre)),
-    ),
-  ];
+  useEffect(() => {
+    const cargarDatosIniciales = async () => {
+      try {
+        const [resEntidades, resTiendas] = await Promise.all([
+          apiRequest("/entidades"),
+          apiRequest("/tiendas"),
+        ]);
+        setEntidadesBackend(resEntidades);
+        setTiendasBackend(resTiendas);
+      } catch (error) {
+        console.error("Error cargando datos dinámicos:", error);
+      } finally {
+        setCargandoDatos(false);
+      }
+    };
+    cargarDatosIniciales();
+  }, []);
 
+  //datos para los select DINAMICOS!!!!!!!!!!!!!!!!!
+  const entidadesUnicas = entidadesBackend.map((e) => e.nombre);
+
+  const entidadSeleccionadaObjeto = entidadesBackend.find(
+    (e) => e.nombre === entidad,
+  );
+  const responsablesDisponibles = entidadSeleccionadaObjeto
+    ? entidadSeleccionadaObjeto.responsables.map((r) => r.nombre)
+    : [];
+
+  const tiendasUnicas = tiendasBackend.map((t) => t.nombre);
   const diasSemana = [
     "Lunes",
     "Martes",
@@ -43,7 +59,6 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
     "Jueves",
     "Viernes",
     "Sábado",
-    "Domingo",
   ];
 
   //manjeadores
@@ -64,8 +79,8 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
     setNuevoTurnoTienda("");
     setNuevoTurnoDia("");
     setNuevoTurnoFranja("");
-    setModalTurnoAbierto(true);
-  }; //seteamos los datos del turno en el nuevo formulario vacios y mostramos el modal
+    setModalTurnoAbierto(true); //seteamos los datos del turno en el nuevo formulario vacios y mostramos el modal
+  };
 
   const handleGuardarTurno = () => {
     const franjaFinal =
@@ -76,8 +91,8 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
       franja: franjaFinal,
     };
     setTurnosAsignados([...turnosAsignados, nuevoTurno]);
-    setModalTurnoAbierto(false);
-  }; //guardamos los datos del nuevo turno y CERRAMOS el modal
+    setModalTurnoAbierto(false); //guardamos los datos del nuevo turno y CERRAMOS el modal
+  };
 
   const handleEliminarTurno = (index) => {
     const nuevosTurnos = turnosAsignados.filter((_, i) => i !== index); //todos menos el q se borra
@@ -85,27 +100,49 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
   };
 
   //ESTE HAY Q CMABIARLO PARA CONEXION CON API
-  const handleGuardarVoluntario = (e) => {
+  const handleGuardarVoluntario = async (e) => {
     e.preventDefault();
-    console.log("Guardando voluntario en BBDD...", {
+    const campaniaIdActual = localStorage.getItem("campaniaActivaId") || 3;
+
+    const vol = {
+      campaniaId: parseInt(campaniaIdActual),
       entidad,
       responsable,
       horasSueltas: horasSueltas === "si",
-      horaInicio,
-      horaFin,
+      horaInicio: horasSueltas === "si" ? horaInicio : null,
+      horaFin: horasSueltas === "si" ? horaFin : null,
       observaciones,
       turnosAsignados,
-    });
-    manejaContenidoInicial("voluntarios"); //volvemos a la pantalla inicial de voluntarios (donde la tabla)
+    };
+
+    try {
+      await crearVoluntario(vol);
+      window.dispatchEvent(new Event("refrescarTablaVoluntarios"));
+      manejaContenidoInicial("voluntarios");
+    } catch (error) {
+      console.error("Error al guardar el voluntario:", error);
+      alert("Error al añadir el voluntario. Revisa la consola.");
+    }
   };
 
   //Validaciones del modal de turnos
   const horasCompletadas = horaInicio !== "" && horaFin !== "";
+  //la tienda no vacia, el dia no vacio, y si el vol es hSueltas tiene q tener las mismas, si no, franja no puede ser vacio
   const puedeGuardarTurno =
     nuevoTurnoTienda !== "" &&
     nuevoTurnoDia !== "" &&
     (horasSueltas === "si" ? horasCompletadas : nuevoTurnoFranja !== "");
-  //la tienda no vacia, el dia no vacio, y si el vol es hSueltas tiene q tener las mismas, si no, franja no puede ser vacio
+
+  if (cargandoDatos) {
+    return (
+      <div
+        className="texto-cargando"
+        style={{ padding: "20px", color: "#0054a6" }}
+      >
+        Cargando datos del servidor...
+      </div>
+    );
+  }
 
   return (
     <section className="aniadir-voluntario-contenedor">
@@ -199,7 +236,9 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
 
           <div className="form-fila">
             <label
-              className={`etiqueta-azul ${horasSueltas === "no" ? "texto-deshabilitado" : ""}`}
+              className={`etiqueta-azul ${
+                horasSueltas === "no" ? "texto-deshabilitado" : ""
+              }`}
             >
               Intervalo de horas:
             </label>
@@ -272,7 +311,7 @@ export function AniadirVoluntario({ manejaContenidoInicial }) {
             <textarea
               id="textarea-obs"
               className="textarea-datos"
-              placeholder="Añade notas o preferencias de este voluntario..."
+              placeholder="Añade notas o preferences de este voluntario..."
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
             ></textarea>

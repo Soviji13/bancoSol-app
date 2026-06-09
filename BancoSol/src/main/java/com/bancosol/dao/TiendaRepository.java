@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TiendaRepository extends JpaRepository<Tienda, Long> {
@@ -14,6 +15,8 @@ public interface TiendaRepository extends JpaRepository<Tienda, Long> {
     //Fran: seleccion de campaña para la lista de tiendas
     @Query("SELECT t FROM Tienda t JOIN t.campanias c WHERE c.id = :campaniaId")
     List<Tienda> findByCampaniasId(@Param("campaniaId") Long campaniaId);
+
+    Optional<Tienda> findByNombre(String nombre);
 
     //Ia fran: query para filtrar tiendas por campos
     //Para hacer una única pasada por la base de datos y construir filtros dinámicos sin tener que cargar

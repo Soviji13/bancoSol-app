@@ -38,7 +38,6 @@ export function TablaVoluntarios({
               key={vol.id}
               className={filaSeleccionada === vol.id ? "fila-seleccionada" : ""}
               onClick={() => setFilaSeleccionada(vol.id)}
-              onDoubleClick={() => console.log("Abrir detalle de:", vol.id)}
             >
               <td>{vol.id}</td>
               <td>{vol.responsableEntidad}</td>
