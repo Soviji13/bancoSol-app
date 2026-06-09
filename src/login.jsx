@@ -19,33 +19,33 @@ export function Login ({manejaLogin, error}) {
 
     return (
     <>
-    <main class="pantalla-login border-main">
-        <section class="login-contenido">
-            <img src="../public/logo.png" alt="Logo BancoSol" class="logo-login" />
+    <main className="pantalla-login border-main">
+        <section className="login-contenido">
+            <img src="../public/logo.png" alt="Logo BancoSol" className="logo-login" />
 
-            <h1 class="text-main titulo-login">Gestión de campañas</h1>
+            <h1 className="text-main titulo-login">Gestión de campañas</h1>
 
-            <form class="form-login" action="#" method="post" onSubmit={(e) => {e.preventDefault();}}>
-                <div class="grupo-campo">
+            <form className="form-login" action="#" method="post" onSubmit={(e) => {e.preventDefault(); manejaLogin(user, psw)}}>
+                <div className="grupo-campo">
                     {/* USUARIO */}
-                    <label for="usuario" class="text-main label-login">Nombre de usuario:</label>
+                    <label htmlFor="usuario" className="text-main label-login">Nombre de usuario:</label>
                     <input 
                         type="text" 
                         id="usuario" 
                         name="usuario" 
-                        class="input-login border-soft" 
+                        className="input-login border-soft" 
                         onChange={(e) => {setUser(e.target.value);}}
                     />
                 </div>
 
-                <div class="grupo-campo">
+                <div className="grupo-campo">
                     {/* CONTRASEÑA */}
-                    <label for="password" class="text-main label-login">Contraseña:</label>
+                    <label htmlFor="password" className="text-main label-login">Contraseña:</label>
                     <input 
                         type="password" 
                         id="password" 
                         name="password" 
-                        class="input-login border-soft" 
+                        className="input-login border-soft" 
                         onChange={(e) => {setPsw(e.target.value);}}
                     />
                     {error !== null && <MensajeError>{error}</MensajeError>}
@@ -53,8 +53,7 @@ export function Login ({manejaLogin, error}) {
 
                 <button 
                     type="submit" 
-                    class="btn-login bg-main text-white"
-                    onClick={() => {manejaLogin(user, psw);}}
+                    className="btn-login bg-main text-white"
                 >
                 Entrar
                 </button>
@@ -67,8 +66,8 @@ export function Login ({manejaLogin, error}) {
 
 function MensajeError ({children}) {
     return(
-        <div class="contenedor-error">
-            <p id="mensaje-error" class="mensaje-error">
+        <div className="contenedor-error">
+            <p id="mensaje-error" className="mensaje-error">
                 {children}
             </p>
         </div>
