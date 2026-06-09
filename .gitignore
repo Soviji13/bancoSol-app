@@ -24,3 +24,13 @@ dist-ssr
 *.sw?
 node_modules/
 dist/
+
+# Ignora la carpeta de compilación de Maven (esté en la raíz o en subcarpetas)
+**/target/
+target/
+
+# Archivos de sistema/configuración pesados de Java
+*.jar
+*.war
+*.ear
+*.class

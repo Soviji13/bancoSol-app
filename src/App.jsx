@@ -1,6 +1,8 @@
 import { useState } from "react"
 
 import { Login } from "./login";
+import { verificarUsuario } from "./api/usuariosApi";
+
 import { Cabecera } from "./cabecera";
 import { VentanaGestion } from "./gestionVentanas";
 
@@ -21,53 +23,39 @@ function App() {
   const [nombreCabecera, setNombreCabecera] = useState("");
 
   // Función para validar login (REFACTORIZAR CUANDO SE CONECTE A API)
-  function manejaLogin (user, psw) {
+  async function manejaLogin (usuario, contrasenia) {
 
-    user = user.toLowerCase();
-    psw = psw.toLowerCase();
+    usuario = usuario.trim().toLowerCase();
 
-    if (user === "jorge@gmail.com" && psw === "jorge1234") {
-      setLoginDone(true);
-      setRol({rol: "admin", alias: "Administrador"});
-      setNombreCabecera("Jorge");
-    } 
-    else if (user === "mayte@gmail.com" && psw === "mayte1234") {
-      setLoginDone(true);
-      setRol({rol: "coor", alias: "Coordinador"});
-      setNombreCabecera("Mayte");
-    }
-    else if (user === "carlos@gmail.com" && psw === "carlos1234") {
-      setLoginDone(true);
-      setRol({rol: "resp_entidad", alias: "Responsable de entidad"});
-      setNombreCabecera("Carlos");
-    }
-    else if (user === "hugo@gmail.com" && psw === "hugo1234") {
-      setLoginDone(true);
-      setNombreCabecera("Hugo");
-      setRol({rol: "resp_tienda", alias: "Responsable de tienda"});
-    }
-    else if (user === "prueba" && psw === "prueba") {
-      setLoginDone(true);
-      setNombreCabecera("Prueba");
-      setRol({rol: "prueba", alias: "rol prueba"});
-    }
-    // Campo vacío de login, contraseña o ambos
-    else if (user === "" || psw === "") {
-      if (user === "" && psw === "") {
+    // Se crea un objeto igual que el contenido de la petición post
+    const u = {
+      user: usuario,
+      pass: contrasenia
+    };
+
+    // Manejamos todos los posibles fallos de campos nulos
+    if (usuario === "" || contrasenia === "") {
+      if (usuario === "" && contrasenia === "") {
         setErrorLogin("Debe rellenar los campos de usuario y contraseña");
       }
-      else if (psw === "") {
+      else if (contrasenia === "") {
         setErrorLogin("Debe rellenar el campo de contraseña");
       }
-      else if (user === "") {
+      else if (usuario === "") {
         setErrorLogin("Debe rellenar el campo de usuario");
       }
-    }
-    // Datos erróneos
-    else {
-      setErrorLogin("Error: Usuario o contraseña no son correctos");
-    }
+    // Si no hay datos nulos, lanzamos la petición
+    } else {
+      try {
+        const respuestaLogin = await (verificarUsuario(u));
+        setLoginDone(true);
+        setRol(respuestaLogin.rol);
+        setNombreCabecera(respuestaLogin.nombre);
+      } catch (error) {
+        setErrorLogin(error.message);
+      }  
   }
+}
 
   // Para cerrar sesión
   function manejaCierreSesion ()
@@ -78,7 +66,7 @@ function App() {
   return (
     <>
     {!loginDone && <Login manejaLogin={manejaLogin} error={errorLogin}/>}
-    {loginDone && <Cabecera user={nombreCabecera} rol={rol.alias} cierreSesion={manejaCierreSesion}/>}
+    {loginDone && <Cabecera user={nombreCabecera} rol={rol} cierreSesion={manejaCierreSesion}/>}
     {loginDone && <VentanaGestion />}
     </>
   )
