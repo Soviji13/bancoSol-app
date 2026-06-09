@@ -18,6 +18,7 @@ public interface ResponsableEntidadRepository extends JpaRepository<ResponsableE
     @Query("SELECT r FROM ResponsableEntidad r WHERE UPPER(r.contacto.nombre) = UPPER(:nombre) AND UPPER(r.colaborador.nombre) = UPPER(:entidad)")
     Optional<ResponsableEntidad> findByNombreAndEntidad(
             @Param("nombre") String nombre,
-            @Param("entidad") String entidad
-    );
+            @Param("entidad") String entidad);
+
+    Optional<ResponsableEntidad> findByUsuario(Usuario usuario);
 }
