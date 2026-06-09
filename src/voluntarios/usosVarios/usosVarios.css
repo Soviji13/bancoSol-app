@@ -68,6 +68,12 @@
 }
 
 /* --- interior modal campañas --- */
+.modal-campanias-lista {
+  display: "grid";
+  gap: "15px";
+  padding: "10px";
+}
+
 #lista-campanias {
   display: flex;
   flex-direction: column;
