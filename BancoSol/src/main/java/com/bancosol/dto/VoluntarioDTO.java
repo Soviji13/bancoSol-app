@@ -6,6 +6,7 @@ import java.time.LocalTime;
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class VoluntarioDTO {
     private Long id;
+    private Long campaniaId;
     private String observaciones;
     private Boolean horasSueltas;
     private LocalTime horaComienzo;

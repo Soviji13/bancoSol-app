@@ -15,7 +15,7 @@ public interface ResponsableEntidadRepository extends JpaRepository<ResponsableE
 
     Optional<ResponsableEntidad> findByColaboradorAndUsuario(EntidadColaboradora colab, Usuario user);
 
-    @Query("SELECT r FROM ResponsableEntidad r WHERE r.contacto.nombre = :nombre AND r.colaborador.nombre = :entidad")
+    @Query("SELECT r FROM ResponsableEntidad r WHERE UPPER(r.contacto.nombre) = UPPER(:nombre) AND UPPER(r.colaborador.nombre) = UPPER(:entidad)")
     Optional<ResponsableEntidad> findByNombreAndEntidad(
             @Param("nombre") String nombre,
             @Param("entidad") String entidad

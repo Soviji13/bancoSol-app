@@ -1,53 +1,85 @@
 import { useEffect, useState } from "react";
-import { mockVoluntarios } from "../mockDataVoluntarios";
 import { ModalTurno } from "../usosVarios/ModalTurno";
 import "./voluntarioLateral.css";
+import {
+  obtenerVoluntarios,
+  actualizarVoluntario,
+} from "../../api/voluntariosApi";
+import { apiRequest } from "../../api/apiClient";
 
 export function ModificarVoluntario({ manejaContenidoLateral }) {
   const [voluntarioBase, setVoluntarioBase] = useState(null);
+  const [cargandoInicial, setCargandoInicial] = useState(true);
 
   //estados de campos MODIFICABLES
   const [entidad, setEntidad] = useState("");
   const [responsable, setResponsable] = useState("");
   const [observaciones, setObservaciones] = useState("");
-  const [asignaciones, setAsignaciones] = useState([]);
+  const [turnosPlanos, setTurnosPlanos] = useState([]);
 
-  //estados modal turnos para controlar apertura y datos nuevos
+  //estados modal turnos
   const [modalTurnoAbierto, setModalTurnoAbierto] = useState(false);
   const [nuevoTurnoTienda, setNuevoTurnoTienda] = useState("");
   const [nuevoTurnoDia, setNuevoTurnoDia] = useState("");
   const [nuevoTurnoFranja, setNuevoTurnoFranja] = useState("");
 
-  //cargamos datos del voluntario la primera vez q se abre el panel
+  const [entidadesBackend, setEntidadesBackend] = useState([]);
+  const [tiendasBackend, setTiendasBackend] = useState([]);
+
+  // Cargar datos
   useEffect(() => {
     const idSeleccionado = localStorage.getItem("voluntarioSeleccionadoId");
-    if (idSeleccionado) {
-      const vol = mockVoluntarios.find((v) => v.id === idSeleccionado);
-      if (vol) {
-        setVoluntarioBase(vol);
-        setEntidad(vol.perteneceA);
-        setResponsable(vol.responsableEntidad);
-        setObservaciones(vol.observaciones || "");
-        setAsignaciones(vol.asignaciones || []); //cargamos turnos previos
-      }
-    }
+    const campaniaIdActual = localStorage.getItem("campaniaActivaId"); // <-- Añadido
+    if (!idSeleccionado) return;
+
+    Promise.all([
+      apiRequest("/entidades"),
+      apiRequest("/tiendas"),
+      obtenerVoluntarios(campaniaIdActual, { id: idSeleccionado }),
+    ])
+      .then(([resEntidades, resTiendas, resVol]) => {
+        setEntidadesBackend(resEntidades);
+        setTiendasBackend(resTiendas);
+
+        if (resVol && resVol.length > 0) {
+          const vol = resVol[0];
+          setVoluntarioBase(vol);
+          setEntidad(vol.perteneceA || "");
+          setResponsable(vol.responsableEntidad || "");
+          setObservaciones(vol.observaciones || "");
+
+          const turnosAplanados = [];
+          if (vol.asignaciones) {
+            vol.asignaciones.forEach((asig) => {
+              asig.turnos.forEach((t) => {
+                turnosAplanados.push({
+                  turnoId: t.turnoId,
+                  tienda: asig.tiendaNombre,
+                  dia: t.dia,
+                  franja: t.franjaHoraria,
+                });
+              });
+            });
+          }
+          setTurnosPlanos(turnosAplanados);
+        }
+        setCargandoInicial(false);
+      })
+      .catch((error) => {
+        console.error("Error al cargar datos:", error);
+        setCargandoInicial(false);
+      });
   }, []);
 
-  const entidadesUnicas = [
-    ...new Set(mockVoluntarios.map((v) => v.perteneceA)),
-  ];
-  const responsablesDisponibles = [
-    ...new Set(
-      mockVoluntarios
-        .filter((v) => v.perteneceA === entidad)
-        .map((v) => v.responsableEntidad),
-    ),
-  ];
-  const tiendasUnicas = [
-    ...new Set(
-      mockVoluntarios.flatMap((v) => v.asignaciones.map((a) => a.tiendaNombre)),
-    ),
-  ];
+  const entidadesUnicas = entidadesBackend.map((e) => e.nombre);
+  const entidadSeleccionadaObjeto = entidadesBackend.find(
+    (e) => e.nombre === entidad,
+  );
+  const responsablesDisponibles = entidadSeleccionadaObjeto
+    ? entidadSeleccionadaObjeto.responsables.map((r) => r.nombre)
+    : [];
+
+  const tiendasUnicas = tiendasBackend.map((t) => t.nombre);
   const diasSemana = [
     "Lunes",
     "Martes",
@@ -58,49 +90,48 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
     "Domingo",
   ];
 
-  if (!voluntarioBase)
-    return (
-      <div className="panel-detalle-cargando">Cargando modificaciones...</div>
-    );
-
   const handleCambioEntidad = (e) => {
     setEntidad(e.target.value);
-    setResponsable(""); //borramos el responsable si cambia la entidad para no liar datos
+    setResponsable("");
   };
 
   const cerrarPanel = () => {
-    window.dispatchEvent(new Event("salirModoEdicion")); //avisamos al footer con un evento global
-    manejaContenidoLateral("detalle-voluntario"); //volvemos a detalle voluntarios DONDE NO SE EDITA NADA SOLO LECTURA
-  };
-
-  //ESTE HAY Q CAMBIARLO PARA CONEXION CON LA API
-  const handleGuardarCambios = (e) => {
-    e.preventDefault(); //evitamos q recargue la pagina por defecto el submit!!!!
-    console.log("Guardando cambios del voluntario ID", voluntarioBase.id, {
-      entidad,
-      responsable,
-      observaciones,
-      asignaciones,
-    });
-    //hay q enviarlo a la api y luego salir
-    window.dispatchEvent(new Event("salirModoEdicion")); //avisamos al footer
+    window.dispatchEvent(new Event("salirModoEdicion"));
     manejaContenidoLateral("detalle-voluntario");
   };
 
-  //logica para gestionar los turnos en la tabla
-  const handleEliminarTurno = (tiendaId, turnoId) => {
-    const nuevasAsignaciones = asignaciones
-      .map((asig) => {
-        if (asig.tiendaId === tiendaId) {
-          return {
-            ...asig,
-            turnos: asig.turnos.filter((t) => t.turnoId !== turnoId),
-          };
-        }
-        return asig;
-      })
-      .filter((asig) => asig.turnos.length > 0); //si la tienda se queda sin turnos la borramos entera
-    setAsignaciones(nuevasAsignaciones);
+  const handleGuardarCambios = async (e) => {
+    e.preventDefault();
+    const campaniaIdActual = localStorage.getItem("campaniaActivaId") || 3;
+
+    const payload = {
+      campaniaId: parseInt(campaniaIdActual),
+      entidad,
+      responsable,
+      horasSueltas: voluntarioBase.horasSueltas,
+      horaInicio: voluntarioBase.horaComienzo
+        ? voluntarioBase.horaComienzo.slice(0, 5)
+        : null,
+      horaFin: voluntarioBase.horaFinal
+        ? voluntarioBase.horaFinal.slice(0, 5)
+        : null,
+      observaciones,
+      turnosAsignados: turnosPlanos,
+    };
+
+    try {
+      await actualizarVoluntario(voluntarioBase.id, payload);
+      window.dispatchEvent(new Event("refrescarTablaVoluntarios"));
+      cerrarPanel();
+    } catch (error) {
+      console.error("Error actualizando", error);
+      alert("Error al actualizar voluntario.");
+    }
+  };
+
+  const handleEliminarTurno = (indexTurno) => {
+    const nuevosTurnos = turnosPlanos.filter((_, i) => i !== indexTurno);
+    setTurnosPlanos(nuevosTurnos);
   };
 
   const handleAbrirModalTurno = () => {
@@ -108,40 +139,33 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
     setNuevoTurnoDia("");
     setNuevoTurnoFranja("");
     setModalTurnoAbierto(true);
-  }; //limpiamos datos y abrimos el flotante
+  };
 
   const handleGuardarTurno = () => {
     const franjaFinal = voluntarioBase.horasSueltas
-      ? `${voluntarioBase.horaComienzo} - ${voluntarioBase.horaFinal}`
+      ? `${voluntarioBase.horaComienzo.slice(0, 5)} - ${voluntarioBase.horaFinal.slice(0, 5)}`
       : nuevoTurnoFranja;
-
     const nuevoTurno = {
-      turnoId: `TEMP_${Date.now()}`, //id temporal hasta q lo haga spring boot
+      tienda: nuevoTurnoTienda,
       dia: nuevoTurnoDia,
-      franjaHoraria: franjaFinal,
+      franja: franjaFinal,
     };
-
-    const nuevasAsignaciones = [...asignaciones];
-    const tiendaExistenteIndex = nuevasAsignaciones.findIndex(
-      (a) => a.tiendaNombre === nuevoTurnoTienda,
-    );
-
-    //si la tienda ya la tenia asignada le metemos turno nuevo, si no creamos tablr para tienda nueva
-    if (tiendaExistenteIndex >= 0) {
-      nuevasAsignaciones[tiendaExistenteIndex].turnos.push(nuevoTurno);
-    } else {
-      nuevasAsignaciones.push({
-        tiendaId: `TEMP_T_${Date.now()}`,
-        tiendaNombre: nuevoTurnoTienda,
-        turnos: [nuevoTurno],
-      });
-    }
-
-    setAsignaciones(nuevasAsignaciones);
-    setModalTurnoAbierto(false); //cerramos al terminar
+    setTurnosPlanos([...turnosPlanos, nuevoTurno]);
+    setModalTurnoAbierto(false);
   };
 
-  //validaciones de datos
+  // La barrera contra null. Todo lo que use voluntarioBase.algo va DEBAJO de esto.
+  if (cargandoInicial || !voluntarioBase) {
+    return (
+      <aside className="panel-detalle-lateral">
+        <div className="panel-detalle-cargando" style={{ padding: "20px" }}>
+          Cargando datos del voluntario...
+        </div>
+      </aside>
+    );
+  }
+
+  // Ahora es 100% seguro usar voluntarioBase
   const esMalagaCapital =
     voluntarioBase.localidad?.toLowerCase() === "málaga capital";
   const puedeGuardarTurno =
@@ -171,13 +195,12 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
         </div>
       </header>
 
-      {/* FORMULARIO Q ENVUELVE TODO EL CONTENIDO. IMPORTANTE EL ID PARA ENGANCHARLO CON EL BOTON DEL FOOTER */}
       <form
         id="form-modificar"
         className="panel-detalle-contenido"
         onSubmit={handleGuardarCambios}
       >
-        {/*entidad colab (editable)*/}
+        {/*Entidad colab*/}
         <div className="detalle-bloque">
           <div className="campo-editable-bloque">
             <span className="texto-azul">Entidad colaboradora:</span>
@@ -190,16 +213,16 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
               <option value="" disabled>
                 Seleccione entidad...
               </option>
-              {entidadesUnicas.map((entidad, id) => (
-                <option key={id} value={entidad}>
-                  {entidad}
+              {entidadesUnicas.map((ent, id) => (
+                <option key={id} value={ent}>
+                  {ent}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {/*responsable (editable)*/}
+        {/*Resp entidad */}
         <div className="detalle-bloque">
           <div className="campo-editable-bloque mb-medio">
             <span className="texto-azul">Responsable:</span>
@@ -233,7 +256,6 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
           </div>
         </div>
 
-        {/*direccion*/}
         <div className="detalle-bloque">
           <div className="detalle-grupo-filas">
             <div>
@@ -253,50 +275,44 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
           </div>
         </div>
 
-        {/*turnos (editable)*/}
+        {/*turnos*/}
         <div className="detalle-bloque">
           <span className="texto-azul">Turnos asignados:</span>
           <div className="contenedor-tablas-turnos">
-            {asignaciones.length > 0 ? (
-              asignaciones.map((asig) => (
-                <div key={asig.tiendaId} className="grupo-tienda-turnos">
-                  <div className="titulo-tienda-turnos">
-                    Tienda: {asig.tiendaNombre}
-                  </div>
-                  <table className="tabla-turnos-detalle">
-                    <tbody>
-                      {asig.turnos.map((turno) => (
-                        <tr key={turno.turnoId}>
-                          <td className="celda-dia-edicion texto-azul">
-                            {turno.dia}
-                          </td>
-                          <td className="celda-franja-edicion">
-                            {turno.franjaHoraria}
-                          </td>
-                          <td className="celda-accion-eliminar">
-                            <button
-                              type="button"
-                              className="btn-eliminar-turno-tabla"
-                              onClick={() =>
-                                handleEliminarTurno(
-                                  asig.tiendaId,
-                                  turno.turnoId,
-                                )
-                              }
-                            >
-                              X
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))
+            {turnosPlanos.length > 0 ? (
+              <ul className="lista-turnos-agregados">
+                {turnosPlanos.map((t, index) => (
+                  <li
+                    key={index}
+                    style={{
+                      marginBottom: "5px",
+                      padding: "5px",
+                      border: "1px solid #ccc",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span>
+                      <strong>{t.tienda}</strong> | {t.dia} | {t.franja}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn-eliminar-turno-tabla"
+                      onClick={() => handleEliminarTurno(index)}
+                    >
+                      X
+                    </button>
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <div className="texto-sin-turnos">Sin turnos asignados</div>
+              <div
+                className="texto-sin-turnos"
+                style={{ marginBottom: "10px" }}
+              >
+                Sin turnos asignados
+              </div>
             )}
-
             <button
               type="button"
               className="btn-turno-inline btn-nuevo-margen"
@@ -307,7 +323,7 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
           </div>
         </div>
 
-        {/*observaciones*/}
+        {/*observ*/}
         <div className="detalle-bloque bloque-observaciones">
           <span className="texto-azul">Observaciones:</span>
           <textarea
@@ -333,8 +349,14 @@ export function ModificarVoluntario({ manejaContenidoLateral }) {
         setNuevoTurnoFranja={setNuevoTurnoFranja}
         horasSueltas={voluntarioBase.horasSueltas ? "si" : "no"}
         horasCompletadas={true}
-        horaInicio={voluntarioBase.horaComienzo}
-        horaFin={voluntarioBase.horaFinal}
+        horaInicio={
+          voluntarioBase.horaComienzo
+            ? voluntarioBase.horaComienzo.slice(0, 5)
+            : null
+        }
+        horaFin={
+          voluntarioBase.horaFinal ? voluntarioBase.horaFinal.slice(0, 5) : null
+        }
         puedeGuardarTurno={puedeGuardarTurno}
         onGuardarTurno={handleGuardarTurno}
       />

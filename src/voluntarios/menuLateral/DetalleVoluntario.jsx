@@ -1,37 +1,48 @@
 import { useEffect, useState } from "react";
-import { mockVoluntarios } from "../mockDataVoluntarios";
 import "./voluntarioLateral.css";
+import { obtenerVoluntarios } from "../../api/voluntariosApi";
 
 export function DetalleVoluntario({ manejaContenidoLateral }) {
   const [voluntario, setVoluntario] = useState(null);
+  const [cargando, setCargando] = useState(true);
 
-  // sacamos la logica de busqueda a una funcion normal
-  const cargarVoluntarioDesdeMemoria = () => {
+  const cargarVoluntarioDesdeApi = async () => {
     const idSeleccionado = localStorage.getItem("voluntarioSeleccionadoId");
+
+    const campaniaIdActual = localStorage.getItem("campaniaActivaId");
+
     if (idSeleccionado) {
-      const vol = mockVoluntarios.find((v) => v.id === idSeleccionado);
-      setVoluntario(vol);
+      setCargando(true);
+      try {
+        const data = await obtenerVoluntarios(campaniaIdActual, {
+          id: idSeleccionado,
+        });
+
+        if (data && data.length > 0) {
+          setVoluntario(data[0]);
+        }
+      } catch (error) {
+        console.error("Error cargando detalles del voluntario", error);
+      } finally {
+        setCargando(false);
+      }
     }
   };
 
   //necesitamos usar un evento global como en js, sucede lo mismo los componentes del contenido y
   //el menu lateral no tienen relacin directa por lo que meter eventos es lo menos engorroso !!!!!!!!
-
   useEffect(() => {
     //carga el voluntario la primera vez q se abre el panel
-    cargarVoluntarioDesdeMemoria();
+    cargarVoluntarioDesdeApi();
 
     //escucha el evento global de la tabla para cuando cambie el vol seleccionado
-    window.addEventListener(
-      "cambioVoluntarioTabla",
-      cargarVoluntarioDesdeMemoria,
-    );
+    window.addEventListener("cambioVoluntarioTabla", cargarVoluntarioDesdeApi);
 
     //si cerramos panel deja de escuchar
     return () => {
       window.removeEventListener(
         "cambioVoluntarioTabla",
-        cargarVoluntarioDesdeMemoria,
+        cargarVoluntarioDesdeApi,
       );
     };
   }, []); //dependencias vacias porq los eventos del window ya hacen el trabajo dinamico
@@ -42,8 +53,21 @@ export function DetalleVoluntario({ manejaContenidoLateral }) {
     window.dispatchEvent(new Event("cierrePanelDetalle"));
   };
 
+  // Pantalla de carga mientras se resuelve la API
+  if (cargando) {
+    return (
+      <div className="panel-detalle-cargando">
+        Cargando detalles del volunatario...
+      </div>
+    );
+  }
+
   if (!voluntario)
-    return <div className="panel-detalle-cargando">Cargando...</div>;
+    return (
+      <div className="panel-detalle-cargando">
+        No se encontró el voluntario.
+      </div>
+    );
 
   const esMalagaCapital =
     voluntario.localidad?.toUpperCase() === "MÁLAGA CAPITAL";

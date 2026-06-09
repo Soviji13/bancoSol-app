@@ -5,6 +5,7 @@ import java.util.List;
 
 @Data
 public class VoluntarioNuevoDTO {
+    private Long campaniaId;
     private String entidad;
     private String responsable;
     private Boolean horasSueltas;

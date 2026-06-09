@@ -1,10 +1,22 @@
 package com.bancosol.services;
 
+import com.bancosol.dao.CampaniaRepository;
+import com.bancosol.dao.ResponsableEntidadRepository;
+import com.bancosol.dao.TiendaRepository;
+import com.bancosol.dao.TurnoRepository;
 import com.bancosol.dao.VoluntarioRepository;
 import com.bancosol.dto.VoluntarioCompletoDTO;
 import com.bancosol.dto.VoluntarioDTO;
 import com.bancosol.dto.VoluntarioNuevoDTO;
-import com.bancosol.entities.*;
+import com.bancosol.entities.Campania;
+import com.bancosol.entities.Contacto;
+import com.bancosol.entities.Direccion;
+import com.bancosol.entities.EntidadColaboradora;
+import com.bancosol.entities.ResponsableEntidad;
+import com.bancosol.entities.Tienda;
+import com.bancosol.entities.TiendaTurno;
+import com.bancosol.entities.Turno;
+import com.bancosol.entities.Voluntario;
 import com.bancosol.entities.enums.TurnoDia;
 import com.bancosol.entities.enums.TurnoFranja;
 import org.springframework.stereotype.Service;
@@ -19,25 +31,34 @@ import java.util.stream.Collectors;
 @Service
 public class VoluntarioService {
     private final VoluntarioRepository repo;
-    private final com.bancosol.dao.ResponsableEntidadRepository respRepo;
-    private final com.bancosol.dao.TiendaRepository tiendaRepo;
-    private final com.bancosol.dao.TurnoRepository turnoRepo;
+    private final ResponsableEntidadRepository respRepo;
+    private final TiendaRepository tiendaRepo;
+    private final TurnoRepository turnoRepo;
+    private final CampaniaRepository campaniaRepo;
 
     public VoluntarioService(VoluntarioRepository repo,
-                             com.bancosol.dao.ResponsableEntidadRepository respRepo,
-                             com.bancosol.dao.TiendaRepository tiendaRepo,
-                             com.bancosol.dao.TurnoRepository turnoRepo) {
+                             ResponsableEntidadRepository respRepo,
+                             TiendaRepository tiendaRepo,
+                             TurnoRepository turnoRepo,
+                             CampaniaRepository campaniaRepo) {
         this.repo = repo;
         this.respRepo = respRepo;
         this.tiendaRepo = tiendaRepo;
         this.turnoRepo = turnoRepo;
+        this.campaniaRepo = campaniaRepo;
     }
 
     public List<VoluntarioDTO> listarTodos() {
         return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-
+    // --- MAGIA AQUI: Si la campaña de React no existe en SQL, pilla la primera que haya ---
+    private Campania obtenerCampaniaSegura(Long idRecibido) {
+        Long idBusqueda = idRecibido != null ? idRecibido : 3L;
+        return campaniaRepo.findById(idBusqueda)
+                .orElseGet(() -> campaniaRepo.findAll().stream().findFirst()
+                        .orElseThrow(() -> new RuntimeException("No hay NINGUNA campaña en la base de datos.")));
+    }
 
     @Transactional
     public void guardarVoluntario(VoluntarioNuevoDTO dto) {
@@ -54,17 +75,38 @@ public class VoluntarioService {
                 .orElseThrow(() -> new RuntimeException("No se encontró el responsable: " + dto.getResponsable()));
         v.setResponsable(resp);
 
+        v = repo.save(v);
+
+        // Usamos la busqueda segura
+        Campania campaniaActiva = obtenerCampaniaSegura(dto.getCampaniaId());
+
         List<TiendaTurno> asignaciones = new ArrayList<>();
         if (dto.getTurnosAsignados() != null) {
             for (VoluntarioNuevoDTO.TurnoNuevoDTO tDto : dto.getTurnosAsignados()) {
                 Tienda tienda = tiendaRepo.findByNombre(tDto.getTienda())
                         .orElseThrow(() -> new RuntimeException("No se encontró la tienda: " + tDto.getTienda()));
 
-                TurnoDia diaEnum = TurnoDia.valueOf(tDto.getDia().toUpperCase());
-                TurnoFranja franjaEnum = tDto.getFranja().equalsIgnoreCase("Mañana") ? TurnoFranja.MAÑANA : TurnoFranja.TARDE;
+                String diaLimpio = tDto.getDia().toUpperCase().replace("É", "E").replace("Á", "A");
+                TurnoDia diaEnum = TurnoDia.valueOf(diaLimpio);
 
-                Turno turno = turnoRepo.findByDiaAndFranja(diaEnum, franjaEnum)
-                        .orElseThrow(() -> new RuntimeException("No se encontró el turno de " + diaEnum + " " + franjaEnum));
+                TurnoFranja franjaEnum;
+                if (tDto.getFranja().contains(":") || dto.getHorasSueltas()) {
+                    int horaComienzoInt = v.getHoraComienzo() != null ? v.getHoraComienzo().getHour() : 10;
+                    franjaEnum = horaComienzoInt < 15 ? TurnoFranja.MAÑANA : TurnoFranja.TARDE;
+                } else {
+                    franjaEnum = tDto.getFranja().equalsIgnoreCase("Mañana") ? TurnoFranja.MAÑANA : TurnoFranja.TARDE;
+                }
+
+
+                Turno turno = turnoRepo.findByDiaAndFranjaAndCampaniaId(diaEnum, franjaEnum, campaniaActiva.getId())
+                        .orElseGet(() -> {
+                            Turno nuevoTurno = Turno.builder()
+                                    .dia(diaEnum)
+                                    .franjaHoraria(franjaEnum)
+                                    .campania(campaniaActiva)
+                                    .build();
+                            return turnoRepo.save(nuevoTurno);
+                        });
 
                 TiendaTurno tt = new TiendaTurno();
                 tt.setVoluntario(v);
@@ -73,7 +115,13 @@ public class VoluntarioService {
                 asignaciones.add(tt);
             }
         }
-        v.setTiendaTurnos(asignaciones);
+
+        if (v.getTiendaTurnos() == null) {
+            v.setTiendaTurnos(new ArrayList<>());
+        } else {
+            v.getTiendaTurnos().clear();
+        }
+        v.getTiendaTurnos().addAll(asignaciones);
         repo.save(v);
     }
 
@@ -97,25 +145,48 @@ public class VoluntarioService {
                 .orElseThrow(() -> new RuntimeException("Responsable no encontrado"));
         v.setResponsable(resp);
 
+        // Usamos la busqueda segura
+        Campania campaniaActiva = obtenerCampaniaSegura(dto.getCampaniaId());
+
         v.getTiendaTurnos().clear();
+        repo.saveAndFlush(v);
+
+        List<TiendaTurno> asignaciones = new ArrayList<>();
         if (dto.getTurnosAsignados() != null) {
             for (VoluntarioNuevoDTO.TurnoNuevoDTO tDto : dto.getTurnosAsignados()) {
                 Tienda tienda = tiendaRepo.findByNombre(tDto.getTienda())
                         .orElseThrow(() -> new RuntimeException("Tienda no encontrada: " + tDto.getTienda()));
 
-                TurnoDia diaEnum = TurnoDia.valueOf(tDto.getDia().toUpperCase());
-                TurnoFranja franjaEnum = tDto.getFranja().equalsIgnoreCase("Mañana") ? TurnoFranja.MAÑANA : TurnoFranja.TARDE;
+                String diaLimpio = tDto.getDia().toUpperCase().replace("É", "E").replace("Á", "A");
+                TurnoDia diaEnum = TurnoDia.valueOf(diaLimpio);
 
-                Turno turno = turnoRepo.findByDiaAndFranja(diaEnum, franjaEnum)
-                        .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+                TurnoFranja franjaEnum;
+                if (tDto.getFranja().contains(":") || dto.getHorasSueltas()) {
+                    int horaComienzoInt = v.getHoraComienzo() != null ? v.getHoraComienzo().getHour() : 10;
+                    franjaEnum = horaComienzoInt < 15 ? TurnoFranja.MAÑANA : TurnoFranja.TARDE;
+                } else {
+                    franjaEnum = tDto.getFranja().equalsIgnoreCase("Mañana") ? TurnoFranja.MAÑANA : TurnoFranja.TARDE;
+                }
+
+                Turno turno = turnoRepo.findByDiaAndFranjaAndCampaniaId(diaEnum, franjaEnum, campaniaActiva.getId())
+                        .orElseGet(() -> {
+                            Turno nuevoTurno = Turno.builder()
+                                    .dia(diaEnum)
+                                    .franjaHoraria(franjaEnum)
+                                    .campania(campaniaActiva)
+                                    .build();
+                            return turnoRepo.save(nuevoTurno);
+                        });
 
                 TiendaTurno tt = new TiendaTurno();
                 tt.setVoluntario(v);
                 tt.setTienda(tienda);
                 tt.setTurno(turno);
-                v.getTiendaTurnos().add(tt);
+                asignaciones.add(tt);
             }
         }
+
+        v.getTiendaTurnos().addAll(asignaciones);
         repo.save(v);
     }
 
@@ -123,9 +194,6 @@ public class VoluntarioService {
     public void eliminarVoluntario(Long id) {
         repo.deleteById(id);
     }
-
-
-
 
     private VoluntarioDTO toDTO(Voluntario v) {
         return VoluntarioDTO.builder()
@@ -141,7 +209,6 @@ public class VoluntarioService {
         Contacto contacto = resp != null ? resp.getContacto() : null;
         Direccion dir = entidad != null ? entidad.getDireccion() : null;
 
-        // agrupamos los turnos por tienda para q react los pinte agrupados !!!
         Map<Tienda, List<TiendaTurno>> turnosPorTienda = v.getTiendaTurnos() != null
                 ? v.getTiendaTurnos().stream()
                 .filter(tt -> tt.getTurno() != null && tt.getTienda() != null)
@@ -154,9 +221,7 @@ public class VoluntarioService {
                     List<VoluntarioCompletoDTO.TurnoVoluntarioDTO> turnos = entry.getValue().stream()
                             .map(tt -> VoluntarioCompletoDTO.TurnoVoluntarioDTO.builder()
                                     .turnoId(tt.getTurno().getId())
-                                    // ponemos Lunes en vez de LUNES para q react no se queje
                                     .dia(tt.getTurno().getDia().name().charAt(0) + tt.getTurno().getDia().name().substring(1).toLowerCase())
-                                    // inyectamos hora exacta o MAÑANA/TARDE segun horasSueltas
                                     .franjaHoraria(Boolean.TRUE.equals(v.getHorasSueltas()) ?
                                             v.getHoraComienzo() + " - " + v.getHoraFinal() :
                                             tt.getTurno().getFranjaHoraria().name())
@@ -187,36 +252,26 @@ public class VoluntarioService {
                 .build();
     }
 
-
-
     public List<VoluntarioCompletoDTO> listarFiltrados(Long campaniaId, Long id, String entidad, String responsable, String tienda, String franja, String horaInicio, String horaFin) {
-        // 1. Filtramos en base de datos lo "facil"
         List<Voluntario> voluntariosDB = repo.findFiltrados(campaniaId, id, entidad, responsable, tienda);
 
-        // 2. Filtramos en memoria (java) la logica compleja de horas y franjas
         return voluntariosDB.stream()
                 .map(this::toCompletoDTO)
                 .filter(v -> {
-                    // Filtro de Franja (Mañana o Tarde)
                     if (franja != null && !franja.isEmpty() && !franja.equalsIgnoreCase("TODAS")) {
                         boolean tieneFranja = v.getAsignaciones().stream()
                                 .flatMap(a -> a.getTurnos().stream())
                                 .anyMatch(t -> t.getFranjaHoraria().equalsIgnoreCase(franja));
                         if (!tieneFranja) return false;
                     }
-
-                    // Filtro de Horas Sueltas (si rellenan el intervalo)
                     if (horaInicio != null && !horaInicio.isEmpty() && horaFin != null && !horaFin.isEmpty()) {
                         if (!Boolean.TRUE.equals(v.getHorasSueltas()) || v.getHoraComienzo() == null) {
-                            return false; // si no tiene horas sueltas, no pasa el filtro
+                            return false;
                         }
-
                         LocalTime inicioFiltro = LocalTime.parse(horaInicio);
                         LocalTime finFiltro = LocalTime.parse(horaFin);
                         LocalTime vInicio = LocalTime.parse(v.getHoraComienzo());
                         LocalTime vFin = LocalTime.parse(v.getHoraFinal());
-
-                        // comprobamos q el horario del voluntario este DENTRO de las horas q buscan
                         if (vInicio.isBefore(inicioFiltro) || vFin.isAfter(finFiltro)) {
                             return false;
                         }

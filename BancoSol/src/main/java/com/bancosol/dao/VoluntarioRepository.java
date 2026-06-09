@@ -11,23 +11,23 @@ import java.util.List;
 @Repository
 public interface VoluntarioRepository extends JpaRepository<Voluntario, Long> {
 
-
-    //los voluntarios se filtran por defecto por campañas al mostrar las tablas
     @Query("SELECT DISTINCT v FROM Voluntario v " +
             "JOIN v.responsable r " +
             "JOIN r.colaborador c " +
-            "JOIN c.campanias camp " +
-            "WHERE camp.id = :campaniaId")
+            "LEFT JOIN c.campanias camp " +
+            "LEFT JOIN v.tiendaTurnos tt " +
+            "LEFT JOIN tt.turno tu " +
+            "WHERE (:campaniaId IS NULL OR camp.id = :campaniaId OR tu.campania.id = :campaniaId)")
     List<Voluntario> findByCampaniaId(@Param("campaniaId") Long campaniaId);
 
-    //filtros de voluntarios por todas las categorias q hay disponibles para filtrar
     @Query("SELECT DISTINCT v FROM Voluntario v " +
             "JOIN v.responsable r " +
             "JOIN r.colaborador c " +
-            "JOIN c.campanias camp " +
+            "LEFT JOIN c.campanias camp " +
             "LEFT JOIN v.tiendaTurnos tt " +
+            "LEFT JOIN tt.turno tu " +
             "LEFT JOIN tt.tienda t " +
-            "WHERE camp.id = :campaniaId " +
+            "WHERE (:campaniaId IS NULL OR camp.id = :campaniaId OR tu.campania.id = :campaniaId) " +
             "AND (:voluntarioId IS NULL OR v.id = :voluntarioId) " +
             "AND (:entidad IS NULL OR c.nombre = :entidad) " +
             "AND (:responsable IS NULL OR r.contacto.nombre = :responsable) " +

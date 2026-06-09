@@ -4,40 +4,43 @@ import { TablaVoluntarios } from "./contenido/TablaVoluntarios";
 import { FooterVoluntarios } from "./contenido/FooterVoluntarios";
 import { ModalCampanias } from "./usosVarios/ModalCampanias";
 import "./contenido/voluntarioContenido.css";
+import { obtenerVoluntarios } from "../api/voluntariosApi";
 
 export function MainVoluntarios({
   manejaContenidoLateral,
   manejaContenidoInicial,
 }) {
-  //guardar la campania q el usuario tiene seleccionada (empieza con la de por defecto posteriormente con la api habra q coger la activa por deefecto!!!)
-  const [campaniaActiva, setCampaniaActiva] = useState({
-    id: 3,
-    nombre: "Gran Recogida (Mock)",
+  //guardar la campania q el usuario tiene seleccionada
+  const [campaniaActiva, setCampaniaActiva] = useState(() => {
+    const guardada = localStorage.getItem("campaniaActivaId");
+    const nombreGuardado = localStorage.getItem("campaniaActivaNombre");
+    return guardada
+      ? {
+          id: parseInt(guardada),
+          nombre: nombreGuardado || "Campaña Seleccionada",
+        }
+      : { nombre: "SELECCIONE UNA CAMPAÑA" };
   });
 
   //lista voluntarios para la tabla
   const [voluntarios, setVoluntarios] = useState([]);
-
-  //la funcion cargar (de momento solo simula un tiempo)
   const [cargando, setCargando] = useState(true);
-
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
   const [modalCampaniasAbierto, setModalCampaniasAbierto] = useState(false);
 
-  //funcion para pedir los voluntarios al backend
+  //funcion para pedir los voluntarios al backend con los filtros
   const cargarVoluntarios = async () => {
     setCargando(true);
-
     try {
-      const respuesta = await fetch(
-        `http://localhost:8080/api/voluntarios?campaniaId=${campaniaActiva.id}`,
+      //leemos de la cache si hay filtros aplicados desde el panel izquierdo
+      const filtrosGuardados =
+        JSON.parse(localStorage.getItem("filtrosVoluntarios")) || {};
+
+      //los mandamos limpios hacia la API
+      const data = await obtenerVoluntarios(
+        campaniaActiva.id,
+        filtrosGuardados,
       );
-
-      if (!respuesta.ok) {
-        throw new Error("Error al cargar voluntarios");
-      }
-
-      const data = await respuesta.json();
       setVoluntarios(data);
     } catch (error) {
       console.error("Error cargando voluntarios:", error);
@@ -47,20 +50,29 @@ export function MainVoluntarios({
     }
   };
 
-  // se activa cada vez q cambia el id de la campania activa
+  //se activa cada vez q cambia el id de la campania activa (y guarda en cache)
   useEffect(() => {
+    //guardamos SIEMPRE la campaña activa en localStorage para que el añadir/modificar sepan cual es, incluso si el usuario no la ha tocado
+    localStorage.setItem("campaniaActivaId", campaniaActiva.id);
+    localStorage.setItem("campaniaActivaNombre", campaniaActiva.nombre);
+
     cargarVoluntarios();
-  }, [campaniaActiva.id]); //el trigger del cambio (cuando cambia la campaña)
+  }, [campaniaActiva.id]);
 
   //escucha cuando algun componente pide refrescar la tabla
   useEffect(() => {
     window.addEventListener("refrescarTablaVoluntarios", cargarVoluntarios);
 
-    return () =>
+    //escucha tmb si aplican filtros desde el panel lateral
+    window.addEventListener("cambioFiltrosVoluntarios", cargarVoluntarios);
+
+    return () => {
       window.removeEventListener(
         "refrescarTablaVoluntarios",
         cargarVoluntarios,
       );
+      window.removeEventListener("cambioFiltrosVoluntarios", cargarVoluntarios);
+    };
   }, [campaniaActiva.id]);
 
   //cuando el usuario elige otra campania en el modal cambiamos estado
@@ -68,13 +80,12 @@ export function MainVoluntarios({
     setCampaniaActiva(nuevaCampania);
   };
 
-  //cuando seleccionamos un voluntario en la tabla llama a detallevoluntario EN EL MENU LATERAL
+  //cuando seleccionamos un voluntario en la tabla llama a detallevoluntario
   const handleSeleccionarFila = (id) => {
     setFilaSeleccionada(id);
     localStorage.setItem("voluntarioSeleccionadoId", id);
     manejaContenidoLateral("detalle-voluntario");
-
-    window.dispatchEvent(new Event("cambioVoluntarioTabla")); //evento global q escucha el menu para cambiara el vol si se selecciona otra fila
+    window.dispatchEvent(new Event("cambioVoluntarioTabla"));
   };
 
   //limpiar la seleccion de la fila si pinchas X en menulateral a traves de evetno global
@@ -112,6 +123,8 @@ export function MainVoluntarios({
         filaSeleccionada={filaSeleccionada}
         manejaContenidoInicial={manejaContenidoInicial}
         manejaContenidoLateral={manejaContenidoLateral}
+        voluntarios={voluntarios}
+        campaniaActivaNombre={campaniaActiva.nombre}
       />
 
       <ModalCampanias

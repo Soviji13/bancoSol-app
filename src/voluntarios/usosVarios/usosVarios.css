@@ -3,6 +3,12 @@
 /* ==========================================================================
    ESTRUCTURA BASE MODALES
    ========================================================================== */
+.texto-cargando {
+  padding: 2rem;
+  text-align: center;
+  color: #2c398b;
+}
+
 .modal-overlay {
   /* position fixed para q flote y ocupe toda la pantalla oscureciendola !!! */
   position: fixed;
