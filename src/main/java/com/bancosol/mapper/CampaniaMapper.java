@@ -1,3 +1,5 @@
+// Realización: Alejandro Jiménez González
+// Esto antes estaba en Service así que era metódico de copiar y pegar
 package com.bancosol.mapper;
 
 import com.bancosol.dto.CampaniaDTO;

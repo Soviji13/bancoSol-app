@@ -1,3 +1,4 @@
+<%-- Alejandro Jiménez González 70% (30% IA para migrarlo JSTL ) --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>

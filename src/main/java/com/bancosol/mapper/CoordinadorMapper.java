@@ -1,3 +1,4 @@
+
 package com.bancosol.mapper;
 
 import com.bancosol.dto.CoordinadorDTO;

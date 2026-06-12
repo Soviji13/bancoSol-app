@@ -1,3 +1,4 @@
+// Realización: Alejandro Jiménez González (menos las adiciones de Sofía)
 package com.bancosol.services;
 
 import com.bancosol.dao.CadenaRepository;

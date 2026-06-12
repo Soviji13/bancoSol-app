@@ -1,3 +1,5 @@
+// Realización: Alejandro Jiménez González
+
 package com.bancosol.controllers;
 
 import com.bancosol.dto.CampaniaDTO;
@@ -128,6 +130,7 @@ public class CampaniaController {
         }
 
         model.addAttribute("cadenas", cadenaService.listarTodas());
+        model.addAttribute("coordinadores", coordinadorService.buscarTodosPorId(campania.getIdsCoordinadores()));
         model.addAttribute("campania", campania);
         model.addAttribute("usuario", session);
 

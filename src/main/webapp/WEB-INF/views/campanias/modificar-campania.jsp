@@ -1,3 +1,4 @@
+<%-- Alejandro Jiménez González 80% (20% IA CSS Y SCRIPT ) --%>
 <%@ page import="com.bancosol.dto.CampaniaDTO" %>
 <%@ page import="com.bancosol.dto.CadenaDTO" %>
 <%@ page import="com.bancosol.dto.CoordinadorDTO" %>

@@ -1,3 +1,4 @@
+<%-- Alejandro Jiménez González 80% (20% IA principalmente para css y los dias ) --%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bancosol.dto.CampaniaDTO" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
