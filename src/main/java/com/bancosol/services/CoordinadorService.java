@@ -36,7 +36,6 @@ import java.util.Locale;
 import java.util.Map;
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.dto.CampaniaDTO;
-import com.bancosol.services.TiendaService;
 
 @Service
 @AllArgsConstructor
