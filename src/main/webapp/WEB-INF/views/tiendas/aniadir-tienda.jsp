@@ -11,6 +11,7 @@
 
             <input type="hidden" name="campaniaId" value="${campaniaId}">
 
+            <%--radio para indicar si participo en campanias anteriores--%>
             <div class="form-fila">
                 <label>¿Ha participado en campañas anteriores?:</label>
                 <div class="radio-grupo">
@@ -21,6 +22,7 @@
                 </div>
             </div>
 
+            <%--bloque origen q se oculta por defecto--%>
             <div class="form-fila oculto" id="bloque-campania-origen">
                 <label>Campaña de origen:</label>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -154,7 +156,7 @@
         </div>
     </div>
 
-    <%-- ================= MODAL NUEVO RESPONSABLE ================= --%>
+    <%--modal responsable usa ajax para no perder datos introducidos del form padre al recargar, sugerido por ia!!!!--%>
     <div id="modal-responsable" class="modal-overlay oculto">
         <div class="modal-caja" style="max-width: 500px;">
             <header class="modal-cabecera">

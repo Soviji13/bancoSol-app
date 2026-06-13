@@ -15,26 +15,31 @@ public class ResponsableTiendaMapper extends MapperDTO<ResponsableTiendaDTO, Res
 
     @Override
     public ResponsableTiendaDTO toDTO(ResponsableTienda r) {
+
         Tienda tiendaAsociada = r.getTienda();
 
-        return ResponsableTiendaDTO.builder()
-                .id(r.getId())
-                .nombre(r.getNombre())
+        ResponsableTiendaDTO dto = new ResponsableTiendaDTO();
 
+        dto.setId(r.getId());
+        dto.setNombre(r.getNombre());
 
-                .usuarioId(r.getUsuario() != null ? r.getUsuario().getId() : null)
-                .contactoId(r.getContacto() != null ? r.getContacto().getId() : null)
+        //comprobamos q tenga usuario y contacto para evitar nullpointers
+        dto.setUsuarioId(r.getUsuario() != null ? r.getUsuario().getId() : null);
+        dto.setContactoId(r.getContacto() != null ? r.getContacto().getId() : null);
 
-                //envolvemos id de su única tienda
-                .idsTiendas(tiendaAsociada != null ? List.of(tiendaAsociada.getId()) : List.of())
+        //id de su unica tienda, pasamos a usar Long directo en vez de lista!!!!
+        dto.setIdTienda(tiendaAsociada != null ? tiendaAsociada.getId() : null);
 
+        //sacamos campañas directamente de la lista de tienda asoci
+        if (tiendaAsociada != null && tiendaAsociada.getCampanias() != null) {
+            dto.setIdsCampanias(tiendaAsociada.getCampanias().stream()
+                    .map(Campania::getId)
+                    .distinct()
+                    .collect(Collectors.toList()));
+        } else {
+            dto.setIdsCampanias(List.of()); //lista vacia
+        }
 
-                //sacamos las campañas directamente desde su tienda asociada
-                .idsCampanias((tiendaAsociada != null && tiendaAsociada.getCampanias() != null) ?
-                        tiendaAsociada.getCampanias().stream()
-                                .map(Campania::getId)
-                                .distinct()
-                                .collect(Collectors.toList()) : List.of())
-                .build();
+        return dto;
     }
 }

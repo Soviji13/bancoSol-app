@@ -34,7 +34,7 @@ public class TiendaDTO {
 
     private String nombreCadena;
     private String nombreEntidad;
-    //private String responsableEntidad; al final voy a necesitar una lista para mostrarlos con la doble flecha
+    //private String responsableEntidad; al final voy a necesitar una lista para mostrarlos con la doble flecha como en clientes
     private List<ResponsableEntidadResumenDTO> responsablesLista;
 
 }

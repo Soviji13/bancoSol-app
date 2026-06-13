@@ -3,7 +3,7 @@
 
 <div id="datos-contexto" data-campania-id="${campaniaId}" style="display: none;"></div>
 
-<%-- NUEVO: Guardamos el JSON de Spring directamente en el cliente --%>
+<%--guardamos json de spring directo en cliente para no hacer fetch extra!!!!--%>
 <script>
     window.tiendasParaExportar = ${tiendasJson != null ? tiendasJson : '[]'};
 </script>
@@ -52,7 +52,7 @@
                     <td><c:out value="${tienda.calle} ${tienda.numero}" /></td>
                     <td><c:out value="${tienda.localidad}" /></td>
 
-                        <%-- COLUMNA ACORDEÓN: Responsables y Entidades --%>
+                        <%--columna acordeon para responsables y entidades--%>
                     <td>
                         <c:choose>
                             <c:when test="${not empty tienda.responsablesLista}">
@@ -78,7 +78,7 @@
                         </c:choose>
                     </td>
 
-                        <%-- FLECHA DESPLEGABLE (Solo si hay más de 1) --%>
+                        <%--flecha desplegable solo si hay mas de 1--%>
                     <td>
                         <c:if test="${tienda.responsablesLista.size() > 1}">
                             <img src="${pageContext.request.contextPath}/assets/keyboard_double_arrow_down.svg" class="btn-desplegar-resp" style="transition: transform 0.2s; cursor: pointer;">
@@ -104,7 +104,7 @@
         </table>
     </div>
 
-    <%--BOTONES DE ACCIONES--%>
+    <%--botones de acciones para tabla--%>
     <div class="acciones-tabla" id="acciones-normales">
         <button class="acciones-tabla__btn" id="btn-eliminar" type="button">Eliminar tienda</button>
         <button class="acciones-tabla__btn" id="btn-modificar" type="button">Modificar tienda</button>
@@ -114,7 +114,7 @@
         </button>
     </div>
 
-    <%-- MODAL DE CAMPAÑAS--%>
+    <%--modal para saltar de campania--%>
     <div id="modal-campanias" class="modal-overlay oculto">
         <div class="modal-caja modal-caja-campanias">
             <header class="modal-cabecera">

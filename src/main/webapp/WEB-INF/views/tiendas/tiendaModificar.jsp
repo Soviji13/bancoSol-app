@@ -54,7 +54,7 @@
                 <div class="fila">
                     <div class="col-completa celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">Distrito:</span>
-                        <%-- Aquí hemos implementado el bucle para los Distritos --%>
+                        <%--bucle para cargar distritos--%>
                         <select name="distritoId" id="select-distrito" disabled style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px; background-color: #eee;">
                             <option value="" disabled selected>(Solo válido si es Málaga capital)</option>
                             <c:forEach var="distrito" items="${distritos}">
@@ -88,7 +88,7 @@
                     <div class="col-completa celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">Responsable de tienda:</span>
                         <div style="display:flex; gap:10px; width:100%;">
-                            <%-- Ojo: Esta opción NO tiene disabled, para permitir dejar la tienda sin responsable --%>
+                            <%--esta opcion sin disabled para poder dejar tienda sin responsable!!!!--%>
                             <select name="responsableId" id="select-responsable" style="flex-grow:1; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;">
                                 <option value="" <c:if test="${empty tiendaSelec.responsableTiendaId}">selected</c:if>>Sin asignar...</option>
                                 <c:forEach var="resp" items="${responsables}">
@@ -128,7 +128,7 @@
     </form>
 </aside>
 
-<%-- MODAL NUEVO RESPONSABLE (Con tu HTML exacto) --%>
+<%--modal responsable usa ajax para no perder datos introducidos del form padre al recargar, sugerido por ia!!!!--%>
 <div id="modal-responsable" class="modal-overlay oculto">
     <div class="modal-caja" style="max-width: 500px;">
         <header class="modal-cabecera">

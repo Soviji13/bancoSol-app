@@ -42,8 +42,8 @@ public interface TiendaRepository extends JpaRepository<Tienda, Long> {
     List<Tienda> filtrarPorCampania(@Param("idCampania") Long idCampania);
 
 
-    //USO DE IA: correccion de la query ya q se me habia olvidado el lower y haber filtrado por campañas tambien, ADEMAS
-    //ha petado por haberle metido null desde los inputs al no saber de q tipo es, asiq la ia me ha dado una solucion
+    //USO DE IA: correccion de la query ya q se me habia olvidado el lower y haber filtrado por campañas, ADEMAS
+    //ha petado por haberle metido null desde los inputs al no saber de q tipo es, asiq la ia me ha recomendado una solucion
     //poniendo "valores seguros" (-1L o vacíos)
     @EntityGraph(attributePaths = {
             "direccion",

@@ -12,7 +12,7 @@ public class ResponsableTiendaDTO {
     private Long contactoId; // Referencia a su información de contacto
 
     // Relaciones por ID
-    private List<Long> idsTiendas;   // Para TiendaResponsable
+    private Long idTienda;   //FRANCISCO JAVIER GARCI SIERRA: estaba mal, solo puede tener 1 id de tienda, no una lista rel 1:1
     private List<Long> idsCampanias; // Para saber en qué campañas ha sido responsable
 
     // Nota: Como TiendaResponsable es ternaria e incluye Campania,

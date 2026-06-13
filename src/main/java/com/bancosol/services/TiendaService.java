@@ -7,7 +7,6 @@ import com.bancosol.entities.Tienda;
 import com.bancosol.entities.TiendaColaborador;
 import com.bancosol.mapper.TiendaMapper;
 
-
 import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -20,62 +19,62 @@ import java.util.stream.Collectors;
 @AllArgsConstructor // Sofía
 public class TiendaService {
 
-        // Integración Sofía para Backend (0% IA generativa) --------------
-        private final TiendaRepository tiendaRepo;
-        private final TiendaMapper tiendaMapper;
+    // Integración Sofía para Backend (0% IA generativa) --------------
+    private final TiendaRepository tiendaRepo;
+    private final TiendaMapper tiendaMapper;
 
-        //fran {
-        private final DireccionRepository direccionRepo;
-        private final LocalidadRepository localidadRepo;
-        private final CodigoPostalRepository cpRepo;
-        private final DistritoRepository distritoRepo;
-        private final CadenaRepository cadenaRepo;
-        private final CampaniaRepository campaniaRepo;
-        private final TiendaColaboradorRepository tiendaColaboradorRepo;
-        private final ResponsableTiendaRepository responsableTiendaRepo;
-        // }
+    //fran {
+    private final DireccionRepository direccionRepo;
+    private final LocalidadRepository localidadRepo;
+    private final CodigoPostalRepository cpRepo;
+    private final DistritoRepository distritoRepo;
+    private final CadenaRepository cadenaRepo;
+    private final CampaniaRepository campaniaRepo;
+    private final TiendaColaboradorRepository tiendaColaboradorRepo;
+    private final ResponsableTiendaRepository responsableTiendaRepo;
+    // }
 
-        public List <TiendaDTO> listarTodas () {
-                return tiendaMapper.toDTOList(tiendaRepo.findAll());
-        }
+    public List <TiendaDTO> listarTodas () {
+        return tiendaMapper.toDTOList(tiendaRepo.findAll());
+    }
 
-        public TiendaDTO findById (Long id) {
-                return tiendaMapper.toDTO(tiendaRepo.findById(id).orElse(null));
-        }
+    public TiendaDTO findById (Long id) {
+        return tiendaMapper.toDTO(tiendaRepo.findById(id).orElse(null));
+    }
 
-        // Devuelve todas las que se encuentren en el Array de Ids
-        public List<TiendaDTO> findAllById(List<Long> ids) {
-                return tiendaMapper.toDTOList(tiendaRepo.findAllById(ids));
-        }
+    // Devuelve todas las que se encuentren en el Array de Ids
+    public List<TiendaDTO> findAllById(List<Long> ids) {
+        return tiendaMapper.toDTOList(tiendaRepo.findAllById(ids));
+    }
 
-        
-        // Fin integración Sofía ---------------------------------------------------
+    // Fin integración Sofía ---------------------------------------------------
 
 
-        //francisco javier garcia sierra 0% ia
-        //le metemos al mapper las tiendas para q las pase a una lista de dtos
-        public List<TiendaDTO> listarTiendasPorCampania(Long campaniaId) {
-                List<Tienda> tiendasBD = tiendaRepo.filtrarPorCampania(campaniaId);
+    //francisco javier garcia sierra 0% ia
+    //le metemos al mapper las tiendas para q las pase a una lista de dtos
+    public List<TiendaDTO> listarTiendasPorCampania(Long campaniaId) {
+        List<Tienda> tiendasBD = tiendaRepo.filtrarPorCampania(campaniaId);
 
-                return tiendaMapper.toDTOList(tiendasBD);
-        }
+        return tiendaMapper.toDTOList(tiendasBD);
+    }
 
     @Transactional
     public void aniadirNuevaTienda(TiendaDTO dto, Long campaniaId, Long localidadId, Long cpId, Long responsableId) {
 
+        //creamos direccion y guardamos primero para enlazarla a tienda despues
         Direccion nuevaDireccion = new Direccion();
         nuevaDireccion.setCalle(dto.getCalle());
 
-        short numero = dto.getNumero() != null ? dto.getNumero() : (short) 0;
+        short numero = dto.getNumero() != null ? dto.getNumero() : (short) 0; //le meto un 0 para no meter null
         nuevaDireccion.setNumero(numero);
 
         localidadRepo.findById(localidadId).ifPresent(nuevaDireccion::setLocalidad);
-
 
         cpRepo.findById(cpId).ifPresent(nuevaDireccion::setCodigoPostal);
 
         Direccion direccionGuardada = direccionRepo.save(nuevaDireccion);
 
+        //creamos tienda con datos basicos
         Tienda nuevaTienda = new Tienda();
         nuevaTienda.setNombre(dto.getNombre());
         nuevaTienda.setEsFranquicia(dto.getEsFranquicia());
@@ -88,6 +87,7 @@ public class TiendaService {
             responsableTiendaRepo.findById(responsableId).ifPresent(nuevaTienda::setResponsableTienda);
         }
 
+        //vinculamos campania
         if (campaniaId != null) {
             campaniaRepo.findById(campaniaId).ifPresent(campania -> {
                 if (nuevaTienda.getCampanias() == null) {
@@ -102,6 +102,7 @@ public class TiendaService {
 
     @Transactional
     public void vincularTiendaACampania(Long tiendaId, Long campaniaId) {
+        //buscamos tienda y campania y si no esta vinculada la aniadimos
         tiendaRepo.findById(tiendaId).ifPresent(tienda -> {
             campaniaRepo.findById(campaniaId).ifPresent(campania -> {
                 if (tienda.getCampanias() == null) {
@@ -118,26 +119,26 @@ public class TiendaService {
     @Transactional
     public void actualizarTiendaExistente(TiendaDTO dto, Long localidadId, Long distritoId, Long cpId, Long responsableId) {
         tiendaRepo.findById(dto.getId()).ifPresent(tienda -> {
-            // 1. Campos básicos de la Tienda
+            //campos básicos de la tienda
             tienda.setNombre(dto.getNombre());
             tienda.setEsFranquicia(dto.getEsFranquicia());
             tienda.setPuntosRecogida(dto.getPuntosRecogida());
 
-            // 2. Vincular Cadena
+            //vincular la cadena
             if (dto.getCadenaId() != null) {
                 cadenaRepo.findById(dto.getCadenaId()).ifPresent(tienda::setCadena);
             } else {
                 tienda.setCadena(null);
             }
 
-            // 3. Vincular Responsable de Tienda
+            //vincular resp tienda
             if (responsableId != null) {
                 responsableTiendaRepo.findById(responsableId).ifPresent(tienda::setResponsableTienda);
             } else {
                 tienda.setResponsableTienda(null);
             }
 
-            // 4. Actualizar Dirección asociada de forma segura
+            //actualizar direccion seguro evitando nulls
             Direccion dir = tienda.getDireccion();
             if (dir == null) {
                 dir = new Direccion();
@@ -149,11 +150,11 @@ public class TiendaService {
                 localidadRepo.findById(localidadId).ifPresent(dir::setLocalidad);
             }
 
-            // NUEVO: GUARDAR EL DISTRITO SIEMPRE QUE NO SEA NULO
+            //GUARDAMOS DISTRITO SIEMPRE Q NO SEA NULO!!!!
             if (distritoId != null) {
                 distritoRepo.findById(distritoId).ifPresent(dir::setDistrito);
             } else {
-                dir.setDistrito(null); // Si cambia a otra localidad y manda null, lo limpiamos de la BD
+                dir.setDistrito(null); //si cambia a otra localidad y manda null lo limpiamos de bd
             }
 
             if (cpId != null) {
@@ -165,7 +166,7 @@ public class TiendaService {
             Direccion direccionGuardada = direccionRepo.save(dir);
             tienda.setDireccion(direccionGuardada);
 
-            // 5. Guardamos los cambios finales de la Tienda
+            //guardamos los cambios finales de la tienda
             tiendaRepo.save(tienda);
         });
     }
@@ -175,7 +176,7 @@ public class TiendaService {
     public void eliminarTienda(Long idTienda) {
         tiendaRepo.findById(idTienda).ifPresent(tienda -> {
 
-            //limpiar tablas intermedias para no dejar datos huerfanos
+            //limpiamos tablas intermedias para no dejar datos huerfanos!!!!
             if (tienda.getColaboradores() != null) {
                 tienda.getColaboradores().clear();
             }
@@ -189,17 +190,17 @@ public class TiendaService {
             //borramos tienda
             tiendaRepo.delete(tienda);
 
-            //borramos direcciom
+            //borramos direccion asociada
             if (direccionAsociada != null) {
                 direccionRepo.delete(direccionAsociada);
             }
         });
     }
 
-    //USO DE IA: aplicados los cambios necesarios para los valores seguros q sugirió la ia en el repository
+    //USO IA: aplicamos cambios necesarios para valores seguros q sugirio ia en repository!!!!
     public List<TiendaDTO> listarTiendasFiltradas(Long campaniaId, String nombre, Long cadenaId, Long localidadId, Long distritoId, Long zonaGeoId, Long colaboradorId, String franquiciaStr) {
 
-        //Transformamos los nulls en valores seguros para evitar errores en Postgres
+        //transformamos nulls en valores seguros para evitar errores fatales en postgres!!!!
         String nombreFiltro = (nombre != null) ? nombre.trim() : "";
         Long cadenaFiltro = (cadenaId != null) ? cadenaId : -1L;
         Long localidadFiltro = (localidadId != null) ? localidadId : -1L;

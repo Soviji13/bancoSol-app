@@ -48,7 +48,8 @@ public class Tienda {
                 if (this.nombre != null) this.nombre = this.nombre.toUpperCase();
         }
 
-        //FRAN: estaba mal hecha la relacion no es 1:m sino 1:1
+        //francisco javier garcia sierra:
+        // estaba mal hecha la relacion no es 1:m sino 1:1
         @OneToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "responsable_tienda_id", referencedColumnName = "id")
         private ResponsableTienda responsableTienda;

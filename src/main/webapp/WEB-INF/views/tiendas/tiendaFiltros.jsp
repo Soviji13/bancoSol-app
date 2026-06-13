@@ -4,7 +4,7 @@
 <aside class="panel-tienda">
     <form action="${pageContext.request.contextPath}/tiendas" method="GET" id="form-filtros-tiendas" style="display: flex; flex-direction: column; height: 100%;">
 
-        <%-- Campos ocultos necesarios para mantener el estado de la vista principal --%>
+        <%--campos ocultos para no perder parametros de url al recargar!!!!--%>
         <input type="hidden" name="campaniaId" value="${campaniaId}" />
         <input type="hidden" name="verFiltros" value="true" />
 
@@ -14,6 +14,7 @@
                 <p class="panel-tienda__subtitulo" style="font-size: 0.9rem; color: #666;">Búsqueda avanzada</p>
             </div>
             <div class="panel-tienda__acciones" style="align-items: flex-start;">
+                <%--enlace nativo para cerrar sin js--%>
                 <a href="${pageContext.request.contextPath}/tiendas?campaniaId=${campaniaId}" id="btn-cerrar-filtros" class="panel-tienda__cerrar" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color: #888;" aria-label="Cerrar panel" title="Cerrar filtros">X</a>
             </div>
         </header>
@@ -110,6 +111,7 @@
 
         <div style="padding: 15px; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--color-borde-panel); background-color: #f8f9fa;">
             <button type="submit" id="btn-aplicar-filtros" class="btn-filtrar-principal" style="width: 100%; padding: 10px; border-radius: 4px;">Aplicar Filtros</button>
+            <%--enlace nativo para limpiar recargando limpia en backend!!!!--%>
             <a href="${pageContext.request.contextPath}/tiendas?campaniaId=${campaniaId}&verFiltros=true" id="btn-limpiar-filtros" class="btn-filtrar-limpiar" style="width: 100%; padding: 10px; border-radius: 4px; display:block; text-align:center; text-decoration:none; box-sizing:border-box;">Limpiar filtros</a>
         </div>
     </form>
