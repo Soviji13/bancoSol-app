@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <c:if test="${empty pagina}">
-    <c:set var="pagina" value="campanias" scope="request" />
+    <c:set var="pagina" value="campanias/campanias" scope="request" />
 </c:if>
 
 <c:if test="${empty panelIzquierdo}">
@@ -16,27 +16,30 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/global.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/inicio/inicio.css" />
 
-    <%-- Estilos y JS Sofía (no afectan al resto) --%>
-    <link rel="stylesheet" href="<c:url value='/css/entidades/badges.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/entidades/colaborador-seleccionado.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/entidades/encabezado.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/entidades/panel-filtros.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/entidades/pie.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/entidades/registro-colaborador.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/entidades/tabla.css' />">
-
+    <%-- ENTIDADES: LISTADO --%>
     <c:if test="${pagina == 'inicio-entidades'}">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/badges.css' />">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/colaborador-seleccionado.css' />">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/encabezado.css' />">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/panel-filtros.css' />">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/pie.css' />">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/tabla.css' />">
+
         <script type="module"
                 src="${pageContext.request.contextPath}/js/entidades/tabla.js"
                 defer>
         </script>
+
         <script type="module"
                 src="${pageContext.request.contextPath}/js/entidades/mostrarCampanias.js"
                 defer>
         </script>
     </c:if>
 
+    <%-- ENTIDADES: FORMULARIO --%>
     <c:if test="${pagina == 'aniadir-entidad'}">
+        <link rel="stylesheet" href="<c:url value='/css/entidades/registro-colaborador.css' />">
+
         <script type="module"
                 src="${pageContext.request.contextPath}/js/entidades/aniadirEntidad.js"
                 defer>
@@ -46,11 +49,24 @@
     <%-- COORDINADORES: LISTADO --%>
     <c:if test="${pagina == 'gestionar-coordinadores'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/encabezado.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/panelFiltro.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/tabla.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/pie.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/badges.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/coordinadores.css" />
+
+        <script type="module"
+                src="${pageContext.request.contextPath}/js/coordinadores/coordinadores.js"
+                defer>
+        </script>
+
+        <c:if test="${panelIzquierdo == 'coordinadores/panel-filtro.jsp'}">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/panelFiltro.css" />
+
+            <script type="module"
+                    src="${pageContext.request.contextPath}/js/coordinadores/panelFiltro.js"
+                    defer>
+            </script>
+        </c:if>
     </c:if>
 
     <%-- COORDINADORES: FORMULARIO --%>
@@ -66,16 +82,6 @@
     <%-- CAMPAÑAS --%>
     <c:if test="${pagina == 'campanias/gestionar-campanias'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/gestionar-campanias.css" />
-    </c:if>
-
-    <c:if test="${pagina == 'coordinadores/detalles-coordinador'}">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/detallesCoordinador.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/encabezado.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/panelFiltro.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/tabla.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/pie.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/badges.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/coordinadores/coordinadores.css" />
     </c:if>
 
     <%-- INCIDENCIAS: LISTADO --%>
@@ -106,7 +112,7 @@
         </script>
     </c:if>
 
-    <%-- TIENDAS --%>
+     <%-- TIENDAS --%>
     <c:if test="${pagina == 'inicio-tiendas'}">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendas.css" />
 
@@ -140,12 +146,14 @@
 
     <div class="bs-inicio__body">
 
-        <aside class="bs-inicio__menu">
+        <div class="bs-inicio__menu">
             <jsp:include page="${panelIzquierdo}" />
-        </aside>
+        </div>
 
         <main class="bs-inicio__contenido">
             <c:choose>
+
+                <%-- CAMPAÑAS --%>
                 <c:when test="${pagina == 'campanias/campanias'}">
                     <jsp:include page="campanias/campanias.jsp" />
                 </c:when>
@@ -162,15 +170,13 @@
                     <jsp:include page="campanias/modificar-campania.jsp" />
                 </c:when>
 
+                <%-- CADENAS --%>
                 <c:when test="${pagina == 'cadenas/gestionar-cadenas'}">
                     <jsp:include page="cadenas/gestionar-cadenas.jsp" />
                 </c:when>
 
+                <%-- COORDINADORES --%>
                 <c:when test="${pagina == 'gestionar-coordinadores'}">
-                    <jsp:include page="coordinadores/listado.jsp" />
-                </c:when>
-
-                <c:when test="${pagina == 'coordinadores/detalles-coordinador'}">
                     <jsp:include page="coordinadores/listado.jsp" />
                 </c:when>
 
@@ -178,6 +184,7 @@
                     <jsp:include page="coordinadores/formulario.jsp" />
                 </c:when>
 
+                <%-- INCIDENCIAS --%>
                 <c:when test="${pagina == 'gestionar-incidencias'}">
                     <jsp:include page="incidencias/listado.jsp" />
                 </c:when>
@@ -186,7 +193,7 @@
                     <jsp:include page="incidencias/formulario.jsp" />
                 </c:when>
 
-                <%-- ENTIDADES PÁGINA INICIAL (Sofía) --%>
+                <%-- ENTIDADES --%>
                 <c:when test="${pagina == 'inicio-entidades'}">
                     <jsp:include page="entidades_colaboradoras/tabla.jsp" />
                 </c:when>
@@ -195,7 +202,8 @@
                     <jsp:include page="entidades_colaboradoras/aniadir-entidad.jsp" />
                 </c:when>
 
-                <%-- TIENDAS --%>
+
+                 <%-- TIENDAS --%>
                 <c:when test="${pagina == 'inicio-tiendas'}">
                     <jsp:include page="tiendas/listaTiendas.jsp" />
                 </c:when>
@@ -207,6 +215,7 @@
                 <c:otherwise>
                     <p>No se ha encontrado la página solicitada.</p>
                 </c:otherwise>
+
             </c:choose>
         </main>
     </div>
