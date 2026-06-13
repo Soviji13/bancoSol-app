@@ -351,7 +351,7 @@ public class EntidadColaboradoraService {
         this.entidadRepo.save(nuevaEntidad);
     }
 
-    // ACTUALIZAR ENTIDAD (0% IA GENERATIVA)
+    // ACTUALIZAR ENTIDAD (Ayuda de IA para algunas relaciones complejas)
     // --------------------------------------------------------------------------------------------
     @Transactional
     public void sobreescribirEntidad(ActualizacionEntidadDTO datos) {
@@ -534,6 +534,51 @@ public class EntidadColaboradoraService {
                 // Guardado definitivo sin duplicados
                 this.entidadRepo.save(nuevaEntidad);
             }
+        }
+    }
+
+    // PARA ELIMINAR UNA ENTIDAD (Ayuda de la IA para relaciones complejas)
+    // -----------------------------------------
+    @Transactional
+    public void eliminarEntidad(Long entidadId) {
+        // Primero obtenemos la entidad
+        EntidadColaboradora entidadEliminar = this.entidadRepo.findById(entidadId).orElse(null);
+
+        // Si la entidad no es null
+        if (entidadEliminar != null) {
+            // Cogemos todas las relaciones que tiene 1:1 o 1:M (NO DEBEMOS ELIMINAR SUS
+            // RELACIONES PUESTO QUE SON "ENUMS")
+            Direccion direccionEliminar = entidadEliminar.getDireccion();
+
+            for (ResponsableEntidad r : entidadEliminar.getResponsables()) {
+                // Eliminamos el contacto y el usuario
+                if (r.getContacto() != null) {
+                    this.contactoRepository.delete(r.getContacto());
+                }
+                if (r.getUsuario() != null) {
+                    this.usuarioRepository.delete(r.getUsuario());
+                }
+
+                // Eliminamos el responsable de la entidad
+                this.responsableEntidadRepository.delete(r);
+            }
+
+            // Ahora debemos eliminar las M:M
+            if (entidadEliminar.getCampanias() != null) {
+                for (Campania c : entidadEliminar.getCampanias()) {
+                    if (c.getColaboradores() != null) {
+                        c.getColaboradores().remove(entidadEliminar);
+                    }
+                }
+                entidadEliminar.getCampanias().clear();
+            }
+
+            // La tabla intermedia de las 3 entidades
+            this.tiendaColabRepo.deleteByColaboradorId(entidadId);
+            // Eliminamos la entidad
+            this.entidadRepo.delete(entidadEliminar);
+            // La dirección
+            this.direccionRepository.delete(direccionEliminar);
         }
     }
 

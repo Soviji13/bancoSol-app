@@ -504,7 +504,7 @@ if (seccionEntidades) {
         }
     }
 
-
+    const botonEliminar = document.getElementById('btn-eliminar-colaborador');
     const botonModificar = document.getElementById('btn-modificar-colaborador');
 
     if (botonModificar && seccionEntidades.dataset.modificable === "true") {
@@ -512,8 +512,16 @@ if (seccionEntidades) {
             // Obtenemos todos los campos que estaban readOnly y required y los habilitamos
             // Además de poder añadir responsables
             toggleModoEdicion();
+        });
+    }
 
-            // Añadimos la funcionalidad de poder ir añadiendo responsables de entidad
+    // PARA ELIMINAR ENTIDAD ---------------------------------------------------------------------------------------
+
+    if (botonEliminar && seccionEntidades.dataset.modificable === "true") {
+        botonEliminar.addEventListener ('click', function () {
+            const idCampania = seccionEntidades.dataset.idCampaniaActual;
+            const idEntidad = parseInt(document.getElementById('detalle-id-display').textContent.trim());
+            window.location.href = `http://localhost:8080/entidades/eliminar?entidadId=${idEntidad}&campaniaId=${idCampania}`;
         });
     }
 
@@ -734,7 +742,6 @@ if (seccionEntidades) {
             }
         });
     }
-
 
     // PARA ABRIR PANEL DE CREAR ENTIDAD -------------------------------------------------------------------------------
     const botonAbrirRegistro = document.getElementById ('btn-abrir-registro');

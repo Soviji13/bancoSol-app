@@ -188,6 +188,7 @@ public class EntidadesController {
         return ResponseEntity.ok().build();
     }
 
+    // Actualizar entidad modificada
     @PostMapping("/actualizar")
     @ResponseBody
     public ResponseEntity<Void> actualizarEntidad(@RequestBody ActualizacionEntidadDTO entidadCompleta) {
@@ -195,6 +196,16 @@ public class EntidadesController {
         this.entidadService.sobreescribirEntidad(entidadCompleta);
 
         return ResponseEntity.ok().build();
+    }
+
+    // Eliminar entidad modificada
+    @GetMapping("/eliminar")
+    public String eliminarEntidad(
+            @RequestParam("entidadId") Long entidadId,
+            @RequestParam("campaniaId") Long campaniaId) {
+
+        this.entidadService.eliminarEntidad(entidadId);
+        return ("redirect:/entidades?campaniaId=" + campaniaId);
     }
 
 }
