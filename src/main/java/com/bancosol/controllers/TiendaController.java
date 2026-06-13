@@ -5,6 +5,7 @@ package com.bancosol.controllers;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.services.*;
 import com.bancosol.dto.TiendaDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,35 +29,83 @@ import java.util.List;
         private final ResponsableTiendaService responsableTiendaService;
         private final DistritoService distritoService;
 
+        //filtros
+        private final ZonaGeograficaService zonaGeograficaService;
+        private final EntidadColaboradoraService entidadColaboradoraService;
+
         @GetMapping({"", "/"})
         public String listarTiendas(@RequestParam(value = "campaniaId", required = false) Long campaniaId,
                                     @RequestParam(value = "tiendaId", required = false) Long tiendaId,
-                                     Model model) {
+                                    @RequestParam(value = "verFiltros", required = false) Boolean verFiltros,
+                                    @RequestParam(value = "nombreFiltro", required = false) String nombreFiltro,
+                                    @RequestParam(value = "cadenaIdFiltro", required = false) Long cadenaIdFiltro,
+                                    @RequestParam(value = "localidadIdFiltro", required = false) Long localidadIdFiltro,
+                                    @RequestParam(value = "distritoIdFiltro", required = false) Long distritoIdFiltro,
+                                    @RequestParam(value = "zonaGeoIdFiltro", required = false) Long zonaGeoIdFiltro,
+                                    @RequestParam(value = "colaboradorIdFiltro", required = false) Long colaboradorIdFiltro,
+                                    @RequestParam(value = "esFranquiciaFiltro", required = false) String esFranquiciaFiltro, // AHORA ES STRING
+                                    Model model) {
 
-            //idea de sofia para mostrar la campaña activa como defautl {
             CampaniaDTO campaniaTabla = (campaniaId == null)
                     ? this.campaniaService.devolverCampaniaActiva()
                     : this.campaniaService.findById(campaniaId);
-            // }
 
-            List<TiendaDTO> tiendas = tiendaService.listarTiendasPorCampania(campaniaTabla.getId());
+            // Evaluamos si hay criterios de filtrado activos o listamos de forma normal
+            List<TiendaDTO> tiendas;
+            if (nombreFiltro != null || cadenaIdFiltro != null || localidadIdFiltro != null ||
+                    distritoIdFiltro != null || zonaGeoIdFiltro != null || colaboradorIdFiltro != null || esFranquiciaFiltro != null) {
+
+                tiendas = tiendaService.listarTiendasFiltradas(
+                        campaniaTabla.getId(), nombreFiltro, cadenaIdFiltro, localidadIdFiltro,
+                        distritoIdFiltro, zonaGeoIdFiltro, colaboradorIdFiltro, esFranquiciaFiltro
+                );
+            } else {
+                tiendas = tiendaService.listarTiendasPorCampania(campaniaTabla.getId());
+            }
 
             model.addAttribute("tiendasSelec", tiendas);
+
+            //IA: CONVERTIMOS A JSON PARA EL BOTÓN EXPORTAR
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String tiendasJson = mapper.writeValueAsString(tiendas);
+                model.addAttribute("tiendasJson", tiendasJson);
+            } catch (Exception e) {
+                model.addAttribute("tiendasJson", "[]");
+            }
+
             model.addAttribute("campaniaSelec", campaniaTabla);
             model.addAttribute("campaniaId", campaniaTabla.getId());
-
-            //!!!le decimos al modelo q en pagina estamos
             model.addAttribute("pagina", "inicio-tiendas");
 
-            //si seleccionamos una tienda
+            // Si se selecciona ver el panel de detalles
             if (tiendaId != null) {
                 TiendaDTO tiendaSelec = tiendaService.findById(tiendaId);
                 model.addAttribute("tiendaSelec", tiendaSelec);
                 model.addAttribute("panelIzquierdo", "tiendas/tiendaDetalles.jsp");
             }
 
-            return "inicio";
+            // Si se selecciona abrir el panel de búsqueda avanzada
+            if (verFiltros != null && verFiltros) {
+                model.addAttribute("cadenas", cadenaService.listarTodas());
+                model.addAttribute("localidades", localidadService.listarTodas());
+                model.addAttribute("distritos", distritoService.listarTodos());
+                model.addAttribute("zonas", zonaGeograficaService.listarTodas());
+                model.addAttribute("colaboradores", entidadColaboradoraService.listarTodas());
 
+                // Conservamos los valores ya filtrados en la interfaz para que no se borren al recargar
+                model.addAttribute("nombreFiltro", nombreFiltro);
+                model.addAttribute("cadenaIdFiltro", cadenaIdFiltro);
+                model.addAttribute("localidadIdFiltro", localidadIdFiltro);
+                model.addAttribute("distritoIdFiltro", distritoIdFiltro);
+                model.addAttribute("zonaGeoIdFiltro", zonaGeoIdFiltro);
+                model.addAttribute("colaboradorIdFiltro", colaboradorIdFiltro);
+                model.addAttribute("esFranquiciaFiltro", esFranquiciaFiltro);
+
+                model.addAttribute("panelIzquierdo", "tiendas/tiendaFiltros.jsp");
+            }
+
+            return "inicio";
         }
 
         @GetMapping("/aniadir")
@@ -215,11 +264,13 @@ import java.util.List;
         }
 
 
+        @PostMapping("/eliminar")
+        public String eliminarTienda(@RequestParam("tiendaId") Long tiendaId,
+                                     @RequestParam("campaniaId") Long campaniaId) {
 
+            tiendaService.eliminarTienda(tiendaId);
 
-
-
-
-
-
+            //redireccion para evitar problemas en caso de recargar
+            return "redirect:/tiendas?campaniaId=" + campaniaId;
+        }
     }

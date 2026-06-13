@@ -65,8 +65,10 @@ public class TiendaService {
 
         Direccion nuevaDireccion = new Direccion();
         nuevaDireccion.setCalle(dto.getCalle());
+
         short numero = dto.getNumero() != null ? dto.getNumero() : (short) 0;
         nuevaDireccion.setNumero(numero);
+
         localidadRepo.findById(localidadId).ifPresent(nuevaDireccion::setLocalidad);
 
 
@@ -81,7 +83,7 @@ public class TiendaService {
         nuevaTienda.setDireccion(direccionGuardada);
         cadenaRepo.findById(dto.getCadenaId()).ifPresent(nuevaTienda::setCadena);
 
-        // ASIGNACIÓN 1:1 DIRECTA
+        //ASIGNACIÓN 1:1 DIRECTA!!!!! Q ANTES ESTABA PUESTA COMO 1:M
         if (responsableId != null) {
             responsableTiendaRepo.findById(responsableId).ifPresent(nuevaTienda::setResponsableTienda);
         }
@@ -169,5 +171,46 @@ public class TiendaService {
     }
 
 
+    @Transactional
+    public void eliminarTienda(Long idTienda) {
+        tiendaRepo.findById(idTienda).ifPresent(tienda -> {
 
+            //limpiar tablas intermedias para no dejar datos huerfanos
+            if (tienda.getColaboradores() != null) {
+                tienda.getColaboradores().clear();
+            }
+            if (tienda.getCampanias() != null) {
+                tienda.getCampanias().clear();
+            }
+
+
+            Direccion direccionAsociada = tienda.getDireccion();
+
+            //borramos tienda
+            tiendaRepo.delete(tienda);
+
+            //borramos direcciom
+            if (direccionAsociada != null) {
+                direccionRepo.delete(direccionAsociada);
+            }
+        });
+    }
+
+    //USO DE IA: aplicados los cambios necesarios para los valores seguros q sugirió la ia en el repository
+    public List<TiendaDTO> listarTiendasFiltradas(Long campaniaId, String nombre, Long cadenaId, Long localidadId, Long distritoId, Long zonaGeoId, Long colaboradorId, String franquiciaStr) {
+
+        //Transformamos los nulls en valores seguros para evitar errores en Postgres
+        String nombreFiltro = (nombre != null) ? nombre.trim() : "";
+        Long cadenaFiltro = (cadenaId != null) ? cadenaId : -1L;
+        Long localidadFiltro = (localidadId != null) ? localidadId : -1L;
+        Long distritoFiltro = (distritoId != null) ? distritoId : -1L;
+        Long zonaGeoFiltro = (zonaGeoId != null) ? zonaGeoId : -1L;
+        Long colaboradorFiltro = (colaboradorId != null) ? colaboradorId : -1L;
+        String franquiciaFiltro = (franquiciaStr != null && !franquiciaStr.isEmpty()) ? franquiciaStr : "TODAS";
+
+        List<Tienda> tiendasBD = tiendaRepo.filtrarTiendasAvanzado(
+                campaniaId, nombreFiltro, cadenaFiltro, localidadFiltro, distritoFiltro, zonaGeoFiltro, colaboradorFiltro, franquiciaFiltro
+        );
+        return tiendaMapper.toDTOList(tiendasBD);
+    }
 }

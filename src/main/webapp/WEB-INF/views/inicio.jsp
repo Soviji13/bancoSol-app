@@ -127,6 +127,11 @@
             <script type="module" src="${pageContext.request.contextPath}/js/tiendas/tiendaModificar.js" defer></script>
         </c:if>
 
+
+        <c:if test="${panelIzquierdo == 'tiendas/tiendaFiltros.jsp'}">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/panel-filtros.css" />
+        </c:if>
+
         <script type="module" src="${pageContext.request.contextPath}/js/tiendas/tiendas.js" defer></script>
     </c:if>
 

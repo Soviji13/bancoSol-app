@@ -3,6 +3,11 @@
 
 <div id="datos-contexto" data-campania-id="${campaniaId}" style="display: none;"></div>
 
+<%-- NUEVO: Guardamos el JSON de Spring directamente en el cliente --%>
+<script>
+    window.tiendasParaExportar = ${tiendasJson != null ? tiendasJson : '[]'};
+</script>
+
 <div class="contenido">
     <div class="contenido__topbar">
         <div class="filtro">
