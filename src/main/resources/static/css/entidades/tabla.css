@@ -5,6 +5,8 @@
     margin-top: 100px;
     width: 100%;
     margin-bottom: 90px; /* Evita que el pie de página fijo tape las últimas filas */
+
+    overflow-x: auto;
 }
 
 #entidades .modal-overlay-campanias {
@@ -27,6 +29,7 @@
 #entidades table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: auto;
 }
 
 /* Cabecera Sticky Perfecta: Se quedará fija arriba al hacer scroll nativo en la página */
@@ -34,11 +37,13 @@
     color: var(--color-principal);
     font-weight: bold;
     background-color: #f8f9ff;
-    position: sticky;
+    position: static;
     top: 101px; 
     z-index: 10;
     box-shadow: inset 0 -1px 0 var(--color-borde-suave);
     border: 1px solid var(--color-borde-suave);
+
+    padding: 15px 20px;
 }
 
 #entidades td {
