@@ -4,7 +4,6 @@ package com.bancosol.controllers;
 
 import com.bancosol.services.CodigoPostalService;
 import com.bancosol.services.DistritoService;
-import com.bancosol.services.LocalidadService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +27,8 @@ public class CpController {
 
     @GetMapping("/devolver-json")
     @ResponseBody
-    public List <CodigoPostalDTO> devolverCodigosJson (
-        @RequestParam (value = "idDistrito", required = false) Long idDistrito
-    ) {
+    public List<CodigoPostalDTO> devolverCodigosJson(
+            @RequestParam(value = "idDistrito", required = false) Long idDistrito) {
         if (idDistrito != null) {
             // Obtenemos el distrito
             DistritoDTO d = this.distritoService.findById(idDistrito);
@@ -40,5 +38,5 @@ public class CpController {
 
         return this.codigoPostalService.findSinDistrito();
     }
-    
+
 }

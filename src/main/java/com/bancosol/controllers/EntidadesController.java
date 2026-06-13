@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
+import com.bancosol.dto.actualizacionEntidad.ActualizacionEntidadDTO;
 import com.bancosol.dto.registroEntidad.RegistroEntidadDTO;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.CodigoPostalService;
@@ -32,8 +33,6 @@ import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @Controller
 @AllArgsConstructor
 @RequestMapping("/entidades")
@@ -43,32 +42,28 @@ public class EntidadesController {
     private final CampaniaService campaniaService;
     private final EntidadColaboradoraService entidadService;
     private final TiendaService tiendaService;
-    //private final ResponsableEntidadService responsableEntidadService;
+    // private final ResponsableEntidadService responsableEntidadService;
     private final CoordinadorService coordinadorService;
-    private final LocalidadService localidadService;
     private final CodigoPostalService codigoPostalService;
-    private final ZonaGeograficaService zonaGeograficaService;
 
-    // Relacionadas con mostrar datos --------------------------------------------------------------
+    // Relacionadas con mostrar datos
+    // --------------------------------------------------------------
 
     // Mostrar todas las entidades de una campaña (parámetro)
     // Si no se pasa una específicamente por parámetro, se muestran las de la activa
-    @GetMapping({"", "/"})
-    public String mostrarTabla( 
-        @RequestParam( value = "campaniaId", required = false ) Long campaniaId,
-        @RequestParam( value = "entidadId", required = false ) Long entidadId,
-        Model model
-    ) 
-    {
+    @GetMapping({ "", "/" })
+    public String mostrarTabla(
+            @RequestParam(value = "campaniaId", required = false) Long campaniaId,
+            @RequestParam(value = "entidadId", required = false) Long entidadId,
+            Model model) {
         // -- Devolver tabla --
         // Si es null, devuelve la campaña activa
-        CampaniaDTO campaniaTabla = (campaniaId == null) 
-            ? this.campaniaService.devolverCampaniaActiva() 
-            : this.campaniaService.findById(campaniaId);
+        CampaniaDTO campaniaTabla = (campaniaId == null)
+                ? this.campaniaService.devolverCampaniaActiva()
+                : this.campaniaService.findById(campaniaId);
 
         // Obtenemos las entidades colaboradoras a mostrar
-        List<EntidadColaboradoraDTO> entidadesCampania = 
-            this.entidadService.findAllByCampaniaId(campaniaTabla.getId());
+        List<EntidadColaboradoraDTO> entidadesCampania = this.entidadService.findAllByCampaniaId(campaniaTabla.getId());
 
         model.addAttribute("entidadesSelec", entidadesCampania);
         model.addAttribute("campaniaSelec", campaniaTabla);
@@ -77,28 +72,44 @@ public class EntidadesController {
         // -- Devolver entidad en el lateral (solo info) --
         // Si se seleccionó una entidad
         if (entidadId != null) {
-            
+
             // Pasamos la entidad colaboradora además
             EntidadColaboradoraDTO e = (entidadId == null)
-                ? null
-                : this.entidadService.findByCampaniaId(campaniaId, entidadId);
+                    ? null
+                    : this.entidadService.findByCampaniaId(campaniaId, entidadId);
+
+            // Obtenemos el coordinador de esta entidad colaboradora
+            Long idCoordinador = e.getCoordinadorId();
 
             // Pasamos todas sus tiendas
-            List <TiendaDTO> tiendasColab = this.entidadService.devolverTodasLasTiendas(entidadId);
+            List<TiendaDTO> tiendasColab = this.entidadService.devolverTodasLasTiendas(entidadId);
+
             // Pasamos todas las tiendas
-            List <TiendaDTO> tiendas = this.tiendaService.listarTodas();
+            List<TiendaDTO> tiendas = this.tiendaService.listarTodas();
 
             // Pasamos todas las campañas
-            List <CampaniaDTO> campanias = this.campaniaService.listarTodas();
-            // Obtenemos las tiendas pertenecientes a cada campaña de la entidad
-            Map <Long, List <TiendaDTO>> tiendasCampania = this.entidadService.devolverCampaniasConTodasTiendas(entidadId);
-            // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
-            Map <Long, List <TiendaDTO>> tiendasCampaniaEntidad = this.entidadService.devolverCampaniasConTiendas(entidadId);
+            List<CampaniaDTO> campanias = this.campaniaService.listarTodas();
 
-            // Pasamos el distrito si es capital (se pasa así porque pueden haber direcciones corruptas, que aunque sean capital, no tienen distrito)
+            // Obtenemos las campañas únicamente del coordinador
+            Map<CampaniaDTO, List<TiendaDTO>> campaniasCoordinador = this.coordinadorService
+                    .obtenerCampaniasConTiendas(idCoordinador);
+            model.addAttribute("campaniasCoordinador", campaniasCoordinador);
+
+            // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
+            Map<Long, List<TiendaDTO>> tiendasCampaniaEntidad = this.entidadService
+                    .devolverCampaniasConTiendas(entidadId);
+            model.addAttribute("tiendasCampaniaEntidad", tiendasCampaniaEntidad);
+
+            // Pasamos el distrito si es capital (se pasa así porque pueden haber
+            // direcciones corruptas, que aunque sean capital, no tienen distrito) y todos
+            // los distritos para el select
             if (e.getDireccion().getEsCapital() && e.getDireccion().getDistritoId() != null) {
                 model.addAttribute("distrito", this.distritoService.findById(e.getDireccion().getDistritoId()));
+                model.addAttribute("distritos", this.distritoService.listarTodos());
             }
+
+            // Obtenemos el nombre y lo pasamos
+            model.addAttribute("coordinadorNombre", this.coordinadorService.buscarPorId(idCoordinador).getNombre());
 
             // Pasamos la campaña actual (id) y la última campaña
             model.addAttribute("idCampaniaActual", this.campaniaService.devolverCampaniaActiva().getId());
@@ -106,7 +117,6 @@ public class EntidadesController {
 
             // Pasamos todas las campañas
             model.addAttribute("campanias", campanias);
-            model.addAttribute("tiendasCampania", tiendasCampania);
             model.addAttribute("tiendasCampaniaEntidad", tiendasCampaniaEntidad);
 
             // Pasamos todas las tiendas
@@ -130,17 +140,17 @@ public class EntidadesController {
     // Con @ResponseBody devolvemos los datos en forma de JSON
     @GetMapping("/mostrar-campanias-json")
     @ResponseBody
-    public List <CampaniaDTO> getCampanias () {
+    public List<CampaniaDTO> getCampanias() {
         return campaniaService.listarTodas();
     }
 
-    // Relacionados con añadir colaborador -----------------------------------------------------
+    // Relacionados con añadir colaborador
+    // -----------------------------------------------------
 
     @GetMapping("/crear")
-    public String AbrirRegistroColab (
-        Model model,
-        @RequestParam("campaniaId") Long campaniaId
-    ) {
+    public String AbrirRegistroColab(
+            Model model,
+            @RequestParam("campaniaId") Long campaniaId) {
         model.addAttribute("distritos", this.distritoService.listarTodos());
         model.addAttribute("cps", this.codigoPostalService.listarTodas());
         model.addAttribute("coordinadores", this.coordinadorService.listarTodos());
@@ -150,33 +160,41 @@ public class EntidadesController {
         return "inicio";
     }
 
-    // AYUDA DE LA IA PARA QUE FUNCIONE MI IDEA 
-    public record CampaniaTiendasResponse(CampaniaDTO campania, List<TiendaDTO> tiendas) {}
+    // AYUDA DE LA IA PARA QUE FUNCIONE MI IDEA
+    public record CampaniaTiendasResponse(CampaniaDTO campania, List<TiendaDTO> tiendas) {
+    }
 
     @GetMapping("/obtener-campanias-json-crear")
     @ResponseBody
-    public List<CampaniaTiendasResponse> obtenerCampaniasConTiendasDeCoordinador (
-        @RequestParam ("idCoordinador") Long idCoordinador
-    ) {
+    public List<CampaniaTiendasResponse> obtenerCampaniasConTiendasDeCoordinador(
+            @RequestParam("idCoordinador") Long idCoordinador) {
 
         // Antes yo solo devolvía esto
         Map<CampaniaDTO, List<TiendaDTO>> mapa = this.coordinadorService.obtenerCampaniasConTiendas(idCoordinador);
 
         // Se transforma a mapa (lógica totalmente de IA)
         return mapa.entrySet().stream()
-            .map(entry -> new CampaniaTiendasResponse(entry.getKey(), entry.getValue()))
-            .toList();
+                .map(entry -> new CampaniaTiendasResponse(entry.getKey(), entry.getValue()))
+                .toList();
     }
-    
+
     // Ayuda de la IA para saber cómo manejar una petición POST
     @PostMapping("/registrar")
     @ResponseBody
-    public ResponseEntity<Void> registrarEntidad (@RequestBody RegistroEntidadDTO entidadCompleta) {
-        
+    public ResponseEntity<Void> registrarEntidad(@RequestBody RegistroEntidadDTO entidadCompleta) {
+
         this.entidadService.crearEntidad(entidadCompleta);
-        
+
         return ResponseEntity.ok().build();
     }
-    
+
+    @PostMapping("/actualizar")
+    @ResponseBody
+    public ResponseEntity<Void> actualizarEntidad(@RequestBody ActualizacionEntidadDTO entidadCompleta) {
+
+        this.entidadService.sobreescribirEntidad(entidadCompleta);
+
+        return ResponseEntity.ok().build();
+    }
 
 }

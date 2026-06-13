@@ -62,7 +62,7 @@
                         disabled
                     >
                         <%-- Opción por defecto (Localidad) --%>
-                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidad : ''}" selected>
+                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidadId : ''}" selected>
                             ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.localidad : '-'}
                         </option>
                     </select>
@@ -77,7 +77,7 @@
                         disabled
                     >
                         <%-- Opción por defecto (CP) --%>
-                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostal : ''}" selected>
+                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostalId : ''}" selected>
                             ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.codigoPostal : '-'}
                         </option>
                     </select>
@@ -93,7 +93,7 @@
                         disabled
                     >
                         <%-- Opción por defecto (Zona Geográfica) --%>
-                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeografica : ''}" selected>
+                        <option value="${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeoId : ''}" selected>
                             ${entidadSelec != null && entidadSelec.direccion != null ? entidadSelec.direccion.zonaGeografica : '-'}
                         </option>
                     </select>
@@ -115,14 +115,29 @@
                     </label>
                 </div>
                 <%-- Distritos si es capital --%>
-                <c:if test="${entidadSelec != null && entidadSelec.direccion != null && entidadSelec.direccion.esCapital}">
-                    <div class="fila-flex" id="campo-distrito-panel">
-                        <span class="etiqueta">Distrito:</span> 
-                        <select id="edit-distrito" name="nombreDistrito" class="input-linea" disabled>
-                            <option value="${distrito.id}">${distrito.nombre}</option>
-                        </select>
-                    </div>
-                </c:if>
+                <c:choose>
+                    <c:when test="${entidadSelec != null && entidadSelec.direccion != null && entidadSelec.direccion.esCapital}">
+                        <div class="fila-flex" id="campo-distrito-panel" style="display: flex;">
+                    </c:when>
+                    <c:otherwise>
+                        <div class="fila-flex" id="campo-distrito-panel" style="display: none;">
+                    </c:otherwise>
+                </c:choose>
+                    <span class="etiqueta">Distrito:</span> 
+                    <select id="edit-distrito" name="nombreDistrito" class="input-linea" disabled>
+                        <option value="">Seleccione un distrito...</option>
+                        
+                        <%-- Los datos (opciones) sí se traen por SSR condicionalmente --%>
+                        <c:if test="${distritos != null && distritos.size() > 0}">
+                            <c:forEach var="d" items="${distritos}">
+                                <option value="${d.id}" 
+                                    ${entidadSelec != null && entidadSelec.direccion != null && entidadSelec.direccion.distritoId != null && entidadSelec.direccion.distritoId == d.id ? 'selected' : ''}>
+                                    ${d.nombre}
+                                </option>
+                            </c:forEach>
+                        </c:if>
+                    </select>
+                </div>
             </section>
 
             <%-- Mostrar responsables de entidad --%>
@@ -132,8 +147,9 @@
                         <c:if test="${entidadSelec != null && entidadSelec.responsablesEntidad != null && entidadSelec.responsablesEntidad.size() > 0}">
                             <c:forEach var="res" items="${entidadSelec.responsablesEntidad}">
                                 <tr class="contacto-header">
-                                    <td 
-                                        rowspan="${3}"
+                                    <td
+                                        class="js-logica-td-form"
+                                        rowspan="3"
                                         style="width: 90px; text-align: center; vertical-align: top; background-color: #f8fafc;"
                                     >
                                         <strong style="color: #1e3a8a;">Contacto ${entidadSelec.responsablesEntidad.indexOf(res)}</strong>
@@ -154,14 +170,30 @@
                                         <input type="text" class="input-linea r-nombre" value="${res.contacto.nombre}">
                                     </td>
                                 </tr>
-                                <tr><td>
-                                    <span span class="etiqueta-tabla">Email</span>
-                                    <input type="email" class="input-linea r-email" value="${res.contacto.email}">
-                                </td></tr>
-                                <tr><td>
-                                    <span span class="etiqueta-tabla">Teléfono</span>
-                                    <input type="tel" class="input-linea r-telefono" value="${res.contacto.telefono}">
-                                </td></tr>
+                                <tr>
+                                    <td>
+                                        <span span class="etiqueta-tabla">Email</span>
+                                        <input type="email" class="input-linea r-email" value="${res.contacto.email}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span span class="etiqueta-tabla">Teléfono</span>
+                                        <input type="tel" class="input-linea r-telefono" value="${res.contacto.telefono}">
+                                    </td>
+                                </tr>
+                                <%-- Ayuda IA para recolectar correctamente Ids de responsables que ya existían y se van a eliminar --%>
+                                <tr class="eliminar-responsable-js" style="display: none;">
+                                    <td>
+                                        <%-- Input oculto para que el recolector de JS sepa el ID exacto al guardar --%>
+                                        <input type="hidden" class="r-id" value="${res.id}">
+                                        
+                                        <%-- Botón con la clase exacta y el data-id para la delegación de eventos al borrar --%>
+                                        <button type="button" class="btn-eliminar-contacto-existente" data-id="${res.id}" style="color: #e21111; background: none; border: none; cursor: pointer;">
+                                            Eliminar responsable
+                                        </button>
+                                    </td>
+                                </tr>
                             </c:forEach>
                         </c:if>
                     </tbody>
@@ -192,15 +224,25 @@
                 </div>
             </section>
 
-            <%-- Ver todas sus campañas con tiendas respectivas --%>
+            <%-- Ver todas sus campañas con tiendas respectivas y coordinador --%>
             <section class="bloque-seccion border-bottom">
-                <span class="etiqueta" style="display: block; margin-bottom: 10px;">Historial de Campañas:</span>
-                <div id="check-campanias-panel" class="scroll-checks-panel">
-                    <c:if test="${campanias != null && campanias.size() > 0 && tiendasCampania != null && tiendasCampania.size() > 0}">
-                        <c:forEach var="campania" items="${campanias}">
+                <%-- Nombre coordinador --%>
+                <div class="fila-flex">
+                    <span class="etiqueta" style="width: auto; margin-right: 10px;">Coordinador Responsable:</span>
+                    <p style="color:#1e3a8a; font-size: smaller;">${coordinadorNombre}</p>
+                </div>
 
-                            <div class="campania-panel-item">
-                                <label>
+                <%-- Campañas del coordinador y tiendas respectivas (refactorización HTML original y de la IA) --%>
+                <span class="etiqueta" style="display: block; margin-bottom: 10px;">Asignaciones por Campaña:</span>
+                <div id="check-campanias-panel" class="scroll-checks-panel">
+                    
+                    <c:if test="${campaniasCoordinador != null && campaniasCoordinador.size() > 0}">
+                        <c:forEach var="entry" items="${campaniasCoordinador}">
+                            <c:set var="campania" value="${entry.key}" />
+                            <c:set var="tiendasCord" value="${entry.value}" />
+
+                            <div class="campania-panel-item" style="margin-bottom: 15px;">
+                                <label style="font-weight: bold; color: var(--color-principal); cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%;">
                                     <input 
                                         type="checkbox" 
                                         value="${campania.id}"
@@ -213,26 +255,38 @@
                                     <span style="line-height: 1.4; flex: 1; white-space: normal; text-align: left; word-break: break-word;">${campania.nombre}</span>
                                 </label>
                                 
-                                <c:if test="${tiendasCampaniaEntidad.containsKey(campania.id)}">
-                                    <div id="tiendas-campania-panel-${campania.id}" class="campania-panel-item-tiendas" style="display: block;">
-                                        <c:forEach var="tienda" items="${tiendasCampania[campania.id]}">
-                                            <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 0.9em; cursor: pointer; color: #334155; width: 100%; box-sizing: border-box;">
-                                                <input 
-                                                    name="nueva-tienda-campania"
-                                                    type="checkbox" 
-                                                    value="${tienda.id}-${campania.id}" 
-                                                    class="check-tienda-sub panel-cb" 
-                                                    disabled 
-                                                    style="margin-top: 3px; flex-shrink: 0; width: 14px; height: 14px; margin-left: 0;"
-                                                    ${tiendasCampaniaEntidad[campania.id].contains(tienda) ? "checked" : ""}
-                                                >
-                                                <span style="flex: 1; white-space: normal; text-align: left; line-height: 1.3; word-break: break-word;">${tienda.nombre}</span>
-                                            </label>
-                                        </c:forEach>
-                                    </div>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${tiendasCampaniaEntidad.containsKey(campania.id)}">
+                                        <div id="tiendas-campania-${campania.id}" class="campania-panel-item-tiendas" 
+                                            style="display: 'block'; margin-left: 20px; border-left: 2px solid #cbd5e1; padding-left: 14px; margin-top: 10px;">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div id="tiendas-campania-${campania.id}" class="campania-panel-item-tiendas" 
+                                            style="display: 'none'; margin-left: 20px; border-left: 2px solid #cbd5e1; padding-left: 14px; margin-top: 10px;">
+                                    </c:otherwise>
+                                </c:choose>   
+                                    <span style="font-size: 0.85em; color: #64748b; margin-bottom: 8px; display: block; font-weight: 500;">Tiendas asignadas:</span>
+                                    
+                                    <c:forEach var="tienda" items="${tiendasCord}">
+                                        <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 0.9em; cursor: pointer; color: #334155;">
+                                            <input 
+                                                name="nueva-tienda-campania"
+                                                type="checkbox" 
+                                                value="${tienda.id}-${campania.id}" 
+                                                class="check-tienda-sub panel-cb" 
+                                                disabled 
+                                                style="margin-top: 3px; flex-shrink: 0; width: 14px; height: 14px; margin-left: 0;"
+                                                ${tiendasCampaniaEntidad.containsKey(campania.id) && tiendasCampaniaEntidad[campania.id].contains(tienda) ? "checked" : ""}
+                                            >
+                                            <span style="flex: 1; white-space: normal; text-align: left; line-height: 1.3;">${tienda.nombre}</span>
+                                        </label>
+                                    </c:forEach>
+                                </div>
                             </div>
                         </c:forEach>
+                    </c:if>
+                    <c:if test="${campaniasCoordinador == null || campaniasCoordinador.size() == 0}">
+                        <p style="color: #64748b; font-size: 0.9em;">Este coordinador no tiene campañas asociadas.</p>
                     </c:if>
                 </div>
             </section>
@@ -279,14 +333,12 @@
                     <p>Cuando las tiendas estén completas lo meteré, para el principio DRY</p>
                 </div>
                 <div class="fila-flex" style="margin-bottom: 15px;">
-                    <label>
-                        <span class="etiqueta" style="margin-bottom: 5px; display: block;">Entidad activa:</span>
-                        <input 
-                            type="checkbox" 
-                            name="estaActiva" 
-                            ${entidadSelec.estadoActivo ? "checked" : ""}
-                        >
-                    </label>
+                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Entidad activa:</span>
+                    <input 
+                        type="checkbox" 
+                        name="estaActiva" 
+                        ${entidadSelec.estadoActivo ? "checked" : ""}
+                    >
                 </div>
             </section>
 
@@ -295,4 +347,14 @@
                 <button type="submit" class="btn-guardar-lateral">Guardar Cambios</button>
             </section>
         </form>
+        <%-- Para mostrar mensaje de error --%>
+        <div id="modal-error-aniadir" class="modal-overlay-campanias" style="display: none; padding-top: 400px; padding-left: 800px; box-sizing: border-box; justify-content: center;">
+            <div class="modal-content" style="width: 500px;">
+                <header class="modal-header">
+                    <h2>Ha ocurrido un error:</h2>
+                    <button id="cerrar-fallo-aniadir" class="btn-cerrar-modal">X</button>
+                </header>
+                <p id="mensaje-error-aniadir" style="color: rgb(197, 13, 13);"></p>
+            </div>
+        </div>
 </aside>
