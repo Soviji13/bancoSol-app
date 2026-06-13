@@ -15,23 +15,31 @@ public class ResponsableTiendaMapper extends MapperDTO<ResponsableTiendaDTO, Res
 
     @Override
     public ResponsableTiendaDTO toDTO(ResponsableTienda r) {
+
         Tienda tiendaAsociada = r.getTienda();
 
-        return ResponsableTiendaDTO.builder()
-                .id(r.getId())
-                .nombre(r.getNombre())
-                .usuarioId(r.getUsuario() != null ? r.getUsuario().getId() : null)
-                .contactoId(r.getContacto() != null ? r.getContacto().getId() : null)
+        ResponsableTiendaDTO dto = new ResponsableTiendaDTO();
 
-                //envolvemos el ID de su única tienda en una lista para no romper tu DTO
-                .idsTiendas(tiendaAsociada != null ? List.of(tiendaAsociada.getId()) : List.of())
+        dto.setId(r.getId());
+        dto.setNombre(r.getNombre());
 
-                //sacamos las campañas directamente desde su tienda asociada
-                .idsCampanias((tiendaAsociada != null && tiendaAsociada.getCampanias() != null) ?
-                        tiendaAsociada.getCampanias().stream()
-                                .map(Campania::getId)
-                                .distinct()
-                                .collect(Collectors.toList()) : List.of())
-                .build();
+        //comprobamos q tenga usuario y contacto para evitar nullpointers
+        dto.setUsuarioId(r.getUsuario() != null ? r.getUsuario().getId() : null);
+        dto.setContactoId(r.getContacto() != null ? r.getContacto().getId() : null);
+
+        //id de su unica tienda, pasamos a usar Long directo en vez de lista!!!!
+        dto.setIdTienda(tiendaAsociada != null ? tiendaAsociada.getId() : null);
+
+        //sacamos campañas directamente de la lista de tienda asoci
+        if (tiendaAsociada != null && tiendaAsociada.getCampanias() != null) {
+            dto.setIdsCampanias(tiendaAsociada.getCampanias().stream()
+                    .map(Campania::getId)
+                    .distinct()
+                    .collect(Collectors.toList()));
+        } else {
+            dto.setIdsCampanias(List.of()); //lista vacia
+        }
+
+        return dto;
     }
 }

@@ -91,6 +91,7 @@
                 </div>
             </div>
 
+            <%--seccion turnos en desarrollo--%>
             <div class="fila fila-campana">
                 <h2 class="titulo-seccion" id="label-turnos">Turnos de la campaña</h2>
                 <table class="tabla-turnos">

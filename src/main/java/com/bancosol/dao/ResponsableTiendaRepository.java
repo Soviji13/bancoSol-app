@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ResponsableTiendaRepository extends JpaRepository<ResponsableTienda, Long> {
 
-    //francisco javier garciasiserra consulta ia para ayuda sobre duda en query
+    //francisco javier garciasiserra consulta ia para ayuda sobre NOT IN y anidamiento de selects en query
     @Query("SELECT r FROM ResponsableTienda r WHERE r.id NOT IN (SELECT t.responsableTienda.id FROM Tienda t WHERE t.responsableTienda IS NOT NULL)")
     List<ResponsableTienda> findResponsablesSinTienda();
 }

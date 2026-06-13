@@ -71,7 +71,7 @@
 
 .select-caja:focus {
     border-color: var(--color-principal);
-    box-shadow: 0 0 0 2px rgba(var(--color-principal-rgb), 0.1);
+    box-shadow: 0 0 0 2px rgba(var(--color-principal), 0.1);
 }
 
 .radio-grupo {
@@ -103,7 +103,7 @@
 }
 
 .btn-cancelar {
-    background-color: var(--color-fondo-oscuro);
+    background-color: var(--color-principal-oscuro);
     color: var(--color-texto);
 }
 
@@ -117,7 +117,7 @@
 }
 
 .btn-anadir:hover {
-    background-color: var(--color-principal-hover);
+    background-color: var(--color-principal);
 }
 
 .oculto {

@@ -33,9 +33,8 @@ public class ResponsableTienda {
     }
 
 
-
-
-    //FRAN: EStba mal, no es 1:m sino 1:1
+    //francisco javier garcia sierra:
+    //EStba mal, no es 1:m sino 1:1
     @OneToOne(mappedBy = "responsableTienda")
     private Tienda tienda;
 
