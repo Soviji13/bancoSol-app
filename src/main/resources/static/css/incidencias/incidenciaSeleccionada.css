@@ -76,30 +76,47 @@
   background-color: white;
 }
 
+/* =========================
+   ESTADO INCIDENCIA
+========================= */
+
 .estado-incidencia {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: fit-content;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  background-color: #e5e7eb;
-  color: #374151;
+  min-width: 6rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background-color: transparent;
+  color: var(--color-texto-secundario);
 }
 
-.estado-incidencia--PENDIENTE {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.estado-incidencia--LEIDA {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-}
-
+/* Mismos colores que en la tabla */
+.estado-incidencia--resuelta,
 .estado-incidencia--RESUELTA {
-  background-color: #d1fae5;
-  color: #065f46;
+  background-color: #bfe8b8;
+  color: #416d37;
+}
+
+.estado-incidencia--pendiente,
+.estado-incidencia--PENDIENTE {
+  background-color: #f2caca;
+  color: #8b4b4b;
+}
+
+.estado-incidencia--leida,
+.estado-incidencia--LEIDA {
+  background-color: #f3df8c;
+  color: #806a16;
+}
+
+.estado-incidencia--ninguno,
+.estado-incidencia--NINGUNO {
+  background-color: transparent;
+  color: var(--color-texto-secundario);
 }
 
 .detalle-incidencia__acciones {

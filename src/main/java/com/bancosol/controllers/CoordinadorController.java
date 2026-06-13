@@ -76,9 +76,19 @@ public class CoordinadorController {
         return editarCrear(id, model);
     }
 
-    @PostMapping("/borrar")
-    public String doBorrar(@RequestParam("id") Long id) {
-        coordinadorService.eliminar(id);
+    @PostMapping("/borrar") //Protegido pra que no muestre white label en caso de relación rara
+    public String doBorrar(@RequestParam("id") Long id,
+                           org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            coordinadorService.eliminar(id);
+            redirectAttributes.addFlashAttribute("mensajeExito", "Coordinador eliminado correctamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute(
+                    "mensajeError",
+                    "No se pudo eliminar el coordinador: " + e.getMessage()
+            );
+        }
+
         return "redirect:/coordinadores";
     }
 
