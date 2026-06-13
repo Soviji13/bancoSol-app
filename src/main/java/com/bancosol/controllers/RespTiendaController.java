@@ -1,5 +1,7 @@
 //francisco javier garcia sierra
-//USO IA: correccion para usar @RestController
+//uso ia: uso del @restcontroller y peticiones fetch ajax para NO recargar pagina al guardar responsable,
+//me lo sugirio la ia para no perder progreso de datos en form padre!!!!, ya que cuando lo hice al guardar el resp
+//se borraba todo el formulario anterior, setteo y demas si es mio
 
 package com.bancosol.controllers;
 
@@ -14,7 +16,7 @@ import com.bancosol.entities.enums.TipoRol;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@RestController // Usamos RestController porque responde a llamadas AJAX/Fetch directamente con JSON
+@RestController
 @RequestMapping("/api/responsables")
 @AllArgsConstructor
 public class RespTiendaController {
@@ -30,25 +32,25 @@ public class RespTiendaController {
             @RequestParam("telefono") String telefono,
             @RequestParam(value = "password", defaultValue = "1234") String password
     ) {
-        // 1. Guardar el Contacto
+        //guardamos primero el contacto para enlazarlo
         Contacto nuevoContacto = new Contacto();
         nuevoContacto.setNombre(nombre);
         nuevoContacto.setEmail(email);
         nuevoContacto.setTelefono(telefono);
         Contacto contactoGuardado = contactoRepo.save(nuevoContacto);
 
-        // 2. Guardar el Usuario (Exigencia de la BD)
+        //guardamos el usuario pq lo exige base de datos
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setEmail(email);
-        nuevoUsuario.setContrasenia(password); // (O setPassword)
+        nuevoUsuario.setContrasenia(password);
         nuevoUsuario.setRol(TipoRol.RESPONSABLE_TIENDA);
         Usuario usuarioGuardado = usuarioRepo.save(nuevoUsuario);
 
-        // 3. Guardar Responsable con todo vinculado
+        //guardamos responsable vinculando lo anterior
         ResponsableTienda nuevoResp = new ResponsableTienda();
         nuevoResp.setNombre(nombre);
         nuevoResp.setContacto(contactoGuardado);
-        nuevoResp.setUsuario(usuarioGuardado); // ESTO EVITA EL ERROR 500
+        nuevoResp.setUsuario(usuarioGuardado);
         ResponsableTienda respGuardado = responsableTiendaRepo.save(nuevoResp);
 
         ResponsableTiendaDTO dtoRes = new ResponsableTiendaDTO();
