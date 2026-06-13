@@ -1,3 +1,4 @@
+//Hecho por Jose González (75%), refactorizado finalmente con IA para  buscar eficiencia sin alterar la funcionalidad (25%)
 package com.bancosol.controllers;
 
 import com.bancosol.dto.CampaniaDTO;

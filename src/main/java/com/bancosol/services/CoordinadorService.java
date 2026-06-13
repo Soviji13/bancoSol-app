@@ -1,3 +1,4 @@
+//Hecho inicalmente por Jose González(75%), posteriormente completado por Sofia (5%), Jose usó IA al final para refactorizar el servicio y optimizarlo (20%)
 package com.bancosol.services;
 
 import com.bancosol.dao.CampaniaRepository;
@@ -15,7 +16,6 @@ import com.bancosol.entities.Coordinador;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.Usuario;
 import com.bancosol.entities.enums.TipoRol;
-import com.bancosol.mapper.CampaniaMapper;
 
 import com.bancosol.mapper.CoordinadorMapper;
 

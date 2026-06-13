@@ -1,3 +1,4 @@
+//Generado por IA partiendo de su respectiva entidad. Posteriormente revisado por el equipo
 package com.bancosol.dto;
 
 import lombok.*;

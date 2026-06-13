@@ -1,4 +1,4 @@
-//Generado íntgramente con IA, comprobado por Jose González a la hora de integrarlo
+//Generado por IA partiendo del modelo de bbdd aprobado por el profesor. Posteriormente revisado por el equipo
 package com.bancosol.entities;
 
 import jakarta.persistence.*;
