@@ -1,4 +1,5 @@
 import { CampaniaEstado } from "./campaniaEstado";
+import { formatearFecha } from "./utils/fechas";
 
 export function CampaniaCard({
   campania,
@@ -23,43 +24,13 @@ export function CampaniaCard({
       className={claseTarjeta}
       onClick={() => onClickCampania(campania.id)}
     >
-      <h2 className="campanias__nombre">{campania.nombre}</h2>
+      <span className="campanias__nombre">{campania.nombre}</span>
 
-      <p className="campanias__fechas">
+      <span className="campanias__fechas">
         {formatearFecha(campania.fechaInicio)} / {formatearFecha(campania.fechaFin)}
-      </p>
+      </span>
 
       <CampaniaEstado activa={campania.activa} />
     </button>
   );
-}
-
-function formatearFecha(fechaISO) {
-  if (!fechaISO) {
-    return "dd/mm/aa";
-  }
-
-  const fecha = crearFechaLocalDesdeISO(fechaISO);
-
-  if (Number.isNaN(fecha.getTime())) {
-    return fechaISO;
-  }
-
-  return fecha.toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  });
-}
-
-function crearFechaLocalDesdeISO(fechaISO) {
-  const partesFecha = fechaISO.split("-").map(Number);
-
-  if (partesFecha.length !== 3 || partesFecha.some(Number.isNaN)) {
-    return new Date(NaN);
-  }
-
-  const [anio, mes, dia] = partesFecha;
-
-  return new Date(anio, mes - 1, dia);
 }

@@ -766,3 +766,45 @@
 .formulario-campania__guardar:hover {
   background-color: var(--color-principal-oscuro);
 }
+/* =========================
+   AJUSTES REFACTORIZACIÓN
+========================= */
+
+.campanias__tarjeta--activa {
+  border-color: var(--color-principal);
+}
+
+.campanias__grid--vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.campanias__vacio {
+  margin: 0;
+  color: var(--color-principal-oscuro);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.formulario-campania__error,
+.modal-cadena__error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-error);
+  border-radius: 6px;
+  background-color: #fff5f5;
+  color: var(--color-error);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.formulario-campania__cerrar:disabled,
+.formulario-campania__cancelar:disabled,
+.formulario-campania__guardar:disabled,
+.modal-cadena__cerrar:disabled,
+.modal-cadena__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

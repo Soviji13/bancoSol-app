@@ -1,6 +1,8 @@
 export function FormularioCrearCadena({
   nombre,
   acronimo,
+  error = "",
+  guardando = false,
   onCambiarNombre,
   onCambiarAcronimo,
   onCerrar,
@@ -15,21 +17,30 @@ export function FormularioCrearCadena({
     <div className="modal-cadena">
       <div className="modal-cadena__fondo" onClick={onCerrar}></div>
 
-      <form className="modal-cadena__formulario" onSubmit={manejarSubmit}>
+      <form
+        className="modal-cadena__formulario"
+        onSubmit={manejarSubmit}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-cadena-titulo"
+      >
         <header className="modal-cadena__cabecera">
-          <h2>Crear cadena</h2>
+          <h2 id="modal-cadena-titulo">Crear cadena</h2>
 
           <button
             type="button"
             className="modal-cadena__cerrar"
             onClick={onCerrar}
             aria-label="Cerrar formulario"
+            disabled={guardando}
           >
             ×
           </button>
         </header>
 
         <div className="modal-cadena__contenido">
+          {error && <p className="modal-cadena__error">{error}</p>}
+
           <label className="modal-cadena__campo">
             <span>Nombre completo</span>
             <input
@@ -37,6 +48,7 @@ export function FormularioCrearCadena({
               value={nombre}
               onChange={onCambiarNombre}
               placeholder="Ejemplo: Mercadona"
+              disabled={guardando}
               required
             />
           </label>
@@ -49,6 +61,7 @@ export function FormularioCrearCadena({
               onChange={onCambiarAcronimo}
               placeholder="MERC"
               maxLength={4}
+              disabled={guardando}
               required
             />
           </label>
@@ -64,6 +77,7 @@ export function FormularioCrearCadena({
             type="button"
             className="modal-cadena__btn modal-cadena__btn--secundario"
             onClick={onCerrar}
+            disabled={guardando}
           >
             Cancelar
           </button>
@@ -71,8 +85,9 @@ export function FormularioCrearCadena({
           <button
             type="submit"
             className="modal-cadena__btn modal-cadena__btn--principal"
+            disabled={guardando}
           >
-            Guardar cadena
+            {guardando ? "Guardando..." : "Guardar cadena"}
           </button>
         </div>
       </form>

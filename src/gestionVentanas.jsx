@@ -207,7 +207,7 @@ export function VentanaGestion({rol}) {
    * GESTIÓN DE VENTANAS DE CONTENIDO INICIAL (CONTENEDOR DERECHO)
    ********************************************************************/
 
-  const [contenidoInicial, setContenidoInicial] = useState("coordinadores");
+  const [contenidoInicial, setContenidoInicial] = useState("campanias");
 
   function manejaContenidoInicial(contenido) {
     setContenidoInicial(contenido);

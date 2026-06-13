@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormularioCrearCadena } from "./formularioCrearCadena";
-import { crearCadena } from "../api/cadenasApi";
+import { obtenerIdsParticipantes } from "./utils/campaniasMapper";
+import { AccionesDetalleCampania } from "./detalle/accionesDetalleCampania";
+import { GrupoCadenas } from "./detalle/grupoCadenas";
+import { ListaCoordinadores } from "./detalle/listaCoordinadores";
 
 export function CampaniaDetalle({
   campania,
@@ -11,13 +14,14 @@ export function CampaniaDetalle({
   onSiguiente,
   onGuardarCadenas,
   onGuardarCoordinadores,
-  onCadenaCreada,
+  onCrearCadena,
 }) {
   const [modoAsignarCadenas, setModoAsignarCadenas] = useState(false);
   const [modoGestionarCoordinadores, setModoGestionarCoordinadores] =
     useState(false);
   const [mostrarFormularioCadena, setMostrarFormularioCadena] = useState(false);
   const [guardandoCambios, setGuardandoCambios] = useState(false);
+  const [errorFormularioCadena, setErrorFormularioCadena] = useState("");
 
   const [nombreNuevaCadena, setNombreNuevaCadena] = useState("");
   const [acronimoNuevaCadena, setAcronimoNuevaCadena] = useState("");
@@ -27,71 +31,86 @@ export function CampaniaDetalle({
   );
 
   const [idsCadenasSeleccionadas, setIdsCadenasSeleccionadas] = useState(
-    (campania.cadenas ?? [])
-      .filter((cadena) => cadena.participa)
-      .map((cadena) => cadena.id)
+    obtenerIdsParticipantes(campania.cadenas)
   );
 
   const [idsCoordinadoresSeleccionados, setIdsCoordinadoresSeleccionados] =
-    useState(
-      (campania.coordinadores ?? [])
-        .filter((coordinador) => coordinador.participa)
-        .map((coordinador) => coordinador.id)
-    );
+    useState(obtenerIdsParticipantes(campania.coordinadores));
 
   useEffect(() => {
     setCadenasLocales(campania.cadenas ?? []);
-
-    setIdsCadenasSeleccionadas(
-      (campania.cadenas ?? [])
-        .filter((cadena) => cadena.participa)
-        .map((cadena) => cadena.id)
-    );
-
+    setIdsCadenasSeleccionadas(obtenerIdsParticipantes(campania.cadenas));
     setIdsCoordinadoresSeleccionados(
-      (campania.coordinadores ?? [])
-        .filter((coordinador) => coordinador.participa)
-        .map((coordinador) => coordinador.id)
+      obtenerIdsParticipantes(campania.coordinadores)
     );
-
     setModoAsignarCadenas(false);
     setModoGestionarCoordinadores(false);
+    setMostrarFormularioCadena(false);
+    setErrorFormularioCadena("");
   }, [campania.id, campania.cadenas, campania.coordinadores]);
 
   const hayModoEdicion = modoAsignarCadenas || modoGestionarCoordinadores;
   const hayFormularioAbierto = mostrarFormularioCadena;
+  const accionesBloqueadas =
+    hayModoEdicion || hayFormularioAbierto || guardandoCambios;
 
-  const cadenasOrdenadas = [...cadenasLocales].sort((a, b) => {
-    const aParticipa = idsCadenasSeleccionadas.includes(a.id);
-    const bParticipa = idsCadenasSeleccionadas.includes(b.id);
-
-    if (aParticipa === bParticipa) {
-      return a.nombre.localeCompare(b.nombre);
-    }
-
-    return aParticipa ? -1 : 1;
-  });
-
-  const cadenasParticipantes = cadenasOrdenadas.filter((cadena) =>
-    idsCadenasSeleccionadas.includes(cadena.id)
+  const idsCadenasSeleccionadasSet = useMemo(
+    () => crearSetIds(idsCadenasSeleccionadas),
+    [idsCadenasSeleccionadas]
   );
 
-  const cadenasNoParticipantes = cadenasOrdenadas.filter(
-    (cadena) => !idsCadenasSeleccionadas.includes(cadena.id)
+  const idsCoordinadoresSeleccionadosSet = useMemo(
+    () => crearSetIds(idsCoordinadoresSeleccionados),
+    [idsCoordinadoresSeleccionados]
   );
 
-  const coordinadoresOrdenados = [...(campania.coordinadores ?? [])].sort(
-    (a, b) => {
-      const aParticipa = idsCoordinadoresSeleccionados.includes(a.id);
-      const bParticipa = idsCoordinadoresSeleccionados.includes(b.id);
+  const cadenasOrdenadas = useMemo(() => {
+    return [...cadenasLocales].sort((cadenaA, cadenaB) => {
+      const cadenaAParticipa = idsCadenasSeleccionadasSet.has(
+        String(cadenaA.id)
+      );
+      const cadenaBParticipa = idsCadenasSeleccionadasSet.has(
+        String(cadenaB.id)
+      );
 
-      if (aParticipa === bParticipa) {
-        return a.nombre.localeCompare(b.nombre);
+      if (cadenaAParticipa === cadenaBParticipa) {
+        return cadenaA.nombre.localeCompare(cadenaB.nombre);
       }
 
-      return aParticipa ? -1 : 1;
-    }
-  );
+      return cadenaAParticipa ? -1 : 1;
+    });
+  }, [cadenasLocales, idsCadenasSeleccionadasSet]);
+
+  const cadenasParticipantes = useMemo(() => {
+    return cadenasOrdenadas.filter((cadena) =>
+      idsCadenasSeleccionadasSet.has(String(cadena.id))
+    );
+  }, [cadenasOrdenadas, idsCadenasSeleccionadasSet]);
+
+  const cadenasNoParticipantes = useMemo(() => {
+    return cadenasOrdenadas.filter(
+      (cadena) => !idsCadenasSeleccionadasSet.has(String(cadena.id))
+    );
+  }, [cadenasOrdenadas, idsCadenasSeleccionadasSet]);
+
+  const coordinadoresOrdenados = useMemo(() => {
+    return [...(campania.coordinadores ?? [])].sort(
+      (coordinadorA, coordinadorB) => {
+        const coordinadorAParticipa = idsCoordinadoresSeleccionadosSet.has(
+          String(coordinadorA.id)
+        );
+        const coordinadorBParticipa = idsCoordinadoresSeleccionadosSet.has(
+          String(coordinadorB.id)
+        );
+
+        if (coordinadorAParticipa === coordinadorBParticipa) {
+          return coordinadorA.nombre.localeCompare(coordinadorB.nombre);
+        }
+
+        return coordinadorAParticipa ? -1 : 1;
+      }
+    );
+  }, [campania.coordinadores, idsCoordinadoresSeleccionadosSet]);
 
   const activarAsignacionCadenas = () => {
     setModoAsignarCadenas(true);
@@ -106,34 +125,31 @@ export function CampaniaDetalle({
   const abrirFormularioCadena = () => {
     setNombreNuevaCadena("");
     setAcronimoNuevaCadena("");
+    setErrorFormularioCadena("");
     setMostrarFormularioCadena(true);
   };
 
   const cerrarFormularioCadena = () => {
+    if (guardandoCambios) {
+      return;
+    }
+
     setNombreNuevaCadena("");
     setAcronimoNuevaCadena("");
+    setErrorFormularioCadena("");
     setMostrarFormularioCadena(false);
   };
 
   const manejarCambioNombreCadena = (evento) => {
     const nuevoNombre = evento.target.value;
     setNombreNuevaCadena(nuevoNombre);
-
-    const acronimoAutomatico = nuevoNombre
-      .replace(/\s+/g, "")
-      .slice(0, 4)
-      .toUpperCase();
-
-    setAcronimoNuevaCadena(acronimoAutomatico);
+    setAcronimoNuevaCadena(generarAcronimo(nuevoNombre));
+    setErrorFormularioCadena("");
   };
 
   const manejarCambioAcronimoCadena = (evento) => {
-    const nuevoAcronimo = evento.target.value
-      .replace(/\s+/g, "")
-      .slice(0, 4)
-      .toUpperCase();
-
-    setAcronimoNuevaCadena(nuevoAcronimo);
+    setAcronimoNuevaCadena(generarAcronimo(evento.target.value));
+    setErrorFormularioCadena("");
   };
 
   const guardarNuevaCadena = async () => {
@@ -141,13 +157,15 @@ export function CampaniaDetalle({
     const acronimoLimpio = acronimoNuevaCadena.trim().toUpperCase();
 
     if (!nombreLimpio || !acronimoLimpio) {
+      setErrorFormularioCadena("Rellena el nombre y el acrónimo.");
       return;
     }
 
     try {
       setGuardandoCambios(true);
+      setErrorFormularioCadena("");
 
-      const cadenaCreada = await crearCadena({
+      const cadenaCreada = await onCrearCadena({
         nombre: nombreLimpio,
         codigo: acronimoLimpio,
       });
@@ -159,18 +177,14 @@ export function CampaniaDetalle({
         participa: false,
       };
 
-      setCadenasLocales((cadenasActuales) => [
-        ...cadenasActuales,
-        cadenaParaPantalla,
-      ]);
-
-      if (onCadenaCreada) {
-        onCadenaCreada(cadenaCreada);
-      }
+      setCadenasLocales((cadenasActuales) =>
+        insertarCadenaSinDuplicar(cadenasActuales, cadenaParaPantalla)
+      );
 
       cerrarFormularioCadena();
     } catch (error) {
       console.error("Error creando cadena:", error);
+      setErrorFormularioCadena("No se ha podido crear la cadena.");
     } finally {
       setGuardandoCambios(false);
     }
@@ -181,13 +195,9 @@ export function CampaniaDetalle({
       return;
     }
 
-    setIdsCadenasSeleccionadas((idsActuales) => {
-      if (idsActuales.includes(idCadena)) {
-        return idsActuales.filter((id) => id !== idCadena);
-      }
-
-      return [...idsActuales, idCadena];
-    });
+    setIdsCadenasSeleccionadas((idsActuales) =>
+      alternarId(idsActuales, idCadena)
+    );
   };
 
   const alternarCoordinador = (idCoordinador) => {
@@ -195,30 +205,17 @@ export function CampaniaDetalle({
       return;
     }
 
-    setIdsCoordinadoresSeleccionados((idsActuales) => {
-      if (idsActuales.includes(idCoordinador)) {
-        return idsActuales.filter((id) => id !== idCoordinador);
-      }
-
-      return [...idsActuales, idCoordinador];
-    });
+    setIdsCoordinadoresSeleccionados((idsActuales) =>
+      alternarId(idsActuales, idCoordinador)
+    );
   };
 
   const descartarCambios = () => {
     setCadenasLocales(campania.cadenas ?? []);
-
-    setIdsCadenasSeleccionadas(
-      (campania.cadenas ?? [])
-        .filter((cadena) => cadena.participa)
-        .map((cadena) => cadena.id)
-    );
-
+    setIdsCadenasSeleccionadas(obtenerIdsParticipantes(campania.cadenas));
     setIdsCoordinadoresSeleccionados(
-      (campania.coordinadores ?? [])
-        .filter((coordinador) => coordinador.participa)
-        .map((coordinador) => coordinador.id)
+      obtenerIdsParticipantes(campania.coordinadores)
     );
-
     setModoAsignarCadenas(false);
     setModoGestionarCoordinadores(false);
   };
@@ -233,7 +230,7 @@ export function CampaniaDetalle({
         setCadenasLocales((cadenasActuales) =>
           cadenasActuales.map((cadena) => ({
             ...cadena,
-            participa: idsCadenasSeleccionadas.includes(cadena.id),
+            participa: idsCadenasSeleccionadasSet.has(String(cadena.id)),
           }))
         );
       }
@@ -260,7 +257,7 @@ export function CampaniaDetalle({
           className="detalle-campania__boton-volver"
           onClick={onVolver}
           aria-label="Volver al listado de campañas"
-          disabled={hayModoEdicion || hayFormularioAbierto || guardandoCambios}
+          disabled={accionesBloqueadas}
         >
           ←
         </button>
@@ -291,7 +288,8 @@ export function CampaniaDetalle({
               titulo="En la campaña"
               cadenas={cadenasParticipantes}
               modoAsignarCadenas={modoAsignarCadenas}
-              idsCadenasSeleccionadas={idsCadenasSeleccionadas}
+              idsSeleccionadosSet={idsCadenasSeleccionadasSet}
+              guardando={guardandoCambios}
               onAlternarCadena={alternarCadena}
             />
 
@@ -299,7 +297,8 @@ export function CampaniaDetalle({
               titulo="Fuera de la campaña"
               cadenas={cadenasNoParticipantes}
               modoAsignarCadenas={modoAsignarCadenas}
-              idsCadenasSeleccionadas={idsCadenasSeleccionadas}
+              idsSeleccionadosSet={idsCadenasSeleccionadasSet}
+              guardando={guardandoCambios}
               onAlternarCadena={alternarCadena}
             />
           </div>
@@ -315,65 +314,21 @@ export function CampaniaDetalle({
               </p>
             )}
 
-            <div className="detalle-campania__lista-coordinadores">
-              {coordinadoresOrdenados.map((coordinador) => {
-                const participa =
-                  idsCoordinadoresSeleccionados.includes(coordinador.id);
-
-                return (
-                  <button
-                    key={coordinador.id}
-                    type="button"
-                    className={
-                      participa
-                        ? "detalle-campania__coordinador detalle-campania__coordinador--participa"
-                        : "detalle-campania__coordinador detalle-campania__coordinador--no-participa"
-                    }
-                    onClick={() => alternarCoordinador(coordinador.id)}
-                    disabled={!modoGestionarCoordinadores || guardandoCambios}
-                  >
-                    <span>{coordinador.nombre}</span>
-                    <small>{participa ? "Participa" : "No participa"}</small>
-                  </button>
-                );
-              })}
-            </div>
+            <ListaCoordinadores
+              coordinadores={coordinadoresOrdenados}
+              idsSeleccionadosSet={idsCoordinadoresSeleccionadosSet}
+              modoGestionarCoordinadores={modoGestionarCoordinadores}
+              guardando={guardandoCambios}
+              onAlternarCoordinador={alternarCoordinador}
+            />
           </section>
 
-          <div className="detalle-campania__acciones-laterales">
-            <button
-              type="button"
-              className="detalle-campania__accion"
-              onClick={abrirFormularioCadena}
-              disabled={
-                hayModoEdicion || hayFormularioAbierto || guardandoCambios
-              }
-            >
-              Crear cadena
-            </button>
-
-            <button
-              type="button"
-              className="detalle-campania__accion"
-              onClick={activarAsignacionCadenas}
-              disabled={
-                hayModoEdicion || hayFormularioAbierto || guardandoCambios
-              }
-            >
-              Asignar cadenas
-            </button>
-
-            <button
-              type="button"
-              className="detalle-campania__accion"
-              onClick={activarGestionCoordinadores}
-              disabled={
-                hayModoEdicion || hayFormularioAbierto || guardandoCambios
-              }
-            >
-              Gestionar coordinadores
-            </button>
-          </div>
+          <AccionesDetalleCampania
+            disabled={accionesBloqueadas}
+            onCrearCadena={abrirFormularioCadena}
+            onAsignarCadenas={activarAsignacionCadenas}
+            onGestionarCoordinadores={activarGestionCoordinadores}
+          />
         </aside>
       </section>
 
@@ -382,12 +337,7 @@ export function CampaniaDetalle({
           type="button"
           className="detalle-campania__flecha"
           onClick={onAnterior}
-          disabled={
-            !puedeIrAnterior ||
-            hayModoEdicion ||
-            hayFormularioAbierto ||
-            guardandoCambios
-          }
+          disabled={!puedeIrAnterior || accionesBloqueadas}
           aria-label="Campaña anterior"
         >
           ←
@@ -421,12 +371,7 @@ export function CampaniaDetalle({
           type="button"
           className="detalle-campania__flecha"
           onClick={onSiguiente}
-          disabled={
-            !puedeIrSiguiente ||
-            hayModoEdicion ||
-            hayFormularioAbierto ||
-            guardandoCambios
-          }
+          disabled={!puedeIrSiguiente || accionesBloqueadas}
           aria-label="Campaña siguiente"
         >
           →
@@ -437,6 +382,8 @@ export function CampaniaDetalle({
         <FormularioCrearCadena
           nombre={nombreNuevaCadena}
           acronimo={acronimoNuevaCadena}
+          error={errorFormularioCadena}
+          guardando={guardandoCambios}
           onCambiarNombre={manejarCambioNombreCadena}
           onCambiarAcronimo={manejarCambioAcronimoCadena}
           onCerrar={cerrarFormularioCadena}
@@ -447,49 +394,32 @@ export function CampaniaDetalle({
   );
 }
 
-function GrupoCadenas({
-  titulo,
-  cadenas,
-  modoAsignarCadenas,
-  idsCadenasSeleccionadas,
-  onAlternarCadena,
-}) {
-  return (
-    <section className="detalle-campania__grupo-cadenas">
-      <h3 className="detalle-campania__grupo-titulo">{titulo}</h3>
+function crearSetIds(ids) {
+  return new Set(ids.map((id) => String(id)));
+}
 
-      <div className="detalle-campania__lista-cadenas">
-        {cadenas.length === 0 ? (
-          <p className="detalle-campania__grupo-vacio">
-            No hay cadenas en este grupo.
-          </p>
-        ) : (
-          cadenas.map((cadena) => {
-            const seleccionada = idsCadenasSeleccionadas.includes(cadena.id);
+function alternarId(idsActuales, idNuevo) {
+  const existe = idsActuales.some((idActual) => String(idActual) === String(idNuevo));
 
-            return (
-              <label
-                key={cadena.id}
-                className={
-                  seleccionada
-                    ? "detalle-campania__cadena detalle-campania__cadena--participa"
-                    : "detalle-campania__cadena detalle-campania__cadena--no-participa"
-                }
-              >
-                {modoAsignarCadenas && (
-                  <input
-                    type="checkbox"
-                    checked={seleccionada}
-                    onChange={() => onAlternarCadena(cadena.id)}
-                  />
-                )}
+  if (existe) {
+    return idsActuales.filter((idActual) => String(idActual) !== String(idNuevo));
+  }
 
-                <span>{cadena.nombre}</span>
-              </label>
-            );
-          })
-        )}
-      </div>
-    </section>
+  return [...idsActuales, idNuevo];
+}
+
+function generarAcronimo(valor) {
+  return valor.replace(/\s+/g, "").slice(0, 4).toUpperCase();
+}
+
+function insertarCadenaSinDuplicar(cadenasActuales, cadenaNueva) {
+  const yaExiste = cadenasActuales.some(
+    (cadenaActual) => String(cadenaActual.id) === String(cadenaNueva.id)
   );
+
+  if (yaExiste) {
+    return cadenasActuales;
+  }
+
+  return [...cadenasActuales, cadenaNueva];
 }

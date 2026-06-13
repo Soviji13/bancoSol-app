@@ -24,7 +24,6 @@ public class Cadena {
     // Regla de Negocio: Mayúsculas siempre
     @PrePersist @PreUpdate
     private void asegurarMayusculas() {
-        if (this.nombre != null) this.nombre = this.nombre.toUpperCase();
         if (this.codigo != null) this.codigo = this.codigo.toUpperCase();
     }
 
