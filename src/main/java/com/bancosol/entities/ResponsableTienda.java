@@ -34,8 +34,9 @@ public class ResponsableTienda {
 
 
 
-    @ManyToMany(mappedBy = "responsables")
-    private List<Tienda> tiendas = new ArrayList<>();
+    //FRAN: EStba mal, no es 1:m sino 1:1
+    @OneToOne(mappedBy = "responsableTienda")
+    private Tienda tienda;
 
     @ManyToMany(mappedBy = "responsables")
     private List<Campania> campanias = new ArrayList<>();
