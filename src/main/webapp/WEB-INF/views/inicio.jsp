@@ -224,7 +224,7 @@
                 </c:when>
 
 
-                 <%-- TIENDAS --%>
+                <%-- TIENDAS --%>
                 <c:when test="${pagina == 'inicio-tiendas'}">
                     <jsp:include page="tiendas/listaTiendas.jsp" />
                 </c:when>

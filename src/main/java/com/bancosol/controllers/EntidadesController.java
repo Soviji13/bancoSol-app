@@ -7,6 +7,7 @@ package com.bancosol.controllers;
 import com.bancosol.services.DistritoService;
 import lombok.AllArgsConstructor;
 
+import org.eclipse.tags.shaded.org.apache.xpath.operations.Bool;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,10 +52,12 @@ public class EntidadesController {
 
     // Mostrar todas las entidades de una campaña (parámetro)
     // Si no se pasa una específicamente por parámetro, se muestran las de la activa
+    // También sirve para lateral y para abrir menú de filtros
     @GetMapping({ "", "/" })
     public String mostrarTabla(
             @RequestParam(value = "campaniaId", required = false) Long campaniaId,
             @RequestParam(value = "entidadId", required = false) Long entidadId,
+            @RequestParam(value = "filtros", required = false) Boolean panelFiltro,
             Model model) {
         // -- Devolver tabla --
         // Si es null, devuelve la campaña activa
@@ -131,6 +134,10 @@ public class EntidadesController {
             model.addAttribute("modoEdicion", true);
         } else {
             model.addAttribute("modoEdicion", false);
+        }
+
+        if (panelFiltro != null && panelFiltro) {
+            model.addAttribute("panelIzquierdo", "entidades_colaboradoras/filtros.jsp");
         }
 
         return "inicio";

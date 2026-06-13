@@ -504,6 +504,8 @@ if (seccionEntidades) {
         }
     }
 
+    // BOTONES INFERIORES -------------------------------------------------------------------------
+
     const botonEliminar = document.getElementById('btn-eliminar-colaborador');
     const botonModificar = document.getElementById('btn-modificar-colaborador');
 
@@ -753,6 +755,18 @@ if (seccionEntidades) {
 
         botonAbrirRegistro.addEventListener('click', () => {
             window.location.href = `http://localhost:8080/entidades/crear?campaniaId=${idCampania}`;
+        })
+    }
+
+    // PARA AÑADIR FILTROS ----------------------------------------------------------------------------------------------
+    
+    const botonFiltros = document.getElementById('filtrar');
+
+    if (botonFiltros) {
+        const idCampania = seccionEntidades.dataset.idCampaniaActual;
+
+        botonFiltros.addEventListener('click', () => {
+            window.location.href = `http://localhost:8080/entidades/?filtros=${true}`;
         })
     }
 }
