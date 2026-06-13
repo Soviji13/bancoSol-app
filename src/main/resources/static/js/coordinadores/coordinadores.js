@@ -7,17 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnModificar = document.querySelector("#btn-modificar-coordinador");
     const formEliminar = document.querySelector("#form-eliminar-coordinador");
+    const btnEliminar = document.querySelector("#btn-eliminar-coordinador");
+    const inputIdEliminar = document.querySelector("#input-id-eliminar");
     const avisoBorrado = document.querySelector("#aviso-borrado");
-
-    const btnFiltrar = document.querySelector("#filtrar");
-    const panelFiltros = document.querySelector("#panel-filtros");
-    const btnCerrarFiltros = document.querySelector("#btn-cerrar-filtros");
-    const btnAplicarFiltros = document.querySelector("#btn-aplicar-filtros");
-    const btnLimpiarFiltros = document.querySelector("#btn-limpiar-filtros");
-
-    const filtroNombre = document.querySelector("#filtro-nombre");
-    const filtroCampania = document.querySelector("#filtro-campania");
-    const filtroTiendas = document.querySelector("#filtro-tiendas");
 
     const btnSeleccionarCampania = document.querySelector("#btn-seleccionar-campania");
     const modalCampanias = document.querySelector("#modal-campanias");
@@ -44,10 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    if (formEliminar) {
-        formEliminar.addEventListener("submit", (event) => {
+    if (btnEliminar && formEliminar && inputIdEliminar) {
+        btnEliminar.addEventListener("click", () => {
             if (!idCoordinadorSeleccionado) {
-                event.preventDefault();
                 mostrarAvisoBorrado();
                 return;
             }
@@ -55,29 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const confirmar = confirm("¿Seguro que desea eliminar este coordinador? Esta acción no se puede deshacer.");
 
             if (!confirmar) {
-                event.preventDefault();
+                return;
             }
+
+            inputIdEliminar.value = idCoordinadorSeleccionado;
+            formEliminar.submit();
         });
-    }
-
-    if (btnFiltrar && panelFiltros) {
-        btnFiltrar.addEventListener("click", () => {
-            panelFiltros.hidden = false;
-        });
-    }
-
-    if (btnCerrarFiltros && panelFiltros) {
-        btnCerrarFiltros.addEventListener("click", () => {
-            panelFiltros.hidden = true;
-        });
-    }
-
-    if (btnAplicarFiltros) {
-        btnAplicarFiltros.addEventListener("click", aplicarFiltrosCombinados);
-    }
-
-    if (btnLimpiarFiltros) {
-        btnLimpiarFiltros.addEventListener("click", limpiarFiltros);
     }
 
     if (btnSeleccionarCampania && modalCampanias) {
@@ -117,13 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function aplicarIconosDesdeAssets() {
-        if (btnFiltrar) {
-            btnFiltrar.style.backgroundImage = `url("${obtenerRutaAsset("filter_alt.svg")}")`;
-            btnFiltrar.style.backgroundPosition = "center";
-            btnFiltrar.style.backgroundRepeat = "no-repeat";
-            btnFiltrar.style.backgroundSize = "48%";
-        }
-
         if (btnExportarCSV) {
             btnExportarCSV.style.backgroundImage = `url("${obtenerRutaAsset("file_export.svg")}")`;
             btnExportarCSV.style.backgroundPosition = "center";
@@ -148,10 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
             btnModificar.href = obtenerUrlEditarCoordinador(idCoordinadorSeleccionado);
         }
 
-        if (formEliminar) {
-            formEliminar.action = obtenerUrlBorrarCoordinador(idCoordinadorSeleccionado);
-        }
-
         ocultarAvisoBorrado();
     }
 
@@ -171,64 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (avisoBorrado) {
             avisoBorrado.style.display = "none";
         }
-    }
-
-    function aplicarFiltrosCombinados() {
-        const campaniaId = filtroCampania?.value;
-
-        if (campaniaId && !estaEnCampania(campaniaId)) {
-            window.location.href = obtenerUrlListadoPorCampania(campaniaId);
-            return;
-        }
-
-        if (!campaniaId && hayFiltroCampaniaEnUrl()) {
-            window.location.href = obtenerUrlListadoCoordinadores();
-            return;
-        }
-
-        aplicarFiltrosLocales();
-    }
-
-    function aplicarFiltrosLocales() {
-        const nombreBuscado = normalizar(filtroNombre?.value);
-        const tiendasBuscadas = filtroTiendas?.value.trim();
-
-        filas.forEach((fila) => {
-            const celdas = fila.querySelectorAll("td");
-
-            const nombreFila = normalizar(celdas[0]?.textContent);
-            const tiendasFila = celdas[2]?.textContent.trim();
-
-            const coincideNombre = !nombreBuscado || nombreFila.includes(nombreBuscado);
-            const coincideTiendas = !tiendasBuscadas || tiendasFila === tiendasBuscadas;
-
-            fila.style.display = coincideNombre && coincideTiendas
-                ? ""
-                : "none";
-        });
-    }
-
-    function limpiarFiltros() {
-        if (filtroNombre) {
-            filtroNombre.value = "";
-        }
-
-        if (filtroCampania) {
-            filtroCampania.value = "";
-        }
-
-        if (filtroTiendas) {
-            filtroTiendas.value = "";
-        }
-
-        if (hayFiltroCampaniaEnUrl()) {
-            window.location.href = obtenerUrlListadoCoordinadores();
-            return;
-        }
-
-        filas.forEach((fila) => {
-            fila.style.display = "";
-        });
     }
 
     function exportarCoordinadoresCSV() {
@@ -273,31 +178,6 @@ function obtenerUrlListadoPorCampania(campaniaId) {
 
 function obtenerUrlEditarCoordinador(id) {
     return `${getContextPath()}/coordinadores/editar?id=${encodeURIComponent(id)}`;
-}
-
-function obtenerUrlBorrarCoordinador(id) {
-    return `${getContextPath()}/coordinadores/borrar?id=${encodeURIComponent(id)}`;
-}
-
-function hayFiltroCampaniaEnUrl() {
-    const parametros = new URLSearchParams(window.location.search);
-
-    return parametros.has("campaniaId");
-}
-
-function estaEnCampania(campaniaId) {
-    const parametros = new URLSearchParams(window.location.search);
-
-    return parametros.get("campaniaId") === String(campaniaId);
-}
-
-function normalizar(texto) {
-    return (texto || "")
-        .toString()
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
 }
 
 function limpiarTexto(texto) {
