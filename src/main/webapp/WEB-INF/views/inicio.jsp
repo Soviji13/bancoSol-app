@@ -111,6 +111,29 @@
                 defer>
         </script>
     </c:if>
+
+     <%-- TIENDAS --%>
+    <c:if test="${pagina == 'inicio-tiendas'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendas.css" />
+
+        <c:if test="${panelIzquierdo == 'tiendas/tiendaDetalles.jsp'}">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendaDetalles.css" />
+            <script type="module" src="${pageContext.request.contextPath}/js/tiendas/tiendaDetalles.js" defer></script>
+        </c:if>
+
+        <c:if test="${panelIzquierdo == 'tiendas/tiendaModificar.jsp'}">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendaDetalles.css" />
+            <script type="module" src="${pageContext.request.contextPath}/js/tiendas/tiendaModificar.js" defer></script>
+        </c:if>
+
+        <script type="module" src="${pageContext.request.contextPath}/js/tiendas/tiendas.js" defer></script>
+    </c:if>
+
+    <c:if test="${pagina == 'aniadir-tienda'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/aniadir-tienda.css" />
+        <script type="module" src="${pageContext.request.contextPath}/js/tiendas/aniadir-tienda.js" defer></script>
+    </c:if>
+
 </head>
 
 <body data-context-path="${pageContext.request.contextPath}">
@@ -177,6 +200,16 @@
 
                 <c:when test="${pagina == 'aniadir-entidad'}">
                     <jsp:include page="entidades_colaboradoras/aniadir-entidad.jsp" />
+                </c:when>
+
+
+                 <%-- TIENDAS --%>
+                <c:when test="${pagina == 'inicio-tiendas'}">
+                    <jsp:include page="tiendas/listaTiendas.jsp" />
+                </c:when>
+
+                <c:when test="${pagina == 'aniadir-tienda'}">
+                    <jsp:include page="tiendas/aniadir-tienda.jsp" />
                 </c:when>
 
                 <c:otherwise>

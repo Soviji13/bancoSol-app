@@ -1,0 +1,168 @@
+:root {
+    --color-etiqueta-azul: #2c398b;
+    --color-borde-panel: #a0a0a0;
+    --color-borde-suave: #d0d0d0;
+    --texto-general: #333333;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--texto-general);
+    background-color: #ffffff;
+}
+
+.panel-tienda {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border-left: 1px solid var(--color-borde-panel);
+}
+
+.panel-tienda__scroll {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 0;
+}
+
+/*cabecera */
+.panel-tienda__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    border-bottom: 1px solid var(--color-borde-panel);
+}
+
+.panel-tienda__info-principal {
+    padding: 1rem 1.5rem;
+    flex-grow: 1;
+}
+
+.panel-tienda__titulo {
+    color: var(--color-etiqueta-azul);
+    font-size: 1.3rem;
+    font-weight: 500;
+    margin: 0 0 0.3rem 0;
+}
+
+.panel-tienda__subtitulo {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.panel-tienda__acciones {
+    display: flex;
+}
+
+.panel-tienda__cerrar {
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--color-borde-panel);
+    cursor: pointer;
+    padding: 0 1.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #888;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-tienda__cerrar:hover {
+    background-color: #f0f0f0;
+    color: #d9534f;
+}
+
+/* cajas de datos */
+.caja-datos {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.fila {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--color-borde-panel);
+}
+
+.fila:last-child {
+    border-bottom: none;
+}
+
+.col-mitad {
+    flex: 1 1 50%;
+    border-right: 1px solid var(--color-borde-panel);
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.col-mitad:last-child {
+    border-right: none;
+}
+
+.col-completa {
+    flex: 1 1 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.celda {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* utilidades comunes */
+.etiqueta-azul {
+    color: var(--color-etiqueta-azul);
+    font-weight: 500;
+}
+
+.valor-dato {
+    color: var(--texto-general);
+    word-break: break-word;
+}
+
+.checkbox-personalizado {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--color-etiqueta-azul);
+    cursor: default;
+}
+
+/* la parte de turnos  */
+.fila-campana {
+    flex-direction: column;
+    border-bottom: none;
+}
+
+.titulo-seccion {
+    margin: 0;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #555;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid var(--color-borde-panel);
+}
+
+.tabla-turnos {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-turnos td {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--color-borde-suave);
+}
+
+.tabla-turnos tr:last-child td {
+    border-bottom: none;
+}
