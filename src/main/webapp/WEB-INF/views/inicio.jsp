@@ -123,6 +123,7 @@
 
         <c:if test="${panelIzquierdo == 'tiendas/tiendaModificar.jsp'}">
             <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendaDetalles.css" />
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/aniadir-tienda.css" />
             <script type="module" src="${pageContext.request.contextPath}/js/tiendas/tiendaModificar.js" defer></script>
         </c:if>
 

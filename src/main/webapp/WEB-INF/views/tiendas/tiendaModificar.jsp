@@ -29,8 +29,8 @@
                 <div class="fila">
                     <div class="col-mitad celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">CP:</span>
-                        <select name="cpId" style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;">
-                            <option value="">Seleccione CP...</option>
+                        <select name="cpId" style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;" required>
+                            <option value="" disabled <c:if test="${empty tiendaSelec.codigoPostal}">selected</c:if>>Seleccione CP...</option>
                             <c:forEach var="cp" items="${cps}">
                                 <option value="${cp.id}" <c:if test="${cp.codigo == tiendaSelec.codigoPostal}">selected</c:if>>
                                         ${cp.codigo}
@@ -40,8 +40,8 @@
                     </div>
                     <div class="col-mitad celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">Localidad:</span>
-                        <select name="localidadId" id="select-localidad" style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;">
-                            <option value="">Seleccione Localidad...</option>
+                        <select name="localidadId" id="select-localidad" style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;" required>
+                            <option value="" disabled <c:if test="${empty tiendaSelec.localidad}">selected</c:if>>Seleccione Localidad...</option>
                             <c:forEach var="loc" items="${localidades}">
                                 <option value="${loc.id}" data-nombre="${loc.nombre}" <c:if test="${loc.nombre == tiendaSelec.localidad}">selected</c:if>>
                                         ${loc.nombre}
@@ -54,9 +54,14 @@
                 <div class="fila">
                     <div class="col-completa celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">Distrito:</span>
+                        <%-- Aquí hemos implementado el bucle para los Distritos --%>
                         <select name="distritoId" id="select-distrito" disabled style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px; background-color: #eee;">
-                            <option value="">(Solo válido si es Málaga capital)</option>
-                            <%-- Cuando integres los distritos, añade aquí el bucle c:forEach --%>
+                            <option value="" disabled selected>(Solo válido si es Málaga capital)</option>
+                            <c:forEach var="distrito" items="${distritos}">
+                                <option value="${distrito.id}" <c:if test="${distrito.nombre == tiendaSelec.distrito}">selected</c:if>>
+                                        ${distrito.nombre}
+                                </option>
+                            </c:forEach>
                         </select>
                     </div>
                 </div>
@@ -83,15 +88,16 @@
                     <div class="col-completa celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">Responsable de tienda:</span>
                         <div style="display:flex; gap:10px; width:100%;">
-                            <select name="responsableId" style="flex-grow:1; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;">
-                                <option value="">Sin asignar...</option>
+                            <%-- Ojo: Esta opción NO tiene disabled, para permitir dejar la tienda sin responsable --%>
+                            <select name="responsableId" id="select-responsable" style="flex-grow:1; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;">
+                                <option value="" <c:if test="${empty tiendaSelec.responsableTiendaId}">selected</c:if>>Sin asignar...</option>
                                 <c:forEach var="resp" items="${responsables}">
                                     <option value="${resp.id}" <c:if test="${resp.id == tiendaSelec.responsableTiendaId}">selected</c:if>>
                                             ${resp.nombre}
                                     </option>
                                 </c:forEach>
                             </select>
-                            <button type="button" id="btn-nuevo-resp" style="padding: 0 12px; background-color: var(--color-etiqueta-azul); color: white; border: none; border-radius: 4px; cursor:pointer; font-weight:bold;">
+                            <button type="button" id="btn-abrir-modal-resp" style="padding: 0 12px; background-color: var(--color-etiqueta-azul); color: white; border: none; border-radius: 4px; cursor:pointer; font-weight:bold;">
                                 +
                             </button>
                         </div>
@@ -101,8 +107,8 @@
                 <div class="fila">
                     <div class="col-completa celda">
                         <span class="etiqueta-azul" style="display:block; margin-bottom: 5px;">Cadena:</span>
-                        <select name="cadenaId" style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;">
-                            <option value="">Seleccione Cadena...</option>
+                        <select name="cadenaId" style="width: 100%; padding: 6px; border: 1px solid var(--color-borde-suave); border-radius: 4px;" required>
+                            <option value="" disabled <c:if test="${empty tiendaSelec.cadenaId}">selected</c:if>>Seleccione Cadena...</option>
                             <c:forEach var="cadena" items="${cadenas}">
                                 <option value="${cadena.id}" <c:if test="${cadena.id == tiendaSelec.cadenaId}">selected</c:if>>
                                         ${cadena.id} - ${cadena.nombre}
@@ -121,3 +127,38 @@
         </div>
     </form>
 </aside>
+
+<%-- MODAL NUEVO RESPONSABLE (Con tu HTML exacto) --%>
+<div id="modal-responsable" class="modal-overlay oculto">
+    <div class="modal-caja" style="max-width: 500px;">
+        <header class="modal-cabecera">
+            <h3 style="margin:0; font-size:1.2rem;">Añadir Nuevo Responsable</h3>
+            <button type="button" id="btn-cerrar-responsable" class="modal-cerrar-x">X</button>
+        </header>
+        <div class="modal-cuerpo" style="padding-top:1rem;">
+            <div class="form-fila">
+                <div class="modal-campo">
+                    <label>Nombre y Apellidos:</label>
+                    <input type="text" id="modal-nombre-resp" placeholder="Ej. Juan Pérez">
+                </div>
+                <div class="modal-campo">
+                    <label>Email:</label>
+                    <input type="email" id="modal-email" placeholder="juan@ejemplo.com">
+                </div>
+            </div>
+            <div class="form-fila" style="margin-top: 1rem;">
+                <div class="modal-campo">
+                    <label>Teléfono Móvil:</label>
+                    <input type="text" id="modal-telefono" placeholder="600111222">
+                </div>
+                <div class="modal-campo">
+                    <label>Contraseña Acceso:</label>
+                    <input type="password" id="modal-password">
+                </div>
+            </div>
+            <footer class="modal-pie" style="margin-top: 1.5rem; text-align: right;">
+                <button type="button" id="btn-guardar-responsable" class="btn-modal-guardar">Guardar Responsable</button>
+            </footer>
+        </div>
+    </div>
+</div>

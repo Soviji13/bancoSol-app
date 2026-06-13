@@ -45,29 +45,57 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. Botón Modificar Tienda (Redirección optimizada con logs)
+// 4. Botón Modificar Tienda (Redirección optimizada y a prueba de fallos)
     if (btnModificar) {
         console.log("[Bancosol Info] Botón modificar detectado e inicializado en el DOM.");
         btnModificar.addEventListener('click', () => {
             console.log("[Bancosol Info] Click detectado en el botón Modificar.");
 
-            // Ampliamos la búsqueda a todo el documento por seguridad del DOM
+            // Intento 1: Buscar la fila azul en la tabla actual
+            let idTienda = null;
             const filaSeleccionada = document.querySelector('tr.fila-tienda.seleccionada');
-            console.log("[Bancosol Info] Resultado de buscar la fila marcada:", filaSeleccionada);
 
             if (filaSeleccionada) {
-                const idTienda = filaSeleccionada.dataset.id;
-                const urlDestino = `/tiendas/modificar?campaniaId=${campaniaId}&tiendaId=${idTienda}`;
-
-                console.log("[Bancosol Info] Redirigiendo ventana a:", urlDestino);
-                window.location.href = urlDestino;
+                idTienda = filaSeleccionada.dataset.id;
+                console.log("[Bancosol Info] Tienda encontrada por fila azul. ID:", idTienda);
             } else {
-                console.warn("[Bancosol Warning] Se pulsó modificar pero filaSeleccionada es NULL. ¿Hay alguna fila azul?");
-                alert("Por favor, seleccione una tienda de la lista haciendo clic sobre ella antes de modificar.");
+                // Intento 2: Si no hay fila azul (por iframes), leemos el ID del panel de detalles lateral
+                const panelLateral = document.querySelector('iframe.menu-lateral-iframe');
+                if (panelLateral && panelLateral.contentDocument) {
+                    const inputOculto = panelLateral.contentDocument.querySelector('input[name="tiendaId"]');
+                    if (inputOculto) {
+                        idTienda = inputOculto.value;
+                        console.log("[Bancosol Info] Tienda encontrada por panel lateral. ID:", idTienda);
+                    }
+                }
+
+                // Intento 3: Si estás guardando el id en session storage como tenías antes
+                if (!idTienda) {
+                    const tiendaJSON = sessionStorage.getItem("tiendaSeleccionada");
+                    if (tiendaJSON) {
+                        const tInfo = JSON.parse(tiendaJSON);
+                        idTienda = tInfo.id;
+                        console.log("[Bancosol Info] Tienda encontrada por sessionStorage. ID:", idTienda);
+                    }
+                }
+            }
+
+            // Si hemos logrado pillar el ID por algún lado, navegamos
+            if (idTienda) {
+                const urlDestino = `/tiendas/modificar?campaniaId=${campaniaId}&tiendaId=${idTienda}`;
+                console.log("[Bancosol Info] Redirigiendo ventana a:", urlDestino);
+
+                // Forzamos la recarga de toda la pantalla (window.parent) para que todo se cuadre
+                if (window.parent) {
+                    window.parent.location.href = urlDestino;
+                } else {
+                    window.location.href = urlDestino;
+                }
+            } else {
+                console.warn("[Bancosol Warning] No se pudo encontrar el ID de la tienda a modificar por ningún método.");
+                alert("Por favor, haga doble clic sobre una tienda para ver sus detalles antes de modificarla.");
             }
         });
-    } else {
-        console.error("[Bancosol Error] No se ha encontrado ningún botón con el ID '#btn-modificar' en el HTML.");
     }
 
     // 5. Botón Seleccionar otra campaña (Modal dinámico)

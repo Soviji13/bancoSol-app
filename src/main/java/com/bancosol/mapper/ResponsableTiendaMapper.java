@@ -20,11 +20,14 @@ public class ResponsableTiendaMapper extends MapperDTO<ResponsableTiendaDTO, Res
         return ResponsableTiendaDTO.builder()
                 .id(r.getId())
                 .nombre(r.getNombre())
+
+
                 .usuarioId(r.getUsuario() != null ? r.getUsuario().getId() : null)
                 .contactoId(r.getContacto() != null ? r.getContacto().getId() : null)
 
-                //envolvemos el ID de su única tienda en una lista para no romper tu DTO
+                //envolvemos id de su única tienda
                 .idsTiendas(tiendaAsociada != null ? List.of(tiendaAsociada.getId()) : List.of())
+
 
                 //sacamos las campañas directamente desde su tienda asociada
                 .idsCampanias((tiendaAsociada != null && tiendaAsociada.getCampanias() != null) ?

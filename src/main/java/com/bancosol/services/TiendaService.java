@@ -28,6 +28,7 @@ public class TiendaService {
         private final DireccionRepository direccionRepo;
         private final LocalidadRepository localidadRepo;
         private final CodigoPostalRepository cpRepo;
+        private final DistritoRepository distritoRepo;
         private final CadenaRepository cadenaRepo;
         private final CampaniaRepository campaniaRepo;
         private final TiendaColaboradorRepository tiendaColaboradorRepo;
@@ -113,7 +114,7 @@ public class TiendaService {
     }
 
     @Transactional
-    public void actualizarTiendaExistente(TiendaDTO dto, Long localidadId, Long cpId, Long responsableId) {
+    public void actualizarTiendaExistente(TiendaDTO dto, Long localidadId, Long distritoId, Long cpId, Long responsableId) {
         tiendaRepo.findById(dto.getId()).ifPresent(tienda -> {
             // 1. Campos básicos de la Tienda
             tienda.setNombre(dto.getNombre());
@@ -145,8 +146,18 @@ public class TiendaService {
             if (localidadId != null) {
                 localidadRepo.findById(localidadId).ifPresent(dir::setLocalidad);
             }
+
+            // NUEVO: GUARDAR EL DISTRITO SIEMPRE QUE NO SEA NULO
+            if (distritoId != null) {
+                distritoRepo.findById(distritoId).ifPresent(dir::setDistrito);
+            } else {
+                dir.setDistrito(null); // Si cambia a otra localidad y manda null, lo limpiamos de la BD
+            }
+
             if (cpId != null) {
                 cpRepo.findById(cpId).ifPresent(dir::setCodigoPostal);
+            } else {
+                dir.setCodigoPostal(null);
             }
 
             Direccion direccionGuardada = direccionRepo.save(dir);
@@ -156,7 +167,6 @@ public class TiendaService {
             tiendaRepo.save(tienda);
         });
     }
-
 
 
 

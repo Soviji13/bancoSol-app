@@ -66,7 +66,7 @@ public class TiendaMapper extends MapperDTO <TiendaDTO, Tienda> {
         // Responsable de tienda
         if (tienda.getResponsableTienda() != null) {
             var resp = tienda.getResponsableTienda();
-            dto.setResponsableTiendaId(resp.getId()); // AQUÍ MAPEAMOS EL ID
+            dto.setResponsableTiendaId(resp.getId());
 
             if (resp.getContacto() != null && resp.getContacto().getNombre() != null) {
                 dto.setNombreResponsable(resp.getContacto().getNombre());
@@ -79,7 +79,7 @@ public class TiendaMapper extends MapperDTO <TiendaDTO, Tienda> {
         }
 
 
-        // responsablesEnt y entidades
+        // responsablesEnt y entidades AYUDA IA PARA REFACTORIZAR Y CORRECCION
         List<ResponsableEntidadResumenDTO> listaResponsables = new ArrayList<>();
         String primerNombreEntidad = "Sin entidad asignada";
 

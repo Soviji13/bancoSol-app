@@ -164,6 +164,10 @@ import java.util.List;
             }
             model.addAttribute("responsables", responsablesLibres);
 
+            //2 lineas siguentes ayuda ia, ya que por alguna razon desaparecia la tabla al modficar, y era claro pq no se la estaba pasando, ya que solo se la paso en /, y no en /modificar
+            List<TiendaDTO> tiendas = tiendaService.listarTiendasPorCampania(campaniaId);
+            model.addAttribute("tiendasSelec", tiendas);
+
             //param al JSP
             model.addAttribute("tiendaSelec", tiendaSelec);
             model.addAttribute("campaniaSelec", campaniaTabla);
@@ -175,7 +179,40 @@ import java.util.List;
             return "inicio";
         }
 
+        @PostMapping("/actualizar")
+        public String actualizarTienda(
+                @RequestParam("tiendaId") Long tiendaId,
+                @RequestParam("campaniaId") Long campaniaId,
+                @RequestParam("nombre") String nombre,
+                @RequestParam(value = "puntosRecogida", required = false) Short puntosRecogida,
+                @RequestParam(value = "cpId", required = false) Long cpId,
+                @RequestParam(value = "localidadId", required = false) Long localidadId,
+                @RequestParam(value = "distritoId", required = false) Long distritoId,
+                @RequestParam(value = "calle", required = false) String calle,
+                @RequestParam(value = "numero", required = false) Short numero,
+                @RequestParam(value = "esFranquicia", required = false) Boolean esFranquicia,
+                @RequestParam(value = "responsableId", required = false) Long responsableId,
+                @RequestParam(value = "cadenaId", required = false) Long cadenaId
+        ) {
+            // El checkbox si se desmarca no viaja en el HTML (llega null), lo tratamos como false
+            boolean franquicia = (esFranquicia != null && esFranquicia);
 
+            // Creamos un DTO limpio para trasladar los parámetros modificados
+            TiendaDTO dto = new TiendaDTO();
+            dto.setId(tiendaId);
+            dto.setNombre(nombre);
+            dto.setPuntosRecogida(puntosRecogida != null ? puntosRecogida : (short) 0);
+            dto.setEsFranquicia(franquicia);
+            dto.setCalle(calle);
+            dto.setNumero(numero);
+            dto.setCadenaId(cadenaId);
+
+            // Llamamos al servicio para guardar todo en la base de datos
+            tiendaService.actualizarTiendaExistente(dto, localidadId, distritoId, cpId, responsableId);
+
+            // Redirigimos de vuelta al listado, dejando el panel lateral abierto en modo LECTURA
+            return "redirect:/tiendas?campaniaId=" + campaniaId + "&tiendaId=" + tiendaId;
+        }
 
 
 
