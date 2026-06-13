@@ -24,3 +24,6 @@ hs_err_pid*
 replay_pid*
 
 /target/
+
+# Para evitar traernos cosas de react
+node_modules/

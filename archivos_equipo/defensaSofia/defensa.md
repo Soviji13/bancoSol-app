@@ -20,7 +20,7 @@ Si un coordinador se asigna a una entidad, solo se mostrarán las campañas para
 
 ### Asignar CP automáticamente
 
-Debido a que, CP apunta hacia una dirección, y no hacia una localidad, no se ha podido actualizar el CP dinámicamente como con localidad y zona geográfica. Sin embargo, si se selecciona un distrito, sí se actualizarán los CPs disponibles de ese distrito. 
+Debido a que, CP apunta hacia una dirección, y no hacia una localidad, no se ha podido actualizar el CP dinámicamente como con localidad y zona geográfica. Sin embargo, si se selecciona un distrito, sí se actualizarán los CPs disponibles de ese distrito.
 
 Si no hay distrito, entonces, se puede seleccionar cualquier CP que no sea perteneciente a un distrito
 
@@ -51,3 +51,13 @@ Llamaremos al controller únicamente cuando los datos estén en orden, desde el 
 Crearé unos DTO para registrar la entidad, de forma que sea mucho más simple la recogida de datos. Como los datos los envío en formato JSON al servidor, si creamos DTO (como objetos), leerán correctamente todos los atributos y se podrán asociar de forma mucho más simple.
 
 Este planteamiento lo he obtenido con ayuda de la IA, pues mi idea era poder recoger los datos de la forma más simple posible.
+
+## Relacionados con la modificación de una entidad
+
+### Orden de modificar los responsables de una entidad
+
+Hemos realizado este orden: Eliminar primero los que el usuario ha indicado -> Modificamos los que se han quedado -> Añadimos los nuevos
+
+De esta forma, si un nuevo tiene ahora contacto principal, no se altera la BBDD ni sale una restricción, puesto que antes, como no se actualizaba aún el antiguo, la BBDD detectaba que había dos contactos principales.
+
+### Usar `flush()`

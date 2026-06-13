@@ -166,10 +166,8 @@ if (seccionEntidades) {
 
                 // Como solo nos devolverá una, entonces, solo mostraremos esa
                 if (zona && zona.length > 0) {
-                    inputZona.innerHTML = `
-                        ${zona.map(z => `<option value="${z.id}">${z.nombre}</option>`).join('')};
-                        <option value="">Seleccione otra zona Geográfica...</option>
-                    `
+                    inputZona.innerHTML = `<option value="">Seleccione una zona Geográfica...</option>` + 
+                        zona.map(z => `<option value="${z.id}" selected>${z.nombre}</option>`).join('');
                 } else {
                     throw new Error("Error: No se ha encontrado una zona geográfica perteneciente a esa localidad");
                 }
@@ -208,10 +206,8 @@ if (seccionEntidades) {
 
                 // Mostramos las localidades solo de esa zona
                 if (localidades && localidades.length > 0) {
-                    inputLocalidad.innerHTML = `
-                        ${localidades.map(l => `<option value="${l.id}">${l.nombre}</option>`).join('')}
-                        <option value="">Seleccione otra localidad...</option>
-                    `;
+                    inputLocalidad.innerHTML = `<option value="" selected>Seleccione una localidad...</option>` + 
+                        localidades.map(l => `<option value="${l.id}">${l.nombre}</option>`).join('');
                 } else {
                     throw new Error("Error: No se ha encontrado ninguna localidad perteneciente a esa zona geográfica");
                 }
@@ -312,6 +308,13 @@ if (seccionEntidades) {
                 // Si el valor es uno específico
                 await actualizarInputsLocalidad (inputZona.value);
             }
+
+            if (checkCapital) checkCapital.checked = false;
+            if (selecDistritos) selecDistritos.style.display = 'none';
+            if (inputDistrito) inputDistrito.value = "";
+
+            inputCps.innerHTML = `<option value="">Recargando todos los CPs...</option>`;
+            await resetearInputs(inputCps);
         })
     }
 
@@ -641,7 +644,6 @@ if (seccionEntidades) {
 
             // Si todo está bien
             if (!textoErrores) {    
-                alert("TOdos los datos están bien");
                 enviarDatosControlador (entidadCompleta);
             } else {
                 mostrarError(`Errores al enviar datos, faltan: ${textoErrores}`);
