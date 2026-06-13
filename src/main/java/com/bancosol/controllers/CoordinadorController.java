@@ -30,36 +30,38 @@ public class CoordinadorController {
                          @RequestParam(value = "mostrarFiltros", required = false) Boolean mostrarFiltros,
                          Model model) {
 
-        List<CoordinadorDTO> coordinadores;
+        List<CoordinadorDTO> coordinadores =
+                coordinadorService.filtrar(null, campaniaId, null);
 
-        if (campaniaId == null) {
-            coordinadores = coordinadorService.listarTodos();
-        } else {
-            CampaniaDTO campania = campaniaService.findById(campaniaId);
+        cargarModeloListado(
+                model,
+                coordinadores,
+                null,
+                campaniaId,
+                null,
+                Boolean.TRUE.equals(mostrarFiltros)
+        );
 
-            if (campania == null) {
-                return "redirect:/coordinadores";
-            }
+        return "inicio";
+    }
 
-            List<Long> idsCoordinadores = campania.getIdsCoordinadores() != null
-                    ? campania.getIdsCoordinadores()
-                    : List.of();
+    @PostMapping("/filtrar")
+    public String doFiltrar(@RequestParam(value = "nombre", required = false) String nombre,
+                            @RequestParam(value = "campaniaId", required = false) Long campaniaId,
+                            @RequestParam(value = "tiendasMinimas", required = false) Short tiendasMinimas,
+                            Model model) {
 
-            coordinadores = coordinadorService.buscarTodosPorId(idsCoordinadores);
+        List<CoordinadorDTO> coordinadores =
+                coordinadorService.filtrar(nombre, campaniaId, tiendasMinimas);
 
-            model.addAttribute("campaniaSeleccionada", campania);
-            model.addAttribute("campaniaIdSeleccionada", campaniaId);
-        }
-
-        model.addAttribute("pagina", "gestionar-coordinadores");
-        model.addAttribute("coordinadores", coordinadores);
-        model.addAttribute("campanias", campaniaService.listarTodas());
-
-        if (Boolean.TRUE.equals(mostrarFiltros)) {
-            model.addAttribute("panelIzquierdo", "coordinadores/panel-filtro.jsp");
-        } else {
-            model.addAttribute("panelIzquierdo", "layout/menu.jsp");
-        }
+        cargarModeloListado(
+                model,
+                coordinadores,
+                nombre,
+                campaniaId,
+                tiendasMinimas,
+                true
+        );
 
         return "inicio";
     }
@@ -113,6 +115,33 @@ public class CoordinadorController {
         }
 
         return "redirect:/coordinadores";
+    }
+
+    private void cargarModeloListado(Model model,
+                                     List<CoordinadorDTO> coordinadores,
+                                     String nombre,
+                                     Long campaniaId,
+                                     Short tiendasMinimas,
+                                     boolean mostrarFiltros) {
+
+        model.addAttribute("pagina", "gestionar-coordinadores");
+        model.addAttribute("coordinadores", coordinadores);
+        model.addAttribute("campanias", campaniaService.listarTodas());
+
+        model.addAttribute("nombreSeleccionado", nombre);
+        model.addAttribute("campaniaIdSeleccionada", campaniaId);
+        model.addAttribute("tiendasMinimasSeleccionadas", tiendasMinimas);
+
+        if (campaniaId != null) {
+            CampaniaDTO campania = campaniaService.findById(campaniaId);
+            model.addAttribute("campaniaSeleccionada", campania);
+        }
+
+        if (mostrarFiltros) {
+            model.addAttribute("panelIzquierdo", "coordinadores/panel-filtro.jsp");
+        } else {
+            model.addAttribute("panelIzquierdo", "layout/menu.jsp");
+        }
     }
 
     private String editarCrear(Long id, Model model) {

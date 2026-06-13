@@ -29,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.text.Normalizer;
+import java.util.Locale;
 
 // Sofía
 import java.util.Map;
@@ -73,6 +75,65 @@ public class CoordinadorService {
                 coordinadorMapper.toDTOList(coordinadorRepository.findAllById(ids));
 
         return completarIdEntidad(coordinadores);
+    }
+
+    public List<CoordinadorDTO> filtrar(String nombre,
+                                        Long campaniaId,
+                                        Short tiendasMinimas) {
+
+        String nombreNormalizado = normalizarTextoParaFiltro(nombre);
+
+        return listarTodos()
+                .stream()
+                .filter(coordinador -> cumpleFiltroNombre(coordinador, nombreNormalizado))
+                .filter(coordinador -> cumpleFiltroCampania(coordinador, campaniaId))
+                .filter(coordinador -> cumpleFiltroTiendasMinimas(coordinador, tiendasMinimas))
+                .toList();
+    }
+
+    private boolean cumpleFiltroNombre(CoordinadorDTO coordinador, String nombreNormalizado) {
+        if (!tieneTexto(nombreNormalizado)) {
+            return true;
+        }
+
+        return normalizarTextoParaFiltro(coordinador.getNombre()).contains(nombreNormalizado);
+    }
+
+    private boolean cumpleFiltroCampania(CoordinadorDTO coordinador, Long campaniaId) {
+        if (campaniaId == null) {
+            return true;
+        }
+
+        if (coordinador.getIdsCampanias() == null || coordinador.getIdsCampanias().isEmpty()) {
+            return false;
+        }
+
+        return coordinador.getIdsCampanias().contains(campaniaId);
+    }
+
+    private boolean cumpleFiltroTiendasMinimas(CoordinadorDTO coordinador, Short tiendasMinimas) {
+        if (tiendasMinimas == null) {
+            return true;
+        }
+
+        Short tiendas = coordinador.getTiendas();
+
+        if (tiendas == null) {
+            return tiendasMinimas <= 0;
+        }
+
+        return tiendas >= tiendasMinimas;
+    }
+
+    private String normalizarTextoParaFiltro(String texto) {
+        if (!tieneTexto(texto)) {
+            return "";
+        }
+
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .trim()
+                .toLowerCase(Locale.ROOT);
     }
 
     public CoordinadorFormDTO buscarFormularioPorId(Long id) {

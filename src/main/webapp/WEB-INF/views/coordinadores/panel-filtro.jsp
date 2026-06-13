@@ -30,20 +30,19 @@
 
     <form id="form-filtros-coordinadores"
           class="panel-filtros__contenido"
-          action="${pageContext.request.contextPath}/coordinadores"
-          method="get">
-
-        <input type="hidden" name="mostrarFiltros" value="true" />
+          action="${pageContext.request.contextPath}/coordinadores/filtrar"
+          method="post">
 
         <section class="panel-filtros__bloque border-bottom">
 
             <div class="panel-filtros__campo">
                 <label for="filtro-nombre">Nombre:</label>
+
                 <input id="filtro-nombre"
                        name="nombre"
                        class="input-linea"
                        type="text"
-                       value="${param.nombre}"
+                       value="${nombreSeleccionado}"
                        placeholder="Buscar por nombre..." />
             </div>
 
@@ -53,6 +52,7 @@
                 <select id="filtro-campania"
                         name="campaniaId"
                         class="input-linea">
+
                     <option value=""
                             <c:if test="${empty campaniaIdSeleccionada}">selected</c:if>>
                         Todas las campañas
@@ -68,15 +68,17 @@
             </div>
 
             <div class="panel-filtros__campo">
-                <label for="filtro-tiendas">Nº tiendas:</label>
-                <input id="filtro-tiendas"
-                       name="tiendas"
+                <label for="filtro-tiendas-minimas">Mín. tiendas:</label>
+
+                <input id="filtro-tiendas-minimas"
+                       name="tiendasMinimas"
                        class="input-linea"
                        type="number"
                        min="0"
-                       value="${param.tiendas}"
+                       value="${tiendasMinimasSeleccionadas}"
                        placeholder="Ej: 3" />
             </div>
+
         </section>
 
         <section class="panel-filtros__acciones">

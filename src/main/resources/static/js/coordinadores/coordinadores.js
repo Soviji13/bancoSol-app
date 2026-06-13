@@ -1,183 +1,217 @@
-import { obtenerRutaAsset } from "../utils/assetUtils.js";
 import { exportarCSV } from "../utils/csvUtils.js";
 import { obtenerFechaHoraActualSinZona } from "../utils/fechaUtils.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-    const filas = document.querySelectorAll("#tabla-body tr[data-id]");
+const SELECTORES = Object.freeze({
+    filaCoordinador: ".fila-coordinador",
 
-    const btnModificar = document.querySelector("#btn-modificar-coordinador");
-    const formEliminar = document.querySelector("#form-eliminar-coordinador");
-    const btnEliminar = document.querySelector("#btn-eliminar-coordinador");
-    const inputIdEliminar = document.querySelector("#input-id-eliminar");
-    const avisoBorrado = document.querySelector("#aviso-borrado");
+    btnModificar: "#btn-modificar-coordinador",
+    btnEliminar: "#btn-eliminar-coordinador",
+    btnExportar: "#btn-exportar-coordinadores",
 
-    const btnSeleccionarCampania = document.querySelector("#btn-seleccionar-campania");
-    const modalCampanias = document.querySelector("#modal-campanias");
-    const btnCerrarSelector = document.querySelector("#cerrar-selector");
-    const tarjetasCampania = document.querySelectorAll(".campania-card");
+    formEliminar: "#form-eliminar-coordinador",
+    inputIdEliminar: "#input-id-eliminar",
+    avisoBorrado: "#aviso-borrado",
 
-    const btnExportarCSV = document.querySelector(".csv");
+    btnSeleccionarCampania: "#btn-seleccionar-campania",
+    modalCampanias: "#modal-campanias",
+    btnCerrarSelector: "#cerrar-selector",
+    tarjetaCampania: ".campania-card"
+});
 
-    let idCoordinadorSeleccionado = null;
+const CLASES = Object.freeze({
+    filaSeleccionada: "seleccionada",
+    filaSeleccionadaAlternativa: "fila-seleccionada"
+});
 
-    aplicarIconosDesdeAssets();
+let coordinadorSeleccionadoId = null;
 
-    filas.forEach((fila) => {
-        fila.addEventListener("click", () => {
-            seleccionarFila(fila);
-        });
+document.addEventListener("DOMContentLoaded", inicializarListadoCoordinadores);
+
+function inicializarListadoCoordinadores() {
+    registrarEventosFilas();
+    registrarEventosBotones();
+    registrarEventosModalCampanias();
+    actualizarEstadoBotones();
+}
+
+function registrarEventosFilas() {
+    obtenerFilasCoordinadores().forEach((fila) => {
+        fila.addEventListener("click", () => seleccionarFila(fila));
 
         fila.addEventListener("dblclick", () => {
-            const id = fila.dataset.id;
-
-            if (id) {
-                window.location.href = obtenerUrlEditarCoordinador(id);
-            }
+            seleccionarFila(fila);
+            irAEditarCoordinador();
         });
     });
+}
 
-    if (btnEliminar && formEliminar && inputIdEliminar) {
-        btnEliminar.addEventListener("click", () => {
-            if (!idCoordinadorSeleccionado) {
-                mostrarAvisoBorrado();
-                return;
-            }
+function obtenerFilasCoordinadores() {
+    return Array.from(document.querySelectorAll(SELECTORES.filaCoordinador));
+}
 
-            const confirmar = confirm("¿Seguro que desea eliminar este coordinador? Esta acción no se puede deshacer.");
+function seleccionarFila(filaSeleccionada) {
+    limpiarSeleccionFilas();
 
-            if (!confirmar) {
-                return;
-            }
+    filaSeleccionada.classList.add(CLASES.filaSeleccionada);
+    filaSeleccionada.classList.add(CLASES.filaSeleccionadaAlternativa);
 
-            inputIdEliminar.value = idCoordinadorSeleccionado;
-            formEliminar.submit();
-        });
+    coordinadorSeleccionadoId = filaSeleccionada.dataset.id || null;
+
+    actualizarInputBorrado();
+    actualizarEstadoBotones();
+    ocultarAvisoBorrado();
+}
+
+function limpiarSeleccionFilas() {
+    obtenerFilasCoordinadores().forEach((fila) => {
+        fila.classList.remove(CLASES.filaSeleccionada);
+        fila.classList.remove(CLASES.filaSeleccionadaAlternativa);
+    });
+}
+
+function registrarEventosBotones() {
+    const btnModificar = document.querySelector(SELECTORES.btnModificar);
+    const btnExportar = document.querySelector(SELECTORES.btnExportar);
+    const formEliminar = document.querySelector(SELECTORES.formEliminar);
+
+    btnModificar?.addEventListener("click", irAEditarCoordinador);
+    btnExportar?.addEventListener("click", exportarCoordinadoresCSV);
+    formEliminar?.addEventListener("submit", confirmarBorrado);
+}
+
+function actualizarEstadoBotones() {
+    const haySeleccion = coordinadorSeleccionadoId !== null && coordinadorSeleccionadoId !== "";
+
+    const btnModificar = document.querySelector(SELECTORES.btnModificar);
+    const btnEliminar = document.querySelector(SELECTORES.btnEliminar);
+
+    if (btnModificar) {
+        btnModificar.disabled = !haySeleccion;
     }
 
-    if (btnSeleccionarCampania && modalCampanias) {
-        btnSeleccionarCampania.addEventListener("click", () => {
+    if (btnEliminar) {
+        btnEliminar.disabled = !haySeleccion;
+    }
+}
+
+function actualizarInputBorrado() {
+    const inputIdEliminar = document.querySelector(SELECTORES.inputIdEliminar);
+
+    if (inputIdEliminar) {
+        inputIdEliminar.value = coordinadorSeleccionadoId || "";
+    }
+}
+
+function confirmarBorrado(evento) {
+    if (!coordinadorSeleccionadoId) {
+        evento.preventDefault();
+        mostrarAvisoBorrado();
+        return;
+    }
+
+    const confirmado = confirm("¿Seguro que desea eliminar este coordinador? Esta acción no se puede deshacer.");
+
+    if (!confirmado) {
+        evento.preventDefault();
+    }
+}
+
+function irAEditarCoordinador() {
+    if (!coordinadorSeleccionadoId) {
+        return;
+    }
+
+    window.location.href = construirUrl(`/coordinadores/editar?id=${encodeURIComponent(coordinadorSeleccionadoId)}`);
+}
+
+function registrarEventosModalCampanias() {
+    const btnSeleccionarCampania = document.querySelector(SELECTORES.btnSeleccionarCampania);
+    const modalCampanias = document.querySelector(SELECTORES.modalCampanias);
+    const btnCerrarSelector = document.querySelector(SELECTORES.btnCerrarSelector);
+    const tarjetasCampania = document.querySelectorAll(SELECTORES.tarjetaCampania);
+
+    btnSeleccionarCampania?.addEventListener("click", () => {
+        if (modalCampanias) {
             modalCampanias.style.display = "flex";
-        });
-    }
+        }
+    });
 
-    if (btnCerrarSelector && modalCampanias) {
-        btnCerrarSelector.addEventListener("click", () => {
+    btnCerrarSelector?.addEventListener("click", () => {
+        if (modalCampanias) {
             modalCampanias.style.display = "none";
-        });
-    }
+        }
+    });
 
-    if (modalCampanias) {
-        modalCampanias.addEventListener("click", (event) => {
-            if (event.target === modalCampanias) {
-                modalCampanias.style.display = "none";
-            }
-        });
-    }
+    modalCampanias?.addEventListener("click", (evento) => {
+        if (evento.target === modalCampanias) {
+            modalCampanias.style.display = "none";
+        }
+    });
 
     tarjetasCampania.forEach((tarjeta) => {
         tarjeta.addEventListener("click", () => {
             const campaniaId = tarjeta.dataset.id;
 
             if (campaniaId) {
-                window.location.href = obtenerUrlListadoPorCampania(campaniaId);
+                window.location.href = construirUrl(`/coordinadores?campaniaId=${encodeURIComponent(campaniaId)}`);
             } else {
-                window.location.href = obtenerUrlListadoCoordinadores();
+                window.location.href = construirUrl("/coordinadores");
             }
         });
     });
+}
 
-    if (btnExportarCSV) {
-        btnExportarCSV.addEventListener("click", exportarCoordinadoresCSV);
+function mostrarAvisoBorrado() {
+    const avisoBorrado = document.querySelector(SELECTORES.avisoBorrado);
+
+    if (!avisoBorrado) {
+        return;
     }
 
-    function aplicarIconosDesdeAssets() {
-        if (btnExportarCSV) {
-            btnExportarCSV.style.backgroundImage = `url("${obtenerRutaAsset("file_export.svg")}")`;
-            btnExportarCSV.style.backgroundPosition = "center";
-            btnExportarCSV.style.backgroundRepeat = "no-repeat";
-            btnExportarCSV.style.backgroundSize = "1.6rem 1.6rem";
-        }
-    }
+    avisoBorrado.style.display = "block";
 
-    function seleccionarFila(filaSeleccionada) {
-        filas.forEach((fila) => {
-            fila.classList.remove("fila-seleccionada");
-        });
-
-        filaSeleccionada.classList.add("fila-seleccionada");
-
-        idCoordinadorSeleccionado = filaSeleccionada.dataset.id;
-
-        if (btnModificar) {
-            btnModificar.classList.remove("desactivado");
-            btnModificar.classList.add("activado");
-            btnModificar.removeAttribute("title");
-            btnModificar.href = obtenerUrlEditarCoordinador(idCoordinadorSeleccionado);
-        }
-
+    setTimeout(() => {
         ocultarAvisoBorrado();
-    }
-
-    function mostrarAvisoBorrado() {
-        if (!avisoBorrado) {
-            return;
-        }
-
-        avisoBorrado.style.display = "block";
-
-        setTimeout(() => {
-            ocultarAvisoBorrado();
-        }, 3000);
-    }
-
-    function ocultarAvisoBorrado() {
-        if (avisoBorrado) {
-            avisoBorrado.style.display = "none";
-        }
-    }
-
-    function exportarCoordinadoresCSV() {
-        const filasVisibles = Array.from(document.querySelectorAll("#tabla-body tr[data-id]"))
-            .filter((fila) => fila.style.display !== "none");
-
-        const filasCSV = filasVisibles.map((fila) => {
-            const celdas = fila.querySelectorAll("td");
-
-            return [
-                limpiarTexto(celdas[0]?.textContent),
-                limpiarTexto(celdas[1]?.textContent),
-                limpiarTexto(celdas[2]?.textContent),
-                limpiarTexto(celdas[3]?.textContent),
-                limpiarTexto(celdas[4]?.textContent),
-                limpiarTexto(celdas[5]?.textContent)
-            ];
-        });
-
-        exportarCSV({
-            cabeceras: [
-                "Coordinador",
-                "Campañas",
-                "Tiendas",
-                "Área asignada",
-                "Contacto",
-                "Permiso"
-            ],
-            filas: filasCSV,
-            nombreArchivo: `coordinadores-${normalizarNombreFechaArchivo(obtenerFechaHoraActualSinZona())}`
-        });
-    }
-});
-
-function obtenerUrlListadoCoordinadores() {
-    return `${getContextPath()}/coordinadores`;
+    }, 3000);
 }
 
-function obtenerUrlListadoPorCampania(campaniaId) {
-    return `${getContextPath()}/coordinadores?campaniaId=${encodeURIComponent(campaniaId)}`;
+function ocultarAvisoBorrado() {
+    const avisoBorrado = document.querySelector(SELECTORES.avisoBorrado);
+
+    if (avisoBorrado) {
+        avisoBorrado.style.display = "none";
+    }
 }
 
-function obtenerUrlEditarCoordinador(id) {
-    return `${getContextPath()}/coordinadores/editar?id=${encodeURIComponent(id)}`;
+function exportarCoordinadoresCSV() {
+    const filasVisibles = obtenerFilasCoordinadores()
+        .filter((fila) => fila.style.display !== "none");
+
+    const filasCSV = filasVisibles.map((fila) => {
+        const celdas = fila.querySelectorAll("td");
+
+        return [
+            limpiarTexto(celdas[0]?.textContent),
+            limpiarTexto(celdas[1]?.textContent),
+            limpiarTexto(celdas[2]?.textContent),
+            limpiarTexto(celdas[3]?.textContent),
+            limpiarTexto(celdas[4]?.textContent),
+            limpiarTexto(celdas[5]?.textContent)
+        ];
+    });
+
+    exportarCSV({
+        cabeceras: [
+            "Coordinador",
+            "Campañas",
+            "Tiendas",
+            "Área asignada",
+            "Contacto",
+            "Permiso"
+        ],
+        filas: filasCSV,
+        nombreArchivo: `coordinadores-${normalizarNombreFechaArchivo(obtenerFechaHoraActualSinZona())}`
+    });
 }
 
 function limpiarTexto(texto) {
@@ -193,12 +227,10 @@ function normalizarNombreFechaArchivo(fechaHora) {
         .replaceAll(".", "-");
 }
 
-function getContextPath() {
-    const contextPath = document.body.dataset.contextPath;
+function construirUrl(ruta) {
+    return `${obtenerContextPath()}${ruta}`;
+}
 
-    if (contextPath !== undefined) {
-        return contextPath;
-    }
-
-    return "";
+function obtenerContextPath() {
+    return document.body?.dataset?.contextPath || "";
 }
