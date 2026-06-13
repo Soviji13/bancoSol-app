@@ -1,3 +1,4 @@
+<%-- Alejandro Jiménez González  --%>
 <%@ page import="com.bancosol.dto.CampaniaDTO" %>
 <%@ page import="com.bancosol.dto.CadenaDTO" %>
 <%@ page import="java.util.List" %>

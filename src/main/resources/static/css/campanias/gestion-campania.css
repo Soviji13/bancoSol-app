@@ -1,0 +1,255 @@
+.gestion-campania {
+    width: 100%;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    background-color: #ffffff;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+.gestion-campania::-webkit-scrollbar,
+.list-container::-webkit-scrollbar {
+    width: 8px;
+}
+.gestion-campania::-webkit-scrollbar-thumb,
+.list-container::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 4px;
+}
+
+.gestion-campania__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+}
+
+.gestion-campania__volver,
+.gestion-campania__espaciador {
+    flex: 1;
+}
+
+.gestion-campania__volver {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.gestion-campania__titulo {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
+
+.gestion-campania__titulo h1 {
+    color: #2a3485;
+    font-size: 24px;
+    margin: 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-classic {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 8px 20px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.btn-classic:hover {
+    background-color: #e2e2e2;
+    border-color: #aaa;
+}
+
+.form-estado-campania {
+    margin: 0;
+}
+
+.btn-status {
+    padding: 8px 24px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    transition: filter 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-status:hover {
+    filter: brightness(1.1);
+}
+
+.btn-status--activa {
+    background-color: #28a745;
+}
+
+.btn-status--terminada {
+    background-color: #dc3545;
+}
+
+.gestion-campania__contenido {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.gestion-campania__bloque {
+    width: 100%;
+}
+
+.tabla-classic {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+
+.th-classic {
+    background-color: #f8f9fa;
+    color: #2a3485;
+    font-size: 16px;
+    padding: 14px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-weight: bold;
+}
+
+.tabla-classic td {
+    padding: 0;
+}
+
+.list-container {
+    padding: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.list-container--cadenas {
+    min-height: 280px;
+    max-height: 350px;
+}
+
+.list-container--coordinadores {
+    min-height: 140px;
+    max-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cadenas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.cadena-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #444;
+}
+
+.cadena-item input {
+    cursor: not-allowed;
+    accent-color: #2a3485;
+}
+
+.coordinador-item {
+    margin-bottom: 12px;
+    width: 100%;
+    text-align: center;
+}
+
+.coordinador-item:last-child {
+    margin-bottom: 0;
+}
+
+.link-classic {
+    color: #2a3485;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.link-classic:hover {
+    color: #1e2563;
+    text-decoration: underline;
+}
+
+.texto-vacio {
+    margin: 0;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    font-size: 14px;
+    width: 100%;
+}
+
+.acciones-campania {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn-action-wide {
+    display: block;
+    width: 100%;
+    background-color: #2a3485;
+    color: #ffffff;
+    border: none;
+    padding: 14px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-action-wide:hover {
+    background-color: #1e2563;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+    .gestion-campania__cabecera {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    .gestion-campania__volver,
+    .gestion-campania__espaciador {
+        width: 100%;
+        justify-content: center;
+        display: flex;
+    }
+    .gestion-campania__contenido {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+}

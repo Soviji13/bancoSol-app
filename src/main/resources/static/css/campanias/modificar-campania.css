@@ -1,0 +1,148 @@
+.modificar-container {
+    width: 100%;
+    padding: 10px 20px 20px 20px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    background-color: #ffffff;
+}
+
+/* Cabecera (Botón volver y Título) */
+.modificar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.modificar-header-left,
+.modificar-header-right {
+    flex: 1;
+}
+
+.modificar-header-center {
+    flex: 2;
+    text-align: center;
+}
+
+.modificar-title {
+    color: #2a3485; /* Azul corporativo */
+    font-size: 24px;
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.btn-volver {
+    background-color: #f0f0f0;
+    border: 1px solid #777;
+    color: #333;
+    padding: 6px 20px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    display: inline-block;
+}
+
+.btn-volver:hover {
+    background-color: #e0e0e0;
+}
+
+.modificar-divider {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 25px;
+}
+
+/* Layout de dos columnas */
+.modificar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+    gap: 30px;
+}
+
+/* Estilos de las Tarjetas (Cadenas y Coordinadores) */
+.modificar-card {
+    border: 1px solid #aaa;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.modificar-card-header {
+    color: #2a3485;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    padding: 12px;
+    border-bottom: 1px solid #aaa;
+    background-color: #fcfcfc;
+}
+
+.modificar-card-body {
+    padding: 20px;
+    min-height: 250px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Scrollbars para los cuerpos de las tarjetas */
+.modificar-card-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modificar-card-body::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+/* Cuadrícula interna para los checkboxes de cadenas */
+.cadenas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas de checkboxes */
+    gap: 15px 10px;
+}
+
+.cadena-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Lista centrada para coordinadores */
+.modificar-card-body--center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.coordinador-item {
+    color: #2a3485;
+    font-size: 14px;
+    text-align: center;
+}
+
+.coordinador-empty {
+    color: #777;
+    font-size: 13px;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+/* Responsividad para pantallas más pequeñas */
+@media (max-width: 900px) {
+    .modificar-grid {
+        grid-template-columns: 1fr; /* Pasa a 1 sola columna */
+    }
+    .modificar-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .cadenas-grid {
+        grid-template-columns: 1fr;
+    }
+}

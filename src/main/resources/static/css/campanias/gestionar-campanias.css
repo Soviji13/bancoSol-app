@@ -2,82 +2,98 @@
 /* 20% Alejandro Jiménez González*/
 .gestion-campania {
     width: 100%;
-    min-height: 100%;
-    padding: 0;
+    padding: 20px 40px 20px 20px;
     box-sizing: border-box;
-    background-color: var(--color-fondo, #ffffff);
-    color: var(--color-texto, #111);
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    font-family: sans-serif;
+    background-color: #ffffff;
 }
 
+.gestion-campania::-webkit-scrollbar,
+.list-container::-webkit-scrollbar {
+    width: 8px;
+}
 
+.gestion-campania::-webkit-scrollbar-thumb,
+.list-container::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 4px;
+}
 
 .gestion-campania__cabecera {
-    display: grid;
-    grid-template-columns: 15% 70% 15%;
-    align-items: start;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1.25rem;
-    border-bottom: var(--borde-general, 1px solid #ddd);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+    width: 100%;
 }
 
 .gestion-campania__volver {
+    flex: 1;
     display: flex;
     justify-content: flex-start;
-    align-items: flex-start;
 }
 
 .gestion-campania__titulo {
+    flex: 2;
     text-align: center;
 }
 
 .gestion-campania__titulo h1 {
-    margin: 0 0 0.8rem 0;
-    font-size: clamp(1.6rem, 2.2vw, 2.4rem);
-    text-transform: uppercase;
-    font-family: Arial, sans-serif;
-    font-weight: 700;
-    color: var(--color-texto, #111);
-    letter-spacing: 0.03em;
+    color: #2a3485;
+    font-size: 26px;
+    margin: 0 0 12px 0;
+    font-weight: bold;
+    font-family: sans-serif;
+    letter-spacing: normal;
 }
 
 .gestion-campania__espaciador {
-    min-height: 1px;
+    flex: 1;
 }
 
+.btn-classic {
+    background-color: #fff;
+    border: 1px solid #777;
+    color: #333;
+    padding: 8px 20px;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    display: inline-block;
+}
 
+.btn-classic:hover {
+    background-color: #f0f0f0;
+}
 
-.btn-classic,
 .btn-action-wide {
-    display: inline-flex;
+    display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 2.4rem;
-    padding: 0.65rem 1.1rem;
-    border: var(--borde-general, 1px solid #ccc);
-    border-radius: 0.75rem;
-    background-color: #ffffff;
-    color: var(--color-texto, #111);
-    font-size: 0.95rem;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    box-sizing: border-box;
-    transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.btn-classic:hover,
-.btn-action-wide:hover {
-    background-color: #f3f3f3;
-    transform: translateY(-1px);
-    box-shadow: 0 0.25rem 0.7rem rgba(0, 0, 0, 0.08);
-}
-
-.btn-action-wide {
     width: 100%;
+    background-color: #2a3485;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background-color 0.2s;
 }
 
-
+.btn-action-wide:hover {
+    background-color: #1e2563;
+}
 
 .form-estado-campania {
     margin: 0;
@@ -85,31 +101,35 @@
 }
 
 .btn-status {
-    padding: 0.65rem 1.5rem;
-    border-radius: 999px;
+    padding: 8px 20px;
+    border-radius: 15px;
     border: none;
     cursor: pointer;
     color: white;
-    font-weight: 700;
-    font-size: 0.95rem;
-    box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.12);
+    font-weight: bold;
+    font-size: 13px;
+    transition: opacity 0.2s;
+}
+
+.btn-status:hover {
+    opacity: 0.9;
 }
 
 .btn-status--activa {
-    background-color: #2e7d32;
+    background-color: #28a745;
 }
 
 .btn-status--terminada {
-    background-color: #c62828;
+    background-color: #dc3545;
 }
-
-
 
 .gestion-campania__contenido {
     display: grid;
-    grid-template-columns: minmax(0, 55%) minmax(0, 45%);
-    gap: 1.5rem;
+    grid-template-columns: 58% 38%;
+    justify-content: space-between;
+    gap: 4%;
     align-items: start;
+    width: 100%;
 }
 
 .gestion-campania__bloque {
@@ -117,64 +137,59 @@
     box-sizing: border-box;
 }
 
-
-
 .tabla-classic {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    border: var(--borde-general, 1px solid #ddd);
-    border-radius: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 12px;
     overflow: hidden;
     background-color: #ffffff;
-    box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.06);
 }
 
 .th-classic {
-    background-color: #fafafa;
-    font-size: 1rem;
-    padding: 0.9rem 1rem;
-    border-bottom: var(--borde-general, 1px solid #ddd);
-    color: var(--color-texto, #111);
-    text-align: center;
-    font-weight: 700;
+    background-color: #fff;
+    color: #2a3485;
+    font-size: 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+    font-weight: bold;
 }
 
 .tabla-classic td {
     padding: 0;
 }
 
-
-
 .list-container {
-    padding: 1rem;
+    padding: 15px 20px;
     overflow-y: auto;
     background-color: #ffffff;
     box-sizing: border-box;
 }
 
 .list-container--cadenas {
-    min-height: 11rem;
-    max-height: 14rem;
+    min-height: 250px;
+    max-height: 400px;
 }
 
 .list-container--coordinadores {
-    min-height: 7rem;
-    max-height: 10rem;
+    min-height: 150px;
+    max-height: 250px;
 }
 
 .cadenas-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.7rem 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
 }
 
 .cadena-item {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
-    font-size: 0.95rem;
-    color: var(--color-texto, #111);
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
 }
 
 .cadena-item input {
@@ -182,57 +197,51 @@
 }
 
 .coordinador-item {
-    margin-bottom: 0.65rem;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
 }
 
 .coordinador-item:last-child {
     margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .link-classic {
-    color: var(--color-principal, #4b0082);
+    color: #333;
     text-decoration: none;
-    font-weight: 600;
+    font-size: 14px;
+    transition: color 0.2s;
 }
 
 .link-classic:hover {
+    color: #2a3485;
     text-decoration: underline;
+    font-weight: bold;
 }
-
-
 
 .acciones-campania {
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
-    margin-top: 1rem;
+    gap: 15px;
+    margin-top: 25px;
 }
-
-
 
 .texto-vacio {
     margin: 0;
-    color: var(--color-texto-secundario, #666);
+    color: #666;
     font-style: italic;
+    font-size: 14px;
 }
-
-
 
 @media (max-width: 900px) {
     .gestion-campania__cabecera {
-        grid-template-columns: 1fr;
-        text-align: center;
+        flex-direction: column;
+        gap: 15px;
     }
-
-    .gestion-campania__volver {
-        justify-content: center;
-    }
-
     .gestion-campania__contenido {
         grid-template-columns: 1fr;
-    }
-
-    .cadenas-grid {
-        grid-template-columns: 1fr;
+        gap: 30px;
     }
 }

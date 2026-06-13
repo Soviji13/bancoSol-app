@@ -80,9 +80,24 @@
     </c:if>
 
     <%-- CAMPAÑAS --%>
-    <c:if test="${pagina == 'campanias/gestionar-campanias'}">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/gestionar-campanias.css" />
+    <c:if test="${pagina == 'gestionar-campanias'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/gestion-campania.css" />
     </c:if>
+
+    <c:if test="${pagina == 'generar-campania'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/generar-campania.css" />
+    </c:if>
+
+    <c:if test="${pagina == 'modificar-campania'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/campanias/modificar-campania.css" />
+    </c:if>
+
+    <%-- CADENAS --%>
+    <c:if test="${pagina == 'cadenas/gestionar-cadenas'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cadenas/gestion-cadenas.css" />
+    </c:if>
+
+
 
     <%-- INCIDENCIAS: LISTADO --%>
     <c:if test="${pagina == 'gestionar-incidencias'}">
@@ -154,19 +169,19 @@
             <c:choose>
 
                 <%-- CAMPAÑAS --%>
-                <c:when test="${pagina == 'campanias/campanias'}">
+                <c:when test="${pagina == 'campanias'}">
                     <jsp:include page="campanias/campanias.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'campanias/generar-campania'}">
+                <c:when test="${pagina == 'generar-campania'}">
                     <jsp:include page="campanias/generar-campania.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'campanias/gestionar-campanias'}">
+                <c:when test="${pagina == 'gestionar-campanias'}">
                     <jsp:include page="campanias/gestionar-campanias.jsp" />
                 </c:when>
 
-                <c:when test="${pagina == 'campanias/modificar-campania'}">
+                <c:when test="${pagina == 'modificar-campania'}">
                     <jsp:include page="campanias/modificar-campania.jsp" />
                 </c:when>
 
