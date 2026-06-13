@@ -1,4 +1,4 @@
-//Generado inicialmente con IA (90%) ajustado y mantenido a lo largo del proyecto por Jose González (10%)
+//Generado por Jose González en base a las necesidades del formulario
 package com.bancosol.dto;
 
 import lombok.AllArgsConstructor;

@@ -1,3 +1,4 @@
+//Queries realizadas por Jose
 package com.bancosol.dao;
 
 import com.bancosol.entities.Coordinador;

@@ -1,3 +1,4 @@
+<%--Hecho por Jose González (90%), refactorizado finalmente con IA para  buscar eficiencia sin alterar la funcionalidad (10%) --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fn" uri="jakarta.tags.functions" %>

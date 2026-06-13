@@ -1,3 +1,4 @@
+//Generado por Jose González en base a las necesidades del formulario
 package com.bancosol.dto;
 
 import lombok.AllArgsConstructor;
