@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./campanias.css";
 
 import { CampaniasGrid } from "./campaniasGrid";
 import { CampaniasAcciones } from "./campaniasAcciones";
 import { CampaniaDetalle } from "./campaniaDetalle";
 import { FormularioCampania } from "./formularioCampania";
-import { obtenerCadenas } from "../api/cadenasApi";
+import { crearCadena, obtenerCadenas } from "../api/cadenasApi";
 import { obtenerCoordinadores } from "../api/coordinadoresApi";
 import {
   actualizarCampania,
@@ -15,11 +15,17 @@ import {
   eliminarCampania,
   obtenerCampanias,
 } from "../api/campaniasApi";
+import { compararCampaniasPorFechaInicio } from "./utils/fechas";
+import {
+  normalizarCadena,
+  normalizarCadenas,
+  normalizarCampania,
+  normalizarCampanias,
+  normalizarCoordinadores,
+  prepararCampaniaParaApi,
+} from "./utils/campaniasMapper";
 
-export function MainCampanias({
-  manejaContenidoLateral,
-  manejaContenidoInicial,
-}) {
+export function MainCampanias() {
   const [campanias, setCampanias] = useState([]);
   const [cadenasDisponibles, setCadenasDisponibles] = useState([]);
   const [coordinadoresDisponibles, setCoordinadoresDisponibles] = useState([]);
@@ -31,62 +37,76 @@ export function MainCampanias({
   const [modoSeleccionAccion, setModoSeleccionAccion] = useState(null);
 
   const [cargando, setCargando] = useState(true);
+  const [guardandoFormulario, setGuardandoFormulario] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    cargarCampanias();
+    let componenteActivo = true;
+
+    const cargarDatosIniciales = async () => {
+      try {
+        setCargando(true);
+        setError("");
+
+        const [datosCampanias, datosCadenas, datosCoordinadores] =
+          await Promise.all([
+            obtenerCampanias(),
+            obtenerCadenas(),
+            obtenerCoordinadores(),
+          ]);
+
+        if (!componenteActivo) {
+          return;
+        }
+
+        const cadenasNormalizadas = normalizarCadenas(datosCadenas);
+        const coordinadoresNormalizados =
+          normalizarCoordinadores(datosCoordinadores);
+
+        setCadenasDisponibles(cadenasNormalizadas);
+        setCoordinadoresDisponibles(coordinadoresNormalizados);
+        setCampanias(
+          normalizarCampanias(
+            datosCampanias,
+            cadenasNormalizadas,
+            coordinadoresNormalizados
+          )
+        );
+      } catch (errorCarga) {
+        console.error(errorCarga);
+
+        if (componenteActivo) {
+          setError("No se han podido cargar las campañas desde la API.");
+        }
+      } finally {
+        if (componenteActivo) {
+          setCargando(false);
+        }
+      }
+    };
+
+    cargarDatosIniciales();
+
+    return () => {
+      componenteActivo = false;
+    };
   }, []);
 
-  const cargarCampanias = async () => {
-    try {
-      setCargando(true);
-      setError("");
+  const campaniasOrdenadas = useMemo(() => {
+    return [...campanias].sort(compararCampaniasPorFechaInicio);
+  }, [campanias]);
 
-      const [datosCampanias, datosCadenas, datosCoordinadores] =
-        await Promise.all([
-          obtenerCampanias(),
-          obtenerCadenas(),
-          obtenerCoordinadores(),
-        ]);
-
-      const cadenasNormalizadas = normalizarCadenas(datosCadenas);
-      const coordinadoresNormalizados =
-        normalizarCoordinadores(datosCoordinadores);
-
-      setCadenasDisponibles(cadenasNormalizadas);
-      setCoordinadoresDisponibles(coordinadoresNormalizados);
-
-      setCampanias(
-        normalizarCampanias(
-          datosCampanias,
-          cadenasNormalizadas,
-          coordinadoresNormalizados
-        )
-      );
-    } catch (errorCarga) {
-      console.error(errorCarga);
-      setError("No se han podido cargar las campañas desde la API.");
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const campaniasOrdenadas = [...campanias].sort((campaniaA, campaniaB) => {
-    const fechaA = crearFechaLocalDesdeISO(campaniaA.fechaInicio);
-    const fechaB = crearFechaLocalDesdeISO(campaniaB.fechaInicio);
-
-    return fechaA - fechaB;
-  });
-
-  const campaniaSeleccionada = campanias.find((campania) => {
-    return campania.id === campaniaSeleccionadaId;
-  });
-
-  const indiceCampaniaSeleccionada = campaniasOrdenadas.findIndex(
-    (campania) => {
+  const campaniaSeleccionada = useMemo(() => {
+    return campanias.find((campania) => {
       return campania.id === campaniaSeleccionadaId;
-    }
-  );
+    });
+  }, [campanias, campaniaSeleccionadaId]);
+
+  const indiceCampaniaSeleccionada = useMemo(() => {
+    return campaniasOrdenadas.findIndex((campania) => {
+      return campania.id === campaniaSeleccionadaId;
+    });
+  }, [campaniasOrdenadas, campaniaSeleccionadaId]);
 
   const manejarClickCampania = (idCampania) => {
     const campania = campanias.find((campaniaActual) => {
@@ -173,7 +193,6 @@ export function MainCampanias({
 
     try {
       setError("");
-
       await eliminarCampania(campania.id);
 
       setCampanias((campaniasActuales) =>
@@ -191,62 +210,61 @@ export function MainCampanias({
   };
 
   const cerrarFormularioCampania = () => {
+    if (guardandoFormulario) {
+      return;
+    }
+
     setModoFormulario(null);
     setCampaniaFormulario(null);
   };
 
   const guardarCampania = async (campaniaFormulario) => {
     try {
+      setGuardandoFormulario(true);
       setError("");
 
       const campaniaParaApi = prepararCampaniaParaApi(campaniaFormulario);
 
       if (modoFormulario === "crear") {
-        const campaniaCreada = await crearCampania(campaniaParaApi);
-
-        const nuevaCampaniaNormalizada = normalizarCampania(
-          campaniaCreada,
-          cadenasDisponibles,
-          coordinadoresDisponibles
-        );
-
-        setCampanias((campaniasActuales) => [
-          ...campaniasActuales,
-          nuevaCampaniaNormalizada,
-        ]);
-
-        setCampaniaSeleccionadaId(nuevaCampaniaNormalizada.id);
+        await crearNuevaCampania(campaniaParaApi);
       }
 
       if (modoFormulario === "editar") {
-        const campaniaActualizada = await actualizarCampania(
-          campaniaFormulario.id,
-          campaniaParaApi
-        );
-
-        const campaniaActualizadaNormalizada = normalizarCampania(
-          campaniaActualizada,
-          cadenasDisponibles,
-          coordinadoresDisponibles
-        );
-
-        setCampanias((campaniasActuales) =>
-          campaniasActuales.map((campania) =>
-            campania.id === campaniaActualizadaNormalizada.id
-              ? campaniaActualizadaNormalizada
-              : campania
-          )
-        );
-
-        setCampaniaSeleccionadaId(campaniaActualizadaNormalizada.id);
+        await editarCampaniaExistente(campaniaFormulario.id, campaniaParaApi);
       }
 
       setModoFormulario(null);
       setCampaniaFormulario(null);
     } catch (errorGuardado) {
       console.error(errorGuardado);
-      setError("No se ha podido guardar la campaña.");
+      setError(obtenerMensajeErrorGuardado(errorGuardado));
+    } finally {
+      setGuardandoFormulario(false);
     }
+  };
+
+  const crearNuevaCampania = async (campaniaParaApi) => {
+    const campaniaCreada = await crearCampania(campaniaParaApi);
+    const nuevaCampaniaNormalizada = normalizarCampania(
+      campaniaCreada,
+      cadenasDisponibles,
+      coordinadoresDisponibles
+    );
+
+    setCampanias((campaniasActuales) => [
+      ...campaniasActuales,
+      nuevaCampaniaNormalizada,
+    ]);
+    setCampaniaSeleccionadaId(nuevaCampaniaNormalizada.id);
+  };
+
+  const editarCampaniaExistente = async (idCampania, campaniaParaApi) => {
+    const campaniaActualizada = await actualizarCampania(
+      idCampania,
+      campaniaParaApi
+    );
+
+    actualizarCampaniaEnEstado(campaniaActualizada);
   };
 
   const actualizarCadenasDeCampania = async (idCampania, idsCadenas) => {
@@ -286,6 +304,13 @@ export function MainCampanias({
     }
   };
 
+  const crearNuevaCadena = async (datosCadena) => {
+    const cadenaCreada = await crearCadena(datosCadena);
+    registrarCadenaCreada(cadenaCreada);
+
+    return cadenaCreada;
+  };
+
   const actualizarCampaniaEnEstado = (campaniaActualizada) => {
     const campaniaNormalizada = normalizarCampania(
       campaniaActualizada,
@@ -303,27 +328,19 @@ export function MainCampanias({
   };
 
   const registrarCadenaCreada = (cadenaCreada) => {
-    const nuevaCadena = {
-      id: cadenaCreada.id,
-      nombre: cadenaCreada.nombre,
-      codigo: cadenaCreada.codigo,
-    };
+    const nuevaCadena = normalizarCadena(cadenaCreada);
 
-    setCadenasDisponibles((cadenasActuales) => [
-      ...cadenasActuales,
-      nuevaCadena,
-    ]);
+    setCadenasDisponibles((cadenasActuales) =>
+      insertarCadenaSinDuplicar(cadenasActuales, nuevaCadena)
+    );
 
     setCampanias((campaniasActuales) =>
       campaniasActuales.map((campania) => ({
         ...campania,
-        cadenas: [
-          ...(campania.cadenas ?? []),
-          {
-            ...nuevaCadena,
-            participa: false,
-          },
-        ],
+        cadenas: insertarCadenaSinDuplicar(campania.cadenas ?? [], {
+          ...nuevaCadena,
+          participa: false,
+        }),
       }))
     );
   };
@@ -364,7 +381,7 @@ export function MainCampanias({
           onSiguiente={irACampaniaSiguiente}
           onGuardarCadenas={actualizarCadenasDeCampania}
           onGuardarCoordinadores={actualizarCoordinadoresDeCampania}
-          onCadenaCreada={registrarCadenaCreada}
+          onCrearCadena={crearNuevaCadena}
         />
       </>
     );
@@ -402,9 +419,8 @@ export function MainCampanias({
       {modoFormulario !== null && (
         <FormularioCampania
           modo={modoFormulario}
-          campaniaInicial={
-            modoFormulario === "editar" ? campaniaFormulario : null
-          }
+          campaniaInicial={modoFormulario === "editar" ? campaniaFormulario : null}
+          guardando={guardandoFormulario}
           onCerrar={cerrarFormularioCampania}
           onGuardar={guardarCampania}
         />
@@ -413,132 +429,36 @@ export function MainCampanias({
   );
 }
 
-function prepararCampaniaParaApi(campania) {
-  return {
-    nombre: campania.nombre,
-    fechaInicio: campania.fechaInicio,
-    fechaFin: campania.fechaFin,
-    activa: campania.activa,
-    idsCadenas: obtenerIdsParticipantes(campania.cadenas),
-    idsCoordinadores: obtenerIdsParticipantes(campania.coordinadores),
-  };
-}
-
-function obtenerIdsParticipantes(elementos) {
-  if (!Array.isArray(elementos)) {
-    return [];
-  }
-
-  return elementos
-    .filter((elemento) => elemento.participa)
-    .map((elemento) => elemento.id);
-}
-
-function normalizarCampanias(
-  campanias,
-  cadenasDisponibles,
-  coordinadoresDisponibles
-) {
-  if (!Array.isArray(campanias)) {
-    return [];
-  }
-
-  return campanias.map((campania) =>
-    normalizarCampania(
-      campania,
-      cadenasDisponibles,
-      coordinadoresDisponibles
-    )
+function insertarCadenaSinDuplicar(cadenasActuales, cadenaNueva) {
+  const yaExiste = cadenasActuales.some(
+    (cadenaActual) => String(cadenaActual.id) === String(cadenaNueva.id)
   );
-}
 
-function normalizarCampania(
-  campania,
-  cadenasDisponibles = [],
-  coordinadoresDisponibles = []
-) {
-  const idsCadenas = Array.isArray(campania?.idsCadenas)
-    ? campania.idsCadenas
-    : [];
-
-  const idsCoordinadores = Array.isArray(campania?.idsCoordinadores)
-    ? campania.idsCoordinadores
-    : [];
-
-  return {
-    ...campania,
-    cadenas: construirCadenasDeCampania(cadenasDisponibles, idsCadenas),
-    coordinadores: construirCoordinadoresDeCampania(
-      coordinadoresDisponibles,
-      idsCoordinadores
-    ),
-  };
-}
-
-function normalizarCadenas(cadenas) {
-  if (!Array.isArray(cadenas)) {
-    return [];
+  if (yaExiste) {
+    return cadenasActuales;
   }
 
-  return cadenas.map((cadena) => ({
-    id: cadena.id,
-    nombre: cadena.nombre,
-    codigo: cadena.codigo,
-  }));
+  return [...cadenasActuales, cadenaNueva];
 }
 
-function normalizarCoordinadores(coordinadores) {
-  if (!Array.isArray(coordinadores)) {
-    return [];
+function obtenerMensajeErrorGuardado(errorGuardado) {
+  const mensaje = construirTextoError(errorGuardado).toLowerCase();
+
+  if (mensaje.includes("solo_una_campania_activa")) {
+    return "No se ha podido guardar la campaña porque ya existe una campaña activa.";
   }
 
-  return coordinadores.map((coordinador) => ({
-    id: coordinador.id,
-    nombre:
-      coordinador.nombre ??
-      coordinador.nombreContacto ??
-      coordinador.emailContacto ??
-      `Coordinador ${coordinador.id}`,
-  }));
+  return "No se ha podido guardar la campaña.";
 }
 
-function construirCadenasDeCampania(cadenasDisponibles, idsCadenasCampania) {
-  if (!Array.isArray(cadenasDisponibles)) {
-    return [];
-  }
+function construirTextoError(error) {
+  const partes = [
+    error?.message,
+    error?.response?.data?.message,
+    typeof error?.response?.data === "string"
+      ? error.response.data
+      : JSON.stringify(error?.response?.data ?? {}),
+  ];
 
-  return cadenasDisponibles.map((cadena) => ({
-    ...cadena,
-    participa: idsCadenasCampania.includes(cadena.id),
-  }));
-}
-
-function construirCoordinadoresDeCampania(
-  coordinadoresDisponibles,
-  idsCoordinadoresCampania
-) {
-  if (!Array.isArray(coordinadoresDisponibles)) {
-    return [];
-  }
-
-  return coordinadoresDisponibles.map((coordinador) => ({
-    ...coordinador,
-    participa: idsCoordinadoresCampania.includes(coordinador.id),
-  }));
-}
-
-function crearFechaLocalDesdeISO(fechaISO) {
-  if (!fechaISO || typeof fechaISO !== "string") {
-    return new Date(0);
-  }
-
-  const partesFecha = fechaISO.split("-").map(Number);
-
-  if (partesFecha.length !== 3 || partesFecha.some(Number.isNaN)) {
-    return new Date(0);
-  }
-
-  const [anio, mes, dia] = partesFecha;
-
-  return new Date(anio, mes - 1, dia);
+  return partes.filter(Boolean).join(" ");
 }

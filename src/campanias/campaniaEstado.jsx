@@ -1,6 +1,6 @@
 export function CampaniaEstado({ activa }) {
   return (
-    <p
+    <span
       className={
         activa
           ? "campanias__estado campanias__estado--activa"
@@ -8,6 +8,6 @@ export function CampaniaEstado({ activa }) {
       }
     >
       {activa ? "Activa" : "Terminada"}
-    </p>
+    </span>
   );
 }
