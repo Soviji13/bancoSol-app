@@ -4,8 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnModificar = document.querySelector('#btn-modificar-voluntario');
     const btnEliminar = document.querySelector('#btn-eliminar-voluntario');
 
+    //botones del modal de campaña q no tenias en el script anterior!!!!
+    const btnSeleccionarCampania = document.querySelector('#btn-seleccionar-campania');
+    const modalCampanias = document.querySelector('#modal-campanias');
+    const btnCerrarCampanias = document.querySelector('#btn-cerrar-campanias');
+    const listaCampaniasDiv = document.querySelector('#lista-campanias');
+
+    const divContexto = document.getElementById("datos-contexto");
+    const campaniaId = divContexto ? divContexto.dataset.campaniaId : "";
+
     if (tbody) {
-        //clic normal pone fila azul
         tbody.addEventListener('click', (event) => {
             const fila = event.target.closest('tr.fila-voluntario');
             if (!fila) return;
@@ -16,51 +24,134 @@ document.addEventListener("DOMContentLoaded", () => {
             if (btnModificar) btnModificar.disabled = false;
         });
 
-        //doble clic para abrir detalles
         tbody.addEventListener('dblclick', (event) => {
             const fila = event.target.closest('tr.fila-voluntario');
             if (fila) {
                 const idVoluntario = fila.dataset.id;
-                window.location.href = `/voluntarios?voluntarioId=${idVoluntario}`;
+                window.location.href = `/voluntarios?campaniaId=${campaniaId}&voluntarioId=${idVoluntario}`;
             }
         });
     }
 
     if (btnAnadir) {
         btnAnadir.addEventListener('click', () => {
-            window.location.href = '/voluntarios/aniadir';
+            window.location.href = `/voluntarios/aniadir?campaniaId=${campaniaId}`;
         });
     }
 
-    //logica popover de asignaciones al estilo react!!!!
-    const botonesPopover = document.querySelectorAll('.btn-desplegar-asignaciones');
-    botonesPopover.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation(); //evita q se seleccione la fila entera
+    //logica del modal de campanias exacta a la de tiendas!!!!
+    if (btnSeleccionarCampania) {
+        btnSeleccionarCampania.addEventListener('click', async () => {
+            if (modalCampanias) {
+                modalCampanias.classList.remove('oculto');
+                modalCampanias.style.display = 'flex';
+            }
 
-            //cerramos todos los demas popovers primero
-            document.querySelectorAll('.popover-asignaciones').forEach(p => p.classList.add('oculto'));
-            document.querySelectorAll('.flecha-desplegable').forEach(f => f.textContent = '▾');
+            if (listaCampaniasDiv) {
+                listaCampaniasDiv.innerHTML = "<p style='padding:1rem; color:#666;'>Cargando campañas...</p>";
+                try {
+                    const response = await fetch('/tiendas/mostrar-campanias-json');
+                    if (response.ok) {
+                        const campanias = await response.json();
+                        listaCampaniasDiv.innerHTML = "";
 
-            const id = btn.getAttribute('data-vol-id');
-            const popover = document.getElementById(`popover-${id}`);
-            const flecha = btn.querySelector('.flecha-desplegable');
+                        if (campanias.length === 0) {
+                            listaCampaniasDiv.innerHTML = "<p style='padding:1rem; color:#666;'>No hay campañas registradas.</p>";
+                            return;
+                        }
 
-            if (popover) {
-                if (popover.classList.contains('oculto')) {
-                    popover.classList.remove('oculto');
-                    flecha.textContent = '▴';
+                        campanias.forEach(c => {
+                            const btnCampania = document.createElement('button');
+                            btnCampania.type = 'button';
+                            btnCampania.className = 'modal-btn-campania';
+                            btnCampania.style.display = 'block';
+                            btnCampania.style.width = '100%';
+                            btnCampania.style.padding = '10px';
+                            btnCampania.style.margin = '5px 0';
+                            btnCampania.style.cursor = 'pointer';
+                            btnCampania.textContent = c.nombre;
+
+                            btnCampania.addEventListener('click', () => {
+                                window.location.href = `/voluntarios?campaniaId=${c.id}`;
+                            });
+
+                            listaCampaniasDiv.appendChild(btnCampania);
+                        });
+                    } else {
+                        listaCampaniasDiv.innerHTML = "<p style='padding:1rem; color:#d9534f;'>Error al cargar las campañas.</p>";
+                    }
+                } catch (error) {
+                    listaCampaniasDiv.innerHTML = "<p style='padding:1rem; color:#d9534f;'>Error de conexión.</p>";
+                }
+            }
+        });
+    }
+
+    if (btnCerrarCampanias && modalCampanias) {
+        btnCerrarCampanias.addEventListener('click', () => {
+            modalCampanias.classList.add('oculto');
+            modalCampanias.style.display = 'none';
+        });
+    }
+
+    //logica del acordeon integrada en la CELDA entera (mas facil de clickar)!!!!
+    document.querySelectorAll('.celda-desplegar').forEach(celda => {
+        celda.addEventListener('click', (event) => {
+            event.stopPropagation(); //evita q se ponga la fila azul
+            const tr = event.target.closest('tr');
+            const listaCompleta = tr.querySelector('.resp-lista-completa');
+            const resumen = tr.querySelector('.resp-resumen');
+            const imgFlech = celda.querySelector('.icono-flecha');
+
+            if (listaCompleta && resumen && imgFlech) {
+                if (listaCompleta.style.display === "none") {
+                    listaCompleta.style.display = "block";
+                    resumen.style.display = "none";
+                    imgFlech.style.transform = "rotate(180deg)";
                 } else {
-                    popover.classList.add('oculto');
-                    flecha.textContent = '▾';
+                    listaCompleta.style.display = "none";
+                    resumen.style.display = "block";
+                    imgFlech.style.transform = "rotate(0deg)";
                 }
             }
         });
     });
 
-    //click fuera cierra los popovers abiertos
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.popover-asignaciones').forEach(p => p.classList.add('oculto'));
-        document.querySelectorAll('.flecha-desplegable').forEach(f => f.textContent = '▾');
-    });
+    const btnFiltroEmbudo = document.querySelector('#btn-filtro-voluntarios');
+    if (btnFiltroEmbudo) {
+        btnFiltroEmbudo.addEventListener('click', () => {
+            window.location.href = `/voluntarios?campaniaId=${campaniaId}&verFiltros=true`;
+        });
+    }
+
+    if (btnEliminar) {
+        btnEliminar.addEventListener('click', () => {
+            const filaSeleccionada = tbody.querySelector('tr.fila-voluntario.seleccionada');
+            if (!filaSeleccionada) {
+                return alert("Por favor, seleccione un voluntario de la lista haciendo clic sobre él antes de eliminar.");
+            }
+            const idVoluntario = filaSeleccionada.dataset.id;
+
+            if (confirm(`¿Está seguro de que desea eliminar permanentemente al voluntario con ID ${idVoluntario}?`)) {
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = "/voluntarios/eliminar";
+
+                const inputVol = document.createElement("input");
+                inputVol.type = "hidden";
+                inputVol.name = "voluntarioId";
+                inputVol.value = idVoluntario;
+
+                const inputCamp = document.createElement("input");
+                inputCamp.type = "hidden";
+                inputCamp.name = "campaniaId";
+                inputCamp.value = campaniaId;
+
+                form.appendChild(inputVol);
+                form.appendChild(inputCamp);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 });

@@ -19,7 +19,7 @@ public class VoluntarioMapper extends MapperDTO<VoluntarioDTO, Voluntario> {
         dto.setHoraComienzo(v.getHoraComienzo());
         dto.setHoraFinal(v.getHoraFinal());
 
-        //sacamos responsableEntidad y su entidad con los nombres buenos q nos chivó el log!!!!
+        //sacamos datos de contacto y entidad asegurando q no pete si es nulo!!!!
         if (v.getResponsable() != null) {
             dto.setResponsableId(v.getResponsable().getId());
 
@@ -37,7 +37,7 @@ public class VoluntarioMapper extends MapperDTO<VoluntarioDTO, Voluntario> {
                 dto.setPerteneceA("Sin entidad");
             }
         } else {
-            dto.setNombreResponsable("Sin responsable asignado");
+            dto.setNombreResponsable("Sin responsable");
             dto.setPerteneceA("Sin entidad");
         }
 

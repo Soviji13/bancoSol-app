@@ -34,24 +34,24 @@ public class VoluntarioController {
             @RequestParam(value = "horasSueltasFiltro", required = false) String horasSueltasFiltro,
             Model model) {
 
-        //campaña activa por defecto igual q en tiendas!!!!
         CampaniaDTO campaniaTabla = (campaniaId == null)
                 ? campaniaService.devolverCampaniaActiva()
                 : campaniaService.findById(campaniaId);
 
-        //evaluamos filtros cruzados
+        //metodos totalmente alineados con el service!!!!
         List<VoluntarioDTO> voluntarios;
         if (nombreFiltro != null || entidadIdFiltro != null || horasSueltasFiltro != null) {
-            voluntarios = voluntarioService.listarVoluntariosFiltrados(
-                    campaniaTabla.getId(), nombreFiltro, entidadIdFiltro, horasSueltasFiltro);
+            voluntarios = voluntarioService.buscarFiltrados(
+                    campaniaTabla.getId(), null, null, nombreFiltro, null); //ajustados placeholders
         } else {
-            voluntarios = voluntarioService.listarPorCampania(campaniaTabla.getId());
+            voluntarios = voluntarioService.buscarPorCampania(campaniaTabla.getId());
         }
 
         model.addAttribute("voluntariosSelec", voluntarios);
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("campaniaId", campaniaTabla.getId());
 
+        //creamos json plano para q el csv export de js no reviente por referencias circulares!!!!
         try {
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("voluntariosJson", mapper.writeValueAsString(voluntarios));
@@ -62,7 +62,7 @@ public class VoluntarioController {
         model.addAttribute("pagina", "inicio-voluntarios");
 
         if (voluntarioId != null) {
-            VoluntarioDTO volSelec = voluntarioService.findById(voluntarioId);
+            VoluntarioDTO volSelec = voluntarioService.buscarPorId(voluntarioId);
             model.addAttribute("voluntarioSelec", volSelec);
             model.addAttribute("panelIzquierdo", "voluntarios/voluntarioDetalles.jsp");
         }

@@ -14,34 +14,26 @@ import java.util.List;
 @Repository
 public interface VoluntarioRepository extends JpaRepository<Voluntario, Long> {
 
-    //filtro por campaña igual q en tiendas!!!!
-    @EntityGraph(attributePaths = {
-            "responsableEntidad",
-            "responsableEntidad.contacto",
-            "responsableEntidad.entidad"
-    })
-    @Query("SELECT v FROM Voluntario v JOIN v.responsable.colaborador.campanias c WHERE c.id = :idCampania")
-    List<Voluntario> filtrarPorCampania(@Param("idCampania") Long idCampania);
-
-    //filtros avanzados arreglados con los nombres reales de la BD q vimos en los logs!!!!
-    @EntityGraph(attributePaths = {
-            "responsableEntidad",
-            "responsableEntidad.contacto",
-            "responsableEntidad.entidad"
-    })
+    //la campania se saca por el camino exacto: voluntario -> tienda-turno -> turno -> campania!!!!
+    //usamos subconsulta pq la entidad voluntario no tiene mapeada la lista de tiendaTurnos
+    @EntityGraph(attributePaths = {"responsable", "responsable.contacto", "responsable.colaborador"})
     @Query("SELECT DISTINCT v FROM Voluntario v " +
-            "JOIN v.responsable.colaborador.campanias c " +
-            "LEFT JOIN v.responsable r " +
-            "LEFT JOIN r.contacto cont " +
-            "LEFT JOIN r.entidad e " +
-            "WHERE c.id = :idCampania " +
-            "AND (:nombre = '' OR LOWER(cont.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
-            "AND (:entidadId = -1L OR e.id = :entidadId) " +
-            "AND (:horasSueltas IS NULL OR v.horasSueltas = :horasSueltas)")
-    List<Voluntario> filtrarVoluntariosAvanzado(
-            @Param("idCampania") Long idCampania,
-            @Param("nombre") String nombre,
-            @Param("entidadId") Long entidadId,
-            @Param("horasSueltas") Boolean horasSueltas
+            "WHERE v.id IN (SELECT tt.voluntario.id FROM TiendaTurno tt WHERE tt.turno.campania.id = :campaniaId)")
+    List<Voluntario> buscarPorCampaniaId(@Param("campaniaId") Long campaniaId);
+
+    //filtros avanzados cruzados
+    @EntityGraph(attributePaths = {"responsable", "responsable.contacto", "responsable.colaborador"})
+    @Query("SELECT DISTINCT v FROM Voluntario v " +
+            "WHERE v.id IN (SELECT tt.voluntario.id FROM TiendaTurno tt WHERE tt.turno.campania.id = :campaniaId) " +
+            "AND (:voluntarioId IS NULL OR v.id = :voluntarioId) " +
+            "AND (:entidad IS NULL OR v.responsable.colaborador.nombre = :entidad) " +
+            "AND (:responsable IS NULL OR v.responsable.contacto.nombre = :responsable) " +
+            "AND (:tienda IS NULL OR v.id IN (SELECT tt2.voluntario.id FROM TiendaTurno tt2 WHERE tt2.tienda.nombre = :tienda))")
+    List<Voluntario> buscarFiltrados(
+            @Param("campaniaId") Long campaniaId,
+            @Param("voluntarioId") Long voluntarioId,
+            @Param("entidad") String entidad,
+            @Param("responsable") String responsable,
+            @Param("tienda") String tienda
     );
 }
