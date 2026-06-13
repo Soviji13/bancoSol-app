@@ -1,26 +1,51 @@
+//francisco javier garcia sierra 0% ia
+
 package com.bancosol.services;
 
 import com.bancosol.dao.VoluntarioRepository;
 import com.bancosol.dto.VoluntarioDTO;
 import com.bancosol.entities.Voluntario;
+import com.bancosol.mapper.VoluntarioMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.AllArgsConstructor;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class VoluntarioService {
-    private final VoluntarioRepository repo;
-    public VoluntarioService(VoluntarioRepository repo) { this.repo = repo; }
+
+    private final VoluntarioRepository voluntarioRepo;
+    private final VoluntarioMapper voluntarioMapper;
 
     public List<VoluntarioDTO> listarTodos() {
-        return repo.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+        return voluntarioMapper.toDTOList(voluntarioRepo.findAll());
     }
 
-    private VoluntarioDTO toDTO(Voluntario v) {
-        return VoluntarioDTO.builder()
-                .id(v.getId()).observaciones(v.getObservaciones())
-                .horasSueltas(v.getHorasSueltas()).horaComienzo(v.getHoraComienzo())
-                .horaFinal(v.getHoraFinal()).responsableId(v.getResponsable().getId())
-                .build();
+    public List<VoluntarioDTO> listarPorCampania(Long campaniaId) {
+        return voluntarioMapper.toDTOList(voluntarioRepo.filtrarPorCampania(campaniaId));
+    }
+
+    public VoluntarioDTO findById(Long id) {
+        return voluntarioRepo.findById(id).map(voluntarioMapper::toDTO).orElse(null);
+    }
+
+    public List<VoluntarioDTO> listarVoluntariosFiltrados(Long campaniaId, String nombre, Long entidadId, String horasSueltasStr) {
+        String nombreFiltro = (nombre != null) ? nombre.trim() : "";
+        Long entidadFiltro = (entidadId != null) ? entidadId : -1L;
+
+        Boolean horasSueltasFiltro = null;
+        if (horasSueltasStr != null && !horasSueltasStr.isEmpty() && !horasSueltasStr.equals("TODAS")) {
+            horasSueltasFiltro = horasSueltasStr.equals("SI");
+        }
+
+        List<Voluntario> bd = voluntarioRepo.filtrarVoluntariosAvanzado(campaniaId, nombreFiltro, entidadFiltro, horasSueltasFiltro);
+        return voluntarioMapper.toDTOList(bd);
+    }
+
+    @Transactional
+    public void eliminarVoluntario(Long id) {
+        voluntarioRepo.findById(id).ifPresent(voluntarioRepo::delete);
     }
 }
