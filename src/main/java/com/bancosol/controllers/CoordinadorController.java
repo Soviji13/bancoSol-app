@@ -27,6 +27,7 @@ public class CoordinadorController {
 
     @GetMapping({"", "/"})
     public String doInit(@RequestParam(value = "campaniaId", required = false) Long campaniaId,
+                         @RequestParam(value = "mostrarFiltros", required = false) Boolean mostrarFiltros,
                          Model model) {
 
         List<CoordinadorDTO> coordinadores;
@@ -54,6 +55,12 @@ public class CoordinadorController {
         model.addAttribute("coordinadores", coordinadores);
         model.addAttribute("campanias", campaniaService.listarTodas());
 
+        if (Boolean.TRUE.equals(mostrarFiltros)) {
+            model.addAttribute("panelIzquierdo", "coordinadores/panel-filtro.jsp");
+        } else {
+            model.addAttribute("panelIzquierdo", "layout/menu.jsp");
+        }
+
         return "inicio";
     }
 
@@ -70,7 +77,6 @@ public class CoordinadorController {
     @PostMapping("/borrar")
     public String doBorrar(@RequestParam("id") Long id) {
         coordinadorService.eliminar(id);
-
         return "redirect:/coordinadores";
     }
 
@@ -120,6 +126,7 @@ public class CoordinadorController {
         }
 
         model.addAttribute("pagina", "formulario-coordinador");
+        model.addAttribute("panelIzquierdo", "layout/menu.jsp");
         model.addAttribute("coordinador", coordinador);
 
         cargarDatosFormulario(model);

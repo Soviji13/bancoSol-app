@@ -1,10 +1,18 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <div class="encabezado">
     <div class="filtro-campania-container">
+
         <div class="boton-filtro">
-            <button id="filtrar" type="button" aria-label="Filtrar coordinadores">&nbsp;</button>
+            <a id="filtrar"
+               class="boton-filtro__enlace"
+               href="${pageContext.request.contextPath}/coordinadores?mostrarFiltros=true"
+               aria-label="Filtrar coordinadores">
+                <img src="${pageContext.request.contextPath}/assets/embudo.png"
+                     alt=""
+                     class="boton-filtro__icono" />
+            </a>
         </div>
 
         <div class="cambiar-campania">
@@ -18,6 +26,7 @@
         <c:when test="${not empty campaniaSeleccionada}">
             <h1>Coordinadores de ${campaniaSeleccionada.nombre}</h1>
         </c:when>
+
         <c:otherwise>
             <h1>Todos los coordinadores</h1>
         </c:otherwise>
@@ -25,93 +34,16 @@
 
     <div class="help-container">
         <p>Para ver más información sobre el coordinador, haga doble click sobre su fila correspondiente</p>
-        <button id="btn-ayuda" class="simbolo" type="button" aria-label="Ayuda">?</button>
+        <button id="btn-ayuda"
+                class="simbolo"
+                type="button"
+                aria-label="Ayuda">
+            ?
+        </button>
     </div>
 </div>
 
-<aside id="panel-filtros" class="panel-filtros" hidden>
-    <header class="panel-filtros__cabecera">
-        <div>
-            <h2>Filtros de búsqueda</h2>
-
-            <c:choose>
-                <c:when test="${not empty campaniaSeleccionada}">
-                    <span class="badge-id">
-                        Campaña: ${campaniaSeleccionada.nombre}
-                    </span>
-                </c:when>
-
-                <c:otherwise>
-                    <span class="badge-id">
-                        Ajuste de resultados
-                    </span>
-                </c:otherwise>
-            </c:choose>
-        </div>
-
-        <button id="btn-cerrar-filtros"
-                class="panel-filtros__cerrar"
-                type="button"
-                aria-label="Cerrar filtros">
-            ←
-        </button>
-    </header>
-
-    <div class="panel-filtros__contenido">
-        <section class="panel-filtros__bloque border-bottom">
-            <div class="panel-filtros__campo">
-                <label for="filtro-nombre">Nombre:</label>
-                <input id="filtro-nombre"
-                       class="input-linea"
-                       type="text"
-                       placeholder="Buscar por nombre..." />
-            </div>
-
-            <div class="panel-filtros__campo">
-                <label for="filtro-campania">Campaña:</label>
-
-                <select id="filtro-campania" class="input-linea">
-                    <option value=""
-                            <c:if test="${empty campaniaIdSeleccionada}">selected</c:if>>
-                        Todas las campañas
-                    </option>
-
-                    <c:forEach var="campania" items="${campanias}">
-                        <option value="${campania.id}"
-                                <c:if test="${campania.id == campaniaIdSeleccionada}">selected</c:if>>
-                                ${campania.nombre}
-                        </option>
-                    </c:forEach>
-                </select>
-            </div>
-
-            <div class="panel-filtros__campo">
-                <label for="filtro-tiendas">Nº tiendas:</label>
-                <input id="filtro-tiendas"
-                       class="input-linea"
-                       type="number"
-                       min="0"
-                       placeholder="Ej: 3" />
-            </div>
-        </section>
-
-        <section class="panel-filtros__bloque">
-            <button id="btn-aplicar-filtros"
-                    class="btn-guardar-lateral"
-                    type="button">
-                Aplicar filtros
-            </button>
-
-            <button id="btn-limpiar-filtros"
-                    class="btn-limpiar-filtros"
-                    type="button">
-                Limpiar todos los filtros
-            </button>
-        </section>
-    </div>
-</aside>
-
-<main id="contenido-principal" class="contenido-principal">
+<section id="contenido-principal" class="contenido-principal">
 
     <c:if test="${not empty mensajeExito}">
         <div class="aviso-listado aviso-listado--exito">
@@ -168,6 +100,7 @@
                                 <c:when test="${not empty coordinador.nombre}">
                                     ${coordinador.nombre}
                                 </c:when>
+
                                 <c:otherwise>
                                     Sin nombre
                                 </c:otherwise>
@@ -193,6 +126,7 @@
                                 <c:when test="${not empty coordinador.tiendas}">
                                     ${coordinador.tiendas}
                                 </c:when>
+
                                 <c:otherwise>
                                     0
                                 </c:otherwise>
@@ -204,6 +138,7 @@
                                 <c:when test="${not empty coordinador.area}">
                                     ${coordinador.area}
                                 </c:when>
+
                                 <c:otherwise>
                                     Sin área
                                 </c:otherwise>
@@ -217,6 +152,7 @@
                                         <c:when test="${not empty coordinador.email}">
                                             ${coordinador.email}
                                         </c:when>
+
                                         <c:otherwise>
                                             Sin email
                                         </c:otherwise>
@@ -228,6 +164,7 @@
                                         <c:when test="${not empty coordinador.telefono}">
                                             ${coordinador.telefono}
                                         </c:when>
+
                                         <c:otherwise>
                                             Sin teléfono
                                         </c:otherwise>
@@ -241,6 +178,7 @@
                                 <c:when test="${coordinador.permisoModificar}">
                                     <span class="badge">Sí</span>
                                 </c:when>
+
                                 <c:otherwise>
                                     <span class="badge">No</span>
                                 </c:otherwise>
@@ -252,7 +190,7 @@
         </c:choose>
         </tbody>
     </table>
-</main>
+</section>
 
 <div id="aviso-borrado" class="aviso-flotante" style="display: none;">
     ⚠️ Seleccione la fila correspondiente al coordinador que desee eliminar
@@ -262,12 +200,18 @@
     <div class="container-interactuar">
 
         <form id="form-eliminar-coordinador"
-              action=""
+              action="${pageContext.request.contextPath}/coordinadores/borrar"
               method="post"
               class="form-accion-pie">
+
+            <input id="input-id-eliminar"
+                   type="hidden"
+                   name="id"
+                   value="" />
+
             <button id="btn-eliminar-coordinador"
                     class="accion-pie activado"
-                    type="submit">
+                    type="button">
                 Eliminar coordinador
             </button>
         </form>
@@ -294,7 +238,10 @@
     <div class="modal-content">
         <header class="modal-header">
             <h2>Seleccionar Campaña</h2>
-            <button id="cerrar-selector" class="btn-cerrar-modal" type="button">
+
+            <button id="cerrar-selector"
+                    class="btn-cerrar-modal"
+                    type="button">
                 X
             </button>
         </header>
