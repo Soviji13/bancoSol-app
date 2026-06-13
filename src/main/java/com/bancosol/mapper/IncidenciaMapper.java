@@ -1,10 +1,12 @@
 package com.bancosol.mapper;
 
 import com.bancosol.dto.IncidenciaDTO;
+import com.bancosol.dto.IncidenciaFormDTO;
 import com.bancosol.entities.Incidencia;
 import com.bancosol.entities.ResponsableEntidad;
 import com.bancosol.entities.ResponsableTienda;
 
+import com.bancosol.entities.enums.EstadoIncidencia;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -55,6 +57,33 @@ public class IncidenciaMapper extends MapperDTO<IncidenciaDTO, Incidencia> {
                 .build();
     }
 
+    public IncidenciaFormDTO toFormDTO(Incidencia incidencia) {
+        if (incidencia == null) {
+            return null;
+        }
+
+        ResponsableTienda responsableTienda = incidencia.getResponsableTienda();
+        ResponsableEntidad responsableEntidad = incidencia.getResponsableEntidad();
+
+        return IncidenciaFormDTO.builder()
+                .id(incidencia.getId())
+                .fechaHora(incidencia.getFechaHora())
+                .asunto(incidencia.getAsunto())
+                .descripcion(incidencia.getDescripcion())
+                .estado(String.valueOf(incidencia.getEstado()))
+                .responsableTiendaId(
+                        responsableTienda != null
+                                ? responsableTienda.getId()
+                                : null
+                )
+                .responsableEntidadId(
+                        responsableEntidad != null
+                                ? responsableEntidad.getId()
+                                : null
+                )
+                .build();
+    }
+
     public List<IncidenciaDTO> toDTOList(List<Incidencia> incidencias) {
         if (incidencias == null || incidencias.isEmpty()) {
             return List.of();
@@ -77,6 +106,22 @@ public class IncidenciaMapper extends MapperDTO<IncidenciaDTO, Incidencia> {
         incidencia.setAsunto(dto.getAsunto());
         incidencia.setDescripcion(dto.getDescripcion());
         incidencia.setEstado(dto.getEstado());
+
+        return incidencia;
+    }
+
+    public Incidencia toEntity(IncidenciaFormDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Incidencia incidencia = new Incidencia();
+
+        incidencia.setId(dto.getId());
+        incidencia.setFechaHora(dto.getFechaHora());
+        incidencia.setAsunto(dto.getAsunto());
+        incidencia.setDescripcion(dto.getDescripcion());
+        incidencia.setEstado(EstadoIncidencia.valueOf(dto.getEstado()));
 
         return incidencia;
     }

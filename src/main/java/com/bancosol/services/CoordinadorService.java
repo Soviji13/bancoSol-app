@@ -200,33 +200,47 @@ public class CoordinadorService {
     }
 
     @Transactional
-    public void eliminar(Long id) {
+    public void eliminar(Long id) { //Protegido pra evitar white label
         Coordinador coordinador = buscarCoordinadorPorId(id);
+
+        List<EntidadColaboradora> entidadesAsociadas =
+                entidadRepository.findByCoordinador_Id(coordinador.getId());
+        //No puede existir entidad sin coordinador
+        if (!entidadesAsociadas.isEmpty()) {
+            throw new IllegalStateException(
+                    "No se puede eliminar el coordinador porque tiene entidades colaboradoras asociadas. " +
+                            "Reasigna o elimina primero esas entidades."
+            );
+        }
 
         Contacto contacto = coordinador.getContacto();
         Usuario usuario = coordinador.getUsuario();
 
-        desasociarEntidades(coordinador);
         desasociarCampanias(coordinador);
 
-        /*
-         * Rompemos la relación antes de borrar para evitar problemas
-         * de claves foráneas al eliminar después contacto y usuario.
-         */
         coordinador.setContacto(null);
         coordinador.setUsuario(null);
 
         coordinadorRepository.delete(coordinador);
         coordinadorRepository.flush();
 
-        if (contacto != null) {
-            contactoRepository.delete(contacto);
+        if (contacto != null && contacto.getId() != null) {
+            boolean contactoEnUso = coordinadorRepository.existsByContacto_Id(contacto.getId());
+
+            if (!contactoEnUso) {
+                contactoRepository.delete(contacto);
+            }
         }
 
-        if (usuario != null) {
-            usuarioRepository.delete(usuario);
+        if (usuario != null && usuario.getId() != null) {
+            boolean usuarioEnUso = coordinadorRepository.existsByUsuario_Id(usuario.getId());
+
+            if (!usuarioEnUso) {
+                usuarioRepository.delete(usuario);
+            }
         }
     }
+
 
     private Coordinador buscarCoordinadorPorId(Long id) {
         validarId(id, "coordinador");

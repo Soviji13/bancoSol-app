@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class IncidenciaFormDTO {
 
+    private Long id;
+
     private LocalDateTime fechaHora;
 
     private String asunto;
