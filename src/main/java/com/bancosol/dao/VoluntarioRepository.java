@@ -1,4 +1,4 @@
-//francisco javier garcia sierra 0% ia
+//francisco javier garcia sierra
 
 package com.bancosol.dao;
 
@@ -14,15 +14,24 @@ import java.util.List;
 @Repository
 public interface VoluntarioRepository extends JpaRepository<Voluntario, Long> {
 
-    //la campania se saca por el camino exacto: voluntario -> tienda-turno -> turno -> campania!!!!
-    //usamos subconsulta pq la entidad voluntario no tiene mapeada la lista de tiendaTurnos
-    @EntityGraph(attributePaths = {"responsable", "responsable.contacto", "responsable.colaborador"})
+    //la campania se saca por voluntario -> tienda-turno -> turno -> campania
+    //usamos select anidado pq la entidad voluntario no tiene mapeada la lista de tiendaTurnos
+    @EntityGraph(attributePaths = {
+            "responsable",
+            "responsable.contacto",
+            "responsable.colaborador"
+    })
     @Query("SELECT DISTINCT v FROM Voluntario v " +
             "WHERE v.id IN (SELECT tt.voluntario.id FROM TiendaTurno tt WHERE tt.turno.campania.id = :campaniaId)")
     List<Voluntario> buscarPorCampaniaId(@Param("campaniaId") Long campaniaId);
 
-    //filtros avanzados cruzados
-    @EntityGraph(attributePaths = {"responsable", "responsable.contacto", "responsable.colaborador"})
+    //filtros avanzados cruzados, esta query ha sido 0% ia, ni consultas ni ayuda
+    //y estoy orgullosisimo, aunque haya tenido q probar una cuantas bastantes veces
+    @EntityGraph(attributePaths = {
+            "responsable",
+            "responsable.contacto",
+            "responsable.colaborador"
+    })
     @Query("SELECT DISTINCT v FROM Voluntario v " +
             "WHERE v.id IN (SELECT tt.voluntario.id FROM TiendaTurno tt WHERE tt.turno.campania.id = :campaniaId) " +
             "AND (:voluntarioId IS NULL OR v.id = :voluntarioId) " +

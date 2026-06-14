@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnModificar = document.querySelector('#btn-modificar-voluntario');
     const btnEliminar = document.querySelector('#btn-eliminar-voluntario');
 
-    //botones del modal de campaña q no tenias en el script anterior!!!!
     const btnSeleccionarCampania = document.querySelector('#btn-seleccionar-campania');
     const modalCampanias = document.querySelector('#modal-campanias');
     const btnCerrarCampanias = document.querySelector('#btn-cerrar-campanias');
@@ -21,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tbody.querySelectorAll('tr.fila-voluntario').forEach(tr => tr.classList.remove('seleccionada'));
             fila.classList.add('seleccionada');
 
+            // Habilitamos modificar al seleccionar
             if (btnModificar) btnModificar.disabled = false;
         });
 
@@ -39,7 +39,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    //logica del modal de campanias exacta a la de tiendas!!!!
+    // === LÓGICA DEL BOTÓN MODIFICAR AÑADIDA ====
+    if (btnModificar) {
+        btnModificar.addEventListener('click', () => {
+            let idVoluntario = null;
+
+            // 1. Mirar si hay alguna fila seleccionada en azul
+            const filaSeleccionada = tbody.querySelector('tr.fila-voluntario.seleccionada');
+
+            if (filaSeleccionada) {
+                idVoluntario = filaSeleccionada.dataset.id;
+            } else {
+                // 2. Si no hay fila en azul, mirar si tenemos el panel de detalles abierto leyendo la URL
+                const urlParams = new URLSearchParams(window.location.search);
+                idVoluntario = urlParams.get('voluntarioId');
+            }
+
+            // 3. Redirigir al endpoint de modificar
+            if (idVoluntario) {
+                window.location.href = `/voluntarios/modificar?campaniaId=${campaniaId}&voluntarioId=${idVoluntario}`;
+            } else {
+                alert("Por favor, seleccione un voluntario haciendo clic en su fila antes de modificar.");
+            }
+        });
+    }
+
+    // Modal campañas exacto al de tiendas
     if (btnSeleccionarCampania) {
         btnSeleccionarCampania.addEventListener('click', async () => {
             if (modalCampanias) {
@@ -94,10 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    //logica del acordeon integrada en la CELDA entera (mas facil de clickar)!!!!
+    // Acordeon en celda entera
     document.querySelectorAll('.celda-desplegar').forEach(celda => {
         celda.addEventListener('click', (event) => {
-            event.stopPropagation(); //evita q se ponga la fila azul
+            event.stopPropagation();
             const tr = event.target.closest('tr');
             const listaCompleta = tr.querySelector('.resp-lista-completa');
             const resumen = tr.querySelector('.resp-resumen');

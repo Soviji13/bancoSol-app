@@ -19,7 +19,7 @@ public class VoluntarioMapper extends MapperDTO<VoluntarioDTO, Voluntario> {
         dto.setHoraComienzo(v.getHoraComienzo());
         dto.setHoraFinal(v.getHoraFinal());
 
-        //sacamos datos de contacto y entidad asegurando q no pete si es nulo!!!!
+        //sacamos datos del contacto y entidad asegurando 100% q no reviente por null
         if (v.getResponsable() != null) {
             dto.setResponsableId(v.getResponsable().getId());
 
@@ -40,12 +40,6 @@ public class VoluntarioMapper extends MapperDTO<VoluntarioDTO, Voluntario> {
             dto.setNombreResponsable("Sin responsable");
             dto.setPerteneceA("Sin entidad");
         }
-
-        //placeholders direccion
-        dto.setLocalidad("---");
-        dto.setDistrito("---");
-        dto.setCalle("---");
-        dto.setZonaGeografica("---");
 
         return dto;
     }

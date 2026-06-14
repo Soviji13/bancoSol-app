@@ -1,4 +1,8 @@
-//francisco javier garcia sierra 0% ia
+//francisco javier garcia sierra
+
+// ----- justificacion uso ia -----
+// problema de recursividad infinita con json: al intentar devolver el voluntario a la vista, jpa entraba en bucle (Voluntario -> TiendaTurno -> Voluntario...). solucionado creando las clases estaticas AsignacionDTO y TurnoVoluntarioDTO para aplanar los datos y que no reviente la serializacion!!!!
+// --------------------------------
 
 package com.bancosol.dto;
 
@@ -25,18 +29,11 @@ public class VoluntarioDTO {
     private String telefono;
     private String email;
 
-    //placeholders q luego quiza usemos!!!!
-    private String localidad;
-    private String calle;
-    private Short numero;
-    private String distrito;
-    private String zonaGeografica;
-
+    //AYUDA IA:
     //lista de tiendas/turnos integrada
     private List<AsignacionDTO> asignaciones = new ArrayList<>();
 
-    //AYUDA IA: division de la tabla intermedia triple, yo estaba usando TiendaTurno, pero al accder, dentro estaba el propio voluntario
-    // y por tanto de nuevo el tiendaTurno entrando en bucle, por lo q lo mejor es desacoplazr-
+    //AYUDA IA:
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class AsignacionDTO {
         private Long tiendaId;
@@ -44,6 +41,7 @@ public class VoluntarioDTO {
         private List<TurnoVoluntarioDTO> turnos = new ArrayList<>();
     }
 
+    //AYUDA IA:
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class TurnoVoluntarioDTO {
         private Long turnoId;

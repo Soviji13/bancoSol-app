@@ -17,7 +17,6 @@
             </button>
         </div>
 
-        <%--este es el boton de seleccionar campaña q te faltaba!!!!--%>
         <div class="seleccionar-campania">
             <button id="btn-seleccionar-campania" class="boton-secundario" type="button">
                 Seleccionar otra campaña
@@ -35,7 +34,6 @@
     </div>
 
     <div class="tabla-contenedor">
-        <%--usamos clase tabla-tiendas para heredar el css q ya tenemos perfecto!!!!--%>
         <table class="tabla-tiendas">
             <thead>
             <tr>
@@ -52,7 +50,6 @@
                     <td><c:out value="${vol.nombreResponsable}" /></td>
                     <td><c:out value="${vol.perteneceA}" /></td>
 
-                        <%--acordeon integrado al estilo tiendas, mucho mas limpio!!!!--%>
                     <td>
                         <c:choose>
                             <c:when test="${not empty vol.asignaciones}">
@@ -82,10 +79,12 @@
                         </c:choose>
                     </td>
 
-                        <%--celda ENTERA clicable para q sea facilisimo darle!!!!--%>
-                    <td class="celda-desplegar" style="width: 50px; text-align: center; cursor: pointer;">
+                        <%--celda entera clicable con flex para forzar centrado absoluto!!!!--%>
+                    <td class="celda-desplegar" style="width: 50px; cursor: pointer; vertical-align: middle; padding: 0;">
                         <c:if test="${not empty vol.asignaciones}">
-                            <img src="${pageContext.request.contextPath}/assets/keyboard_double_arrow_down.svg" class="icono-flecha" style="transition: transform 0.2s; width: 24px; pointer-events: none;">
+                            <div style="display: flex; justify-content: center; align-items: center; height: 100%; min-height: 40px;">
+                                <img src="${pageContext.request.contextPath}/assets/keyboard_double_arrow_down.svg" class="icono-flecha" style="transition: transform 0.2s; width: 24px; pointer-events: none;">
+                            </div>
                         </c:if>
                     </td>
                 </tr>
@@ -102,17 +101,17 @@
         </table>
     </div>
 
-    <%--botones de accion calcados de tiendas--%>
+    <%--botones de accion calcados de tiendas con sus clases exactas!!!!--%>
+    <%--el de modificar tiene la logica para activarse si un panel esta abierto--%>
     <div class="acciones-tabla" id="acciones-normales">
         <button class="acciones-tabla__btn" id="btn-eliminar-voluntario" type="button">Eliminar voluntario</button>
-        <button class="acciones-tabla__btn" id="btn-modificar-voluntario" type="button" disabled>Modificar voluntario</button>
+        <button class="acciones-tabla__btn" id="btn-modificar-voluntario" type="button" ${not empty voluntarioSelec ? '' : 'disabled'}>Modificar voluntario</button>
         <button class="acciones-tabla__btn" id="btn-anadir-voluntario" type="button">Añadir voluntario</button>
         <button class="acciones-tabla__btn" id="btn-exportar-voluntarios" type="button">
             <img src="${pageContext.request.contextPath}/assets/file_export.svg" alt="Exportar">
         </button>
     </div>
 
-    <%--modal para saltar de campania q estaba perdido--%>
     <div id="modal-campanias" class="modal-overlay oculto">
         <div class="modal-caja modal-caja-campanias">
             <header class="modal-cabecera">

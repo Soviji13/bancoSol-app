@@ -408,13 +408,6 @@
   background-color: #1e2761;
 }
 
-.acciones-tabla {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid #2c398b;
-  background-color: #fff;
-  flex-shrink: 0;
-}
 .acciones-tabla__btn {
   padding: 1.2rem;
   font-size: 1rem;

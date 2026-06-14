@@ -143,17 +143,30 @@
 
     <%-- VOLUNTARIOS --%>
     <c:if test="${pagina == 'inicio-voluntarios'}">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendas.css" /> <%-- reutilizamos estilos generales de tabla --%>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/tiendas.css" />
 
-        <%--estilos y scripts propios de voluntarios!!!!--%>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/voluntarios/voluntarioContenido.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/voluntarios/usosVarios.css" />
 
-        <c:if test="${panelIzquierdo == 'voluntarios/voluntarioDetalles.jsp' || panelIzquierdo == 'voluntarios/voluntarioFiltros.jsp'}">
+        <c:if test="${panelIzquierdo == 'voluntarios/voluntarioDetalles.jsp' || panelIzquierdo == 'voluntarios/voluntarioFiltros.jsp' || panelIzquierdo == 'voluntarios/voluntarioModificar.jsp'}">
             <link rel="stylesheet" href="${pageContext.request.contextPath}/css/voluntarios/voluntarioLateral.css" />
         </c:if>
 
         <script type="module" src="${pageContext.request.contextPath}/js/voluntarios/voluntarios.js" defer></script>
+
+        <c:if test="${panelIzquierdo == 'voluntarios/voluntarioModificar.jsp'}">
+            <script type="module" src="${pageContext.request.contextPath}/js/voluntarios/voluntarioModificar.js" defer></script>
+        </c:if>
+
+        <c:if test="${panelIzquierdo == 'voluntarios/voluntarioFiltros.jsp'}">
+            <script type="module" src="${pageContext.request.contextPath}/js/voluntarios/voluntarioFiltros.js" defer></script>
+        </c:if>
+    </c:if>
+
+    <c:if test="${pagina == 'aniadir-voluntario'}">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tiendas/aniadir-tienda.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/voluntarios/usosVarios.css" />
+        <script type="module" src="${pageContext.request.contextPath}/js/voluntarios/aniadirVoluntario.js" defer></script>
     </c:if>
 
 </head>
@@ -237,6 +250,10 @@
                 <%-- VOLUNTARIOS --%>
                 <c:when test="${pagina == 'inicio-voluntarios'}">
                     <jsp:include page="voluntarios/listaVoluntarios.jsp" />
+                </c:when>
+
+                <c:when test="${pagina == 'aniadir-voluntario'}">
+                    <jsp:include page="voluntarios/aniadirVoluntario.jsp" />
                 </c:when>
 
                 <c:otherwise>
