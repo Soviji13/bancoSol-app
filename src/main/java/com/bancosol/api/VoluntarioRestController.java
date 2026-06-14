@@ -12,5 +12,5 @@ public class VoluntarioRestController {
     private final VoluntarioService service;
     public VoluntarioRestController(VoluntarioService service) { this.service = service; }
     @GetMapping
-    public ResponseEntity<List<VoluntarioDTO>> getAll() { return ResponseEntity.ok(service.listarTodos()); }
+    public ResponseEntity<List<VoluntarioDTO>> getAll() { return ResponseEntity.ok(service.buscarTodos()); }
 }
