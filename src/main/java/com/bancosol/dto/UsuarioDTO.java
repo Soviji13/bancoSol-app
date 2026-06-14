@@ -18,4 +18,7 @@ public class UsuarioDTO {
     private String nombreMostrado;
     private String rolMostrado;
     private Long idReferencia; // El id de la entidad (colaborador, respTienda, etc.)
+
+    // SOLO PARA EL COORDINADOR
+    private Boolean puedeModificar;
 }

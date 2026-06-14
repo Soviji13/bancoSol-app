@@ -103,10 +103,15 @@
 
     <%--botones de accion calcados de tiendas con sus clases exactas!!!!--%>
     <%--el de modificar tiene la logica para activarse si un panel esta abierto--%>
+    <%--REFACTORIZACION SOFIA ROLES--%>
     <div class="acciones-tabla" id="acciones-normales">
-        <button class="acciones-tabla__btn" id="btn-eliminar-voluntario" type="button">Eliminar voluntario</button>
-        <button class="acciones-tabla__btn" id="btn-modificar-voluntario" type="button" ${not empty voluntarioSelec ? '' : 'disabled'}>Modificar voluntario</button>
-        <button class="acciones-tabla__btn" id="btn-anadir-voluntario" type="button">Añadir voluntario</button>
+        <%-- BLOQUEO PARA RESPONSABLE DE TIENDA --%>
+        <c:if test="${sessionScope.usuarioLogueado.puedeModificar == true}">
+            <button class="acciones-tabla__btn" id="btn-eliminar-voluntario" type="button">Eliminar voluntario</button>
+            <button class="acciones-tabla__btn" id="btn-modificar-voluntario" type="button" ${not empty voluntarioSelec ? '' : 'disabled'}>Modificar voluntario</button>
+            <button class="acciones-tabla__btn" id="btn-anadir-voluntario" type="button">Añadir voluntario</button>
+        </c:if>
+
         <button class="acciones-tabla__btn" id="btn-exportar-voluntarios" type="button">
             <img src="${pageContext.request.contextPath}/assets/file_export.svg" alt="Exportar">
         </button>

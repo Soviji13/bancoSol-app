@@ -59,26 +59,41 @@ public class UsuarioService {
         String rolName = user.getRol() != null ? user.getRol().name() : "";
 
         if (rolName.equals("ADMIN")) {
+
             dto.setNombreMostrado(user.getEmail());
             dto.setRolMostrado("Administrador del Sistema");
             dto.setIdReferencia(user.getId());
+            dto.setPuedeModificar(true);
+
         } else if (rolName.equals("COORDINADOR")) {
+
             Coordinador coord = coordinadorRepo.findByUsuarioId(user.getId()).orElse(null);
+
             if (coord != null && coord.getContacto() != null) {
                 dto.setNombreMostrado(coord.getContacto().getNombre());
                 dto.setIdReferencia(coord.getId()); // ID específico de Coordinador
+                dto.setPuedeModificar(coord.getPermisoModificar());
             }
             dto.setRolMostrado("Coordinador");
+
         } else if (rolName.equals("RESPONSABLE_ENTIDAD")) {
+
             ResponsableEntidad respEnt = respEntidadRepo.findByUsuarioId(user.getId()).orElse(null);
             if (respEnt != null && respEnt.getContacto() != null) {
                 dto.setNombreMostrado(respEnt.getContacto().getNombre());
-                dto.setIdReferencia(respEnt.getId()); // ID específico de Responsable de Entidad
+                dto.setIdReferencia(respEnt.getColaborador().getId()); // ID específico de la entidad colaboradora
             }
+            dto.setPuedeModificar(false);
             dto.setRolMostrado("Responsable de Entidad");
+
         } else if (rolName.equals("RESPONSABLE_TIENDA")) {
+            ResponsableTienda respTienda = respTiendaRepo.findByUsuarioId(user.getId()).orElse(null);
+            if (respTienda != null && respTienda.getContacto() != null) {
+                dto.setNombreMostrado(respTienda.getContacto().getNombre());
+                dto.setIdReferencia(respTienda.getTienda().getId()); // ID específico de la tienda
+            }
             dto.setRolMostrado("Responsable de Tienda");
-            // Aquí harías lo mismo con tu repositorio de tiendas si fuera necesario
+            dto.setPuedeModificar(false);
         }
 
         return dto;

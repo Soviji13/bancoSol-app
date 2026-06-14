@@ -30,6 +30,18 @@ public class CampaniaService {
     // Adición Sofía (0% IA)
     private final TiendaMapper tiendaMapper;
     private final TiendaRepository tiendaRepository;
+
+    public CampaniaDTO findByIdSofia(Long id) {
+        if (id == null) {
+            // Si el controlador no sabe qué campaña quiere, el servicio ofrece la última
+            // activa
+            List<Campania> todas = this.repo.findAll();
+            if (todas.isEmpty())
+                return null;
+            return campaniaMapper.toDTO(todas.get(todas.size() - 1));
+        }
+        return campaniaMapper.toDTO(this.repo.findById(id).orElse(null));
+    }
     // Final adición Sofía (más abajo)
 
     public List<CampaniaDTO> listarTodas() {
@@ -44,23 +56,22 @@ public class CampaniaService {
         return campaniaMapper.toDTOList(repo.findAllById(ids));
     }
 
-    // Parte Sofía Si Villalba Jiménez (0% IA) --------------------------------------------------
+    // Parte Sofía Si Villalba Jiménez (0% IA)
+    // --------------------------------------------------
 
-    public CampaniaDTO devolverCampaniaActiva () {
-        Campania c = this.repo.findByActivaTrue().
-            orElseThrow(() -> 
-                new EntityNotFoundException("No hay ninguna campaña activa actualmente")
-            );
+    public CampaniaDTO devolverCampaniaActiva() {
+        Campania c = this.repo.findByActivaTrue()
+                .orElseThrow(() -> new EntityNotFoundException("No hay ninguna campaña activa actualmente"));
 
         return campaniaMapper.toDTO(c);
     }
 
-    public List <TiendaDTO> devolverTiendas (Long idCampania) {
+    public List<TiendaDTO> devolverTiendas(Long idCampania) {
 
         return this.tiendaMapper.toDTOList(this.tiendaRepository.findByCampaniaId(idCampania));
     }
 
-    //------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------
 
     @Transactional
     public void vincularCoordinador(Long campaniaId, Long coordinadorId) {
@@ -85,8 +96,6 @@ public class CampaniaService {
             repo.save(campania);
         }
     }
-
-
 
     @Transactional
     public void eliminar(Long id) {
@@ -157,9 +166,5 @@ public class CampaniaService {
         campaniaObjetivo.setActiva(nuevoEstado);
         repo.save(campaniaObjetivo);
     }
-
-
-
-
 
 }
