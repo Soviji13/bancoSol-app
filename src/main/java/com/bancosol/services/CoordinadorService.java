@@ -26,16 +26,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.text.Normalizer;
 import java.util.Locale;
+import java.util.Map;
 
 // Sofía
-import java.util.Map;
-import com.bancosol.dto.TiendaDTO;
 import com.bancosol.dto.CampaniaDTO;
+import com.bancosol.dto.TiendaDTO;
 
 @Service
 @AllArgsConstructor
@@ -55,10 +55,10 @@ public class CoordinadorService {
     private final TiendaService tiendaService;
 
     public List<CoordinadorDTO> listarTodos() {
-        List<CoordinadorDTO> coordinadores =
-                coordinadorMapper.toDTOList(coordinadorRepository.findAll());
-
-        return completarIdEntidad(coordinadores);
+        return coordinadorRepository.findAll()
+                .stream()
+                .map(this::convertirADTOListado)
+                .toList();
     }
 
     public CoordinadorDTO buscarPorId(Long id) {
@@ -70,10 +70,10 @@ public class CoordinadorService {
             return List.of();
         }
 
-        List<CoordinadorDTO> coordinadores =
-                coordinadorMapper.toDTOList(coordinadorRepository.findAllById(ids));
-
-        return completarIdEntidad(coordinadores);
+        return coordinadorRepository.findAllById(ids)
+                .stream()
+                .map(this::convertirADTOListado)
+                .toList();
     }
 
     public List<CoordinadorDTO> filtrar(String nombre,
@@ -142,6 +142,7 @@ public class CoordinadorService {
 
         if (dto != null) {
             dto.setEntidadId(obtenerEntidadId(coordinador.getId()));
+            dto.setTiendas(calcularTiendasCoordinador(coordinador.getId()));
         }
 
         return dto;
@@ -204,7 +205,8 @@ public class CoordinadorService {
 
         List<EntidadColaboradora> entidadesAsociadas =
                 entidadRepository.findByCoordinador_Id(coordinador.getId());
-        //No puede existir entidad sin coordinador
+
+        // No puede existir entidad sin coordinador
         if (!entidadesAsociadas.isEmpty()) {
             throw new IllegalStateException(
                     "No se puede eliminar el coordinador porque tiene entidades colaboradoras asociadas. " +
@@ -240,7 +242,6 @@ public class CoordinadorService {
         }
     }
 
-
     private Coordinador buscarCoordinadorPorId(Long id) {
         validarId(id, "coordinador");
 
@@ -258,23 +259,13 @@ public class CoordinadorService {
         }
 
         dto.setEntidadId(obtenerEntidadId(coordinador.getId()));
+        dto.setTiendas(calcularTiendasCoordinador(coordinador.getId()));
 
         return dto;
     }
 
-    private List<CoordinadorDTO> completarIdEntidad(List<CoordinadorDTO> coordinadores) {
-        if (coordinadores == null || coordinadores.isEmpty()) {
-            return List.of();
-        }
-
-        coordinadores.forEach(dto -> dto.setEntidadId(obtenerEntidadId(dto.getId())));
-
-        return coordinadores;
-    }
-
     private void cargarDatosBasicos(Coordinador coordinador, CoordinadorFormDTO dto) {
         coordinador.setArea(normalizarTextoObligatorio(dto.getArea(), "área"));
-        coordinador.setTiendas(obtenerTiendas(dto));
         coordinador.setPermisoModificar(Boolean.TRUE.equals(dto.getPermisoModificar()));
     }
 
@@ -307,7 +298,7 @@ public class CoordinadorService {
         }
 
         if (usuario.getRol() == null) {
-            usuario.setRol(TipoRol.RESPONSABLE_TIENDA);
+            usuario.setRol(TipoRol.COORDINADOR);
         }
 
         coordinador.setUsuario(usuarioRepository.save(usuario));
@@ -432,6 +423,22 @@ public class CoordinadorService {
                 .orElse(null);
     }
 
+    private Short calcularTiendasCoordinador(Long coordinadorId) {
+        if (coordinadorId == null) {
+            return 0;
+        }
+
+        List<EntidadColaboradora> entidades =
+                entidadRepository.findByCoordinador_Id(coordinadorId);
+
+        int totalTiendas = entidades.stream()
+                .filter(entidad -> entidad.getTiendasAsignadas() != null)
+                .mapToInt(entidad -> entidad.getTiendasAsignadas().size())
+                .sum();
+
+        return (short) totalTiendas;
+    }
+
     private void validarFormulario(CoordinadorFormDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Los datos del coordinador son obligatorios.");
@@ -487,14 +494,6 @@ public class CoordinadorService {
         }
     }
 
-    private Short obtenerTiendas(CoordinadorFormDTO dto) {
-        if (dto.getTiendas() == null) {
-            return 0;
-        }
-
-        return dto.getTiendas();
-    }
-
     private String normalizarTextoObligatorio(String texto, String nombreCampo) {
         validarTextoObligatorio(texto, nombreCampo);
         return texto.trim();
@@ -524,29 +523,32 @@ public class CoordinadorService {
 
     private List<Long> obtenerIdsCampanias(Coordinador coordinador) {
         if (coordinador.getCampanias() == null) {
-        return List.of();
+            return List.of();
         }
 
         return coordinador.getCampanias()
-        .stream()
-        .filter(campania -> campania.getId() != null)
-        .map(Campania::getId)
-        .toList();
+                .stream()
+                .filter(campania -> campania.getId() != null)
+                .map(Campania::getId)
+                .toList();
     }
 
     // Obtiene campañas con tiendas de la entidad correspondiente
-    public Map<CampaniaDTO, List<TiendaDTO>> obtenerCampaniasConTiendas (Long coordinadorId) {
+    public Map<CampaniaDTO, List<TiendaDTO>> obtenerCampaniasConTiendas(Long coordinadorId) {
 
-        Map <CampaniaDTO, List<TiendaDTO>> campaniasConTienda = new HashMap<>();
+        Map<CampaniaDTO, List<TiendaDTO>> campaniasConTienda = new HashMap<>();
 
         // Obtenemos el coordinador correspondiente
-        Coordinador coordinador = this.coordinadorRepository.findById(coordinadorId).get();
+        Coordinador coordinador = this.coordinadorRepository.findById(coordinadorId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No existe el coordinador con id: " + coordinadorId
+                ));
 
         // Obtenemos los Ids de sus campañas
-        List <Long> idCampaniasCoordinador = obtenerIdsCampanias(coordinador);
+        List<Long> idCampaniasCoordinador = obtenerIdsCampanias(coordinador);
 
         // Obtenemos todas las campañas
-        List <CampaniaDTO> campaniasCoordinador = this.campaniaService.findAllById(idCampaniasCoordinador);
+        List<CampaniaDTO> campaniasCoordinador = this.campaniaService.findAllById(idCampaniasCoordinador);
 
         // Pasamos por cada campaña, obteniendo además cada tienda de la campaña
         for (CampaniaDTO c : campaniasCoordinador) {
@@ -556,6 +558,5 @@ public class CoordinadorService {
         }
 
         return campaniasConTienda;
-
     }
 }
