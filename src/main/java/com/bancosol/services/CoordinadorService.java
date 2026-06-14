@@ -297,9 +297,7 @@ public class CoordinadorService {
             usuario.setContrasenia(CONTRASENIA_TEMPORAL);
         }
 
-        if (usuario.getRol() == null) {
-            usuario.setRol(TipoRol.COORDINADOR);
-        }
+        usuario.setRol(TipoRol.COORDINADOR);
 
         coordinador.setUsuario(usuarioRepository.save(usuario));
     }
