@@ -104,11 +104,16 @@
         </table>
     </div>
 
-    <%--botones de acciones para tabla--%>
+    <%--botones de acciones para tabla REFACTORIZADO SOFIA SI VILLALBA JIMENEZ (ROLES) BASE FRANCISCO JAVIER GARCIA SIERRA--%>
     <div class="acciones-tabla" id="acciones-normales">
-        <button class="acciones-tabla__btn" id="btn-eliminar" type="button">Eliminar tienda</button>
-        <button class="acciones-tabla__btn" id="btn-modificar" type="button">Modificar tienda</button>
-        <button class="acciones-tabla__btn" id="btn-anadir" type="button">Añadir tienda</button>
+        <%-- BLOQUEO PARA ROL QUE NO PUEDE MODIFICAR --%>
+        <c:if test="${sessionScope.usuarioLogueado.puedeModificar == true}">
+            <button class="acciones-tabla__btn" id="btn-eliminar" type="button">Eliminar tienda</button>
+            <button class="acciones-tabla__btn" id="btn-modificar" type="button">Modificar tienda</button>
+            <button class="acciones-tabla__btn" id="btn-anadir" type="button">Añadir tienda</button>
+        </c:if>
+        
+        <%-- Exportar lo dejamos accesible para todos --%>
         <button class="acciones-tabla__btn" id="btn-exportar" type="button">
             <img src="${pageContext.request.contextPath}/assets/file_export.svg" alt="Exportar">
         </button>

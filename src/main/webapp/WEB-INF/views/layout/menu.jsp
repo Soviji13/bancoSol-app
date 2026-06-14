@@ -74,8 +74,23 @@
     </a>
 
     <%-- 6. INCIDENCIAS Y MOVIMIENTOS: Accesible por todos los roles --%>
-    <a href="<%= contextPath %>/incidencias"
-    class="btn-menu <%= paginaActual.contains("incidencia") ? "activo" : "" %>">
-        Incidencias y movimientos
-    </a>
+    <c:choose>
+        <%-- Si es ADMIN, va al historial general --%>
+        <c:when test="${sessionScope.usuarioLogueado.rol == 'ADMIN'}">
+            <a href="<%= contextPath %>/incidencias"
+            class="btn-menu <%= paginaActual.contains("incidencia") ? "activo" : "" %>">
+                Incidencias y movimientos
+            </a>
+        </c:when>
+        
+        <%-- Para el RESTO DE ROLES, van directos a crear la incidencia --%>
+        <c:otherwise>
+            <c:if test="${sessionScope.usuarioLogueado.rol != 'RESPONSABLE_TIENDA'}">
+                <a href="<%= contextPath %>/incidencias/nuevo"
+                class="btn-menu <%= paginaActual.contains("incidencia") ? "activo" : "" %>">
+                    Reportar incidencia
+                </a>
+            </c:if>
+        </c:otherwise>
+    </c:choose>
 </div>

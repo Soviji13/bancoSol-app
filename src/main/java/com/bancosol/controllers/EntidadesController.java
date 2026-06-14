@@ -1,4 +1,4 @@
-// Sofía Si Villalba Jiménez (IA generativa 0%)
+// Sofía Si Villalba Jiménez (IA generativa 30% SOBRETODO PARA AGILIZAR)
 // Ayuda de IA para saber cómo unificar JS con JSP sin necesidad de RestController
 // IA para saber como aplanar correctamente un Map a JSON
 
@@ -7,7 +7,6 @@ package com.bancosol.controllers;
 import com.bancosol.services.DistritoService;
 import lombok.AllArgsConstructor;
 
-import org.eclipse.tags.shaded.org.apache.xpath.operations.Bool;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,24 +14,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
+import com.bancosol.dto.UsuarioDTO;
 import com.bancosol.dto.actualizacionEntidad.ActualizacionEntidadDTO;
 import com.bancosol.dto.registroEntidad.RegistroEntidadDTO;
 import com.bancosol.services.CampaniaService;
 import com.bancosol.services.CodigoPostalService;
 import com.bancosol.services.CoordinadorService;
 import com.bancosol.services.EntidadColaboradoraService;
-import com.bancosol.services.LocalidadService;
 import com.bancosol.services.TiendaService;
-import com.bancosol.services.ZonaGeograficaService;
 
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @AllArgsConstructor
@@ -58,80 +60,65 @@ public class EntidadesController {
             @RequestParam(value = "campaniaId", required = false) Long campaniaId,
             @RequestParam(value = "entidadId", required = false) Long entidadId,
             @RequestParam(value = "filtros", required = false) Boolean panelFiltro,
-            Model model) {
-        // -- Devolver tabla --
-        // Si es null, devuelve la campaña activa
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        // 1. Resolver campaña activa o seleccionada (Evitamos propagar nulos)
         CampaniaDTO campaniaTabla = (campaniaId == null)
                 ? this.campaniaService.devolverCampaniaActiva()
-                : this.campaniaService.findById(campaniaId);
+                : this.campaniaService.findByIdSofia(campaniaId);
 
-        // Obtenemos las entidades colaboradoras a mostrar
+        // 2. Obtener las entidades iniciales de la campaña
         Map<CampaniaDTO, List<EntidadColaboradoraDTO>> entidadesCampania = this.entidadService
                 .filtrarEntidades(null, null, false, null, null, campaniaTabla.getId());
 
-        model.addAttribute("mapaEntidadesFiltradas", entidadesCampania); // El nombre que busca tu tabla.jsp
+        // 3. LOGICA GLOBAL: Filtrar por el Rol del usuario logueado
+        HttpSession session = request.getSession();
+        UsuarioDTO usuarioSesion = (UsuarioDTO) session.getAttribute("usuarioLogueado");
+
+        Map<CampaniaDTO, List<EntidadColaboradoraDTO>> mapaFinal = this.entidadService
+                .filtrarPorRolYJerarquia(entidadesCampania, usuarioSesion);
+
+        // 4. Aseguramos los atributos troncales que necesita 'tabla.jsp' para pintar la
+        // vista base
+        model.addAttribute("mapaEntidadesFiltradas", mapaFinal);
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("pagina", "inicio-entidades");
 
-        // -- Devolver entidad en el lateral (solo info) --
-        // Si se seleccionó una entidad
+        // 5. Carga aislada y condicional del panel lateral (Detalles)
         if (entidadId != null) {
-
-            // Pasamos la entidad colaboradora además
-            EntidadColaboradoraDTO e = (entidadId == null)
-                    ? null
-                    : this.entidadService.findByCampaniaId(campaniaId, entidadId);
-
-            // Obtenemos el coordinador de esta entidad colaboradora
+            // Usamos el ID de campaña resuelto de forma segura
+            EntidadColaboradoraDTO e = this.entidadService.findByCampaniaId(campaniaTabla.getId(), entidadId);
             Long idCoordinador = e.getCoordinadorId();
 
-            // Pasamos todas sus tiendas
             List<TiendaDTO> tiendasColab = this.entidadService.devolverTodasLasTiendas(entidadId);
-
-            // Pasamos todas las tiendas
             List<TiendaDTO> tiendas = this.tiendaService.listarTodas();
-
-            // Pasamos todas las campañas
             List<CampaniaDTO> campanias = this.campaniaService.listarTodas();
 
-            // Obtenemos las campañas únicamente del coordinador
             Map<CampaniaDTO, List<TiendaDTO>> campaniasCoordinador = this.coordinadorService
                     .obtenerCampaniasConTiendas(idCoordinador);
             model.addAttribute("campaniasCoordinador", campaniasCoordinador);
 
-            // Obtenemos las tiendas y campañas únicamente pertenecientes a la entidad
             Map<Long, List<TiendaDTO>> tiendasCampaniaEntidad = this.entidadService
                     .devolverCampaniasConTiendas(entidadId);
             model.addAttribute("tiendasCampaniaEntidad", tiendasCampaniaEntidad);
 
-            // Pasamos el distrito si es capital (se pasa así porque pueden haber
-            // direcciones corruptas, que aunque sean capital, no tienen distrito) y todos
-            // los distritos para el select
             if (e.getDireccion().getEsCapital() && e.getDireccion().getDistritoId() != null) {
                 model.addAttribute("distrito", this.distritoService.findById(e.getDireccion().getDistritoId()));
                 model.addAttribute("distritos", this.distritoService.listarTodos());
             }
 
-            // Obtenemos el nombre y lo pasamos
             model.addAttribute("coordinadorNombre", this.coordinadorService.buscarPorId(idCoordinador).getNombre());
-
-            // Pasamos la campaña actual (id) y la última campaña
             model.addAttribute("idCampaniaActual", this.campaniaService.devolverCampaniaActiva().getId());
             model.addAttribute("ultimaCampania", this.entidadService.obtenerUltimaCampania(entidadId));
 
-            // Pasamos todas las campañas
             model.addAttribute("campanias", campanias);
-            model.addAttribute("tiendasCampaniaEntidad", tiendasCampaniaEntidad);
-
-            // Pasamos todas las tiendas
             model.addAttribute("tiendas", tiendas);
             model.addAttribute("tiendasColab", tiendasColab);
 
-            // Pasamos datos de la entidad y dónde se tiene que ubicar
             model.addAttribute("entidadSelec", e);
             model.addAttribute("panelIzquierdo", "entidades_colaboradoras/info-entidad.jsp");
-
-            // También permitimos el modo edición
             model.addAttribute("modoEdicion", true);
         } else {
             model.addAttribute("modoEdicion", false);
@@ -228,14 +215,22 @@ public class EntidadesController {
             @RequestParam(value = "esCapital", required = false) Boolean esCapital,
             @RequestParam(value = "activo", required = false) Boolean activo,
             @RequestParam(value = "campaniaId", required = true) Long campaniaId,
-            Model model) {
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
 
         CampaniaDTO campaniaTabla = this.campaniaService.findById(campaniaId);
 
         Map<CampaniaDTO, List<EntidadColaboradoraDTO>> entidadesFiltradas = this.entidadService
                 .filtrarEntidades(nombreTienda, localidadId, todasCampanias, esCapital, activo, campaniaId);
 
-        model.addAttribute("mapaEntidadesFiltradas", entidadesFiltradas);
+        HttpSession session = request.getSession();
+        UsuarioDTO usuarioSesion = (UsuarioDTO) session.getAttribute("usuarioLogueado");
+
+        Map<CampaniaDTO, List<EntidadColaboradoraDTO>> mapaFinal = this.entidadService
+                .filtrarPorRolYJerarquia(entidadesFiltradas, usuarioSesion);
+
+        model.addAttribute("mapaEntidadesFiltradas", mapaFinal);
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("modoTodasCampanias", todasCampanias != null && todasCampanias);
 

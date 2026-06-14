@@ -16,6 +16,7 @@ import com.bancosol.dao.UsuarioRepository;
 import com.bancosol.dto.CampaniaDTO;
 import com.bancosol.dto.EntidadColaboradoraDTO;
 import com.bancosol.dto.TiendaDTO;
+import com.bancosol.dto.UsuarioDTO;
 import com.bancosol.dto.actualizacionEntidad.ActualizacionEntidadDTO;
 import com.bancosol.dto.actualizacionEntidad.ResponsableActualizadoDTO;
 import com.bancosol.dto.registroEntidad.CampaniaRegistroDTO;
@@ -624,6 +625,38 @@ public class EntidadColaboradoraService {
             }
         }
         return mapaResultado;
+    }
+
+    // PARA DEVOLVER POR ID DEL ROL (IA OARA AGILIZAR PERO PLANTEAMIENTO TOTALMENTE
+    // POR MÍ)
+    public Map<CampaniaDTO, List<EntidadColaboradoraDTO>> filtrarPorRolYJerarquia(
+            Map<CampaniaDTO, List<EntidadColaboradoraDTO>> mapaOriginal,
+            UsuarioDTO usuario) {
+
+        if (usuario == null || "ADMIN".equals(usuario.getRol().name())
+                || "ADMINISTRADOR".equals(usuario.getRol().name())) {
+            return mapaOriginal;
+        }
+
+        Long idRef = usuario.getIdReferencia();
+        String rol = usuario.getRol().name();
+
+        return mapaOriginal.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .filter(e -> {
+                                    if ("COORDINADOR".equals(rol)) {
+                                        return e.getCoordinadorId() != null && e.getCoordinadorId().equals(idRef);
+                                    }
+                                    if ("RESPONSABLE_ENTIDAD".equals(rol)) {
+                                        // 🔥 Ahora sí funciona perfecto porque idRef es el ID de la Entidad
+                                        return e.getId() != null && e.getId().equals(idRef);
+                                    }
+                                    // El responsable de tienda no pinta nada viendo entidades
+                                    return false;
+                                })
+                                .collect(Collectors.toList())));
     }
 
     // Final parte Sofía

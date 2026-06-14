@@ -50,18 +50,30 @@ public class AutorizacionFilter implements Filter {
     boolean intentandoEntrarACoordinadores = requestURI.startsWith(contextPath + "/coordinadores");
     boolean intentandoEntrarAColaboradores = requestURI.startsWith(contextPath + "/entidades");
 
+    boolean intentandoEntrarAListadoIncidencias = requestURI.startsWith(contextPath + "/incidencias");
+    boolean esRutaPermitidaIncidencias = requestURI.equals(contextPath + "/incidencias/nuevo")
+        || requestURI.equals(contextPath + "/incidencias/guardar");
+
     // 3. Sistema de barreras y permisos por Rol
     if (usuario != null) {
       String rol = usuario.getRol() != null ? usuario.getRol().name() : "";
 
-      if (!rol.equals("ADMIN") && !rol.equals("ADMINISTRADOR")) {
+      if (!rol.equals("ADMIN")) {
         if (intentandoEntrarACampanias || intentandoEntrarACoordinadores) {
           httpResponse.sendRedirect(contextPath + "/tiendas"); // Redirigimos a su zona segura
+          return;
+        }
+        if (intentandoEntrarAListadoIncidencias && !esRutaPermitidaIncidencias) {
+          httpResponse.sendRedirect(contextPath + "/incidencias/nuevo"); // Redirigimos a su zona segura
           return;
         }
       }
 
       if (rol.equals("RESPONSABLE_TIENDA") && intentandoEntrarAColaboradores) {
+        httpResponse.sendRedirect(contextPath + "/tiendas");
+        return;
+      }
+      if (rol.equals("RESPONSABLE_TIENDA") && intentandoEntrarAListadoIncidencias) {
         httpResponse.sendRedirect(contextPath + "/tiendas");
         return;
       }

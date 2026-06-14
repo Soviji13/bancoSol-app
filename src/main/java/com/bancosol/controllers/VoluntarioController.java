@@ -36,7 +36,7 @@ public class VoluntarioController {
     private final TiendaService tiendaService;
     private final ObjectMapper objectMapper; // usamos el de spring boot pa q no pete con los localtime!!!!
 
-    @GetMapping({"", "/"})
+    @GetMapping({ "", "/" })
     public String listarVoluntarios(
             @RequestParam(value = "campaniaId", required = false) Long campaniaId,
             @RequestParam(value = "voluntarioId", required = false) Long voluntarioId,
@@ -48,26 +48,28 @@ public class VoluntarioController {
             Model model) {
 
         // sacamos la campania actual
-        CampaniaDTO campaniaTabla = (campaniaId == null) ? campaniaService.devolverCampaniaActiva() : campaniaService.findById(campaniaId);
+        CampaniaDTO campaniaTabla = (campaniaId == null) ? campaniaService.devolverCampaniaActiva()
+                : campaniaService.findById(campaniaId);
 
         List<VoluntarioDTO> voluntarios;
-        // si viene algun filtro los aplicamos, si no sacamos todos los vol de la campaña
+        // si viene algun filtro los aplicamos, si no sacamos todos los vol de la
+        // campaña
         if (filtroId != null || (filtroEntidad != null && !filtroEntidad.isEmpty())
                 || (filtroResponsable != null && !filtroResponsable.isEmpty())
                 || (filtroTienda != null && !filtroTienda.isEmpty())) {
-            voluntarios = voluntarioService.buscarFiltrados(campaniaTabla.getId(), filtroId, filtroEntidad, filtroResponsable, filtroTienda);
+            voluntarios = voluntarioService.buscarFiltrados(campaniaTabla.getId(), filtroId, filtroEntidad,
+                    filtroResponsable, filtroTienda);
         } else {
             voluntarios = voluntarioService.buscarPorCampania(campaniaTabla.getId());
         }
 
-        //pasamos datos basicos al jsp
+        // pasamos datos basicos al jsp
         model.addAttribute("voluntariosSelec", voluntarios);
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("campaniaId", campaniaTabla.getId());
 
-
-        //AYUDA IA
-        //mandamos la lista en json pa q el js pueda descargar el csv!!!!
+        // AYUDA IA
+        // mandamos la lista en json pa q el js pueda descargar el csv!!!!
         try {
             model.addAttribute("voluntariosJson", objectMapper.writeValueAsString(voluntarios));
         } catch (Exception e) {
@@ -76,19 +78,21 @@ public class VoluntarioController {
 
         model.addAttribute("pagina", "inicio-voluntarios");
 
-        //cargamos panel lateral de detalles si se hizo doble click
+        // cargamos panel lateral de detalles si se hizo doble click
         if (voluntarioId != null && (verFiltros == null || !verFiltros)) {
             model.addAttribute("voluntarioSelec", voluntarioService.buscarPorId(voluntarioId));
             model.addAttribute("panelIzquierdo", "voluntarios/voluntarioDetalles.jsp");
         }
 
-        //cargamos panel lateral de filtros si se le dio al btn de filtros
+        // cargamos panel lateral de filtros si se le dio al btn de filtros
         if (verFiltros != null && verFiltros) {
             try {
-                //AYUDA IA
+                // AYUDA IA
                 // pasamos los diccionarios a js pa q monte los desplegables dinamicos
-                model.addAttribute("entidadesJson", objectMapper.writeValueAsString(entidadColaboradoraService.listarTodas()));
-                model.addAttribute("tiendasJson", objectMapper.writeValueAsString(tiendaService.listarTiendasPorCampania(campaniaTabla.getId())));
+                model.addAttribute("entidadesJson",
+                        objectMapper.writeValueAsString(entidadColaboradoraService.listarTodas()));
+                model.addAttribute("tiendasJson",
+                        objectMapper.writeValueAsString(tiendaService.listarTiendasPorCampania(campaniaTabla.getId())));
             } catch (Exception e) {
                 model.addAttribute("entidadesJson", "[]");
                 model.addAttribute("tiendasJson", "[]");
@@ -106,7 +110,8 @@ public class VoluntarioController {
     }
 
     @PostMapping("/eliminar")
-    public String eliminarVoluntario(@RequestParam("voluntarioId") Long voluntarioId, @RequestParam("campaniaId") Long campaniaId) {
+    public String eliminarVoluntario(@RequestParam("voluntarioId") Long voluntarioId,
+            @RequestParam("campaniaId") Long campaniaId) {
         voluntarioService.eliminarVoluntario(voluntarioId);
         return "redirect:/voluntarios?campaniaId=" + campaniaId; // recarga tabla limpia
     }
@@ -114,11 +119,13 @@ public class VoluntarioController {
     @GetMapping("/aniadir")
     public String aniadirVoluntario(@RequestParam("campaniaId") Long campaniaId, Model model) {
         model.addAttribute("campaniaId", campaniaId);
-        //AYUDA IA
+        // AYUDA IA
         try {
             // pasamos diccionarios para q el form los lea sin hacer mas peticiones
-            model.addAttribute("entidadesJson", objectMapper.writeValueAsString(entidadColaboradoraService.listarTodas()));
-            model.addAttribute("tiendasJson", objectMapper.writeValueAsString(tiendaService.listarTiendasPorCampania(campaniaId)));
+            model.addAttribute("entidadesJson",
+                    objectMapper.writeValueAsString(entidadColaboradoraService.listarTodas()));
+            model.addAttribute("tiendasJson",
+                    objectMapper.writeValueAsString(tiendaService.listarTiendasPorCampania(campaniaId)));
         } catch (Exception e) {
             model.addAttribute("entidadesJson", "[]");
             model.addAttribute("tiendasJson", "[]");
@@ -127,9 +134,11 @@ public class VoluntarioController {
         return "inicio";
     }
 
-    //ayuda IA para refactorizar con VoluntarioNuevoDTO
-    // funcion aux para empaquetar todo el lio de requestparams en el dto nuevo y q quede el controller limpio!!!!
-    private VoluntarioNuevoDTO construirDto(Long campaniaId, Long responsableId, String observaciones, String horasSueltas, String horaInicio, String horaFin, String turnosJson) {
+    // ayuda IA para refactorizar con VoluntarioNuevoDTO
+    // funcion aux para empaquetar todo el lio de requestparams en el dto nuevo y q
+    // quede el controller limpio!!!!
+    private VoluntarioNuevoDTO construirDto(Long campaniaId, Long responsableId, String observaciones,
+            String horasSueltas, String horaInicio, String horaFin, String turnosJson) {
         VoluntarioNuevoDTO dto = new VoluntarioNuevoDTO();
         dto.setCampaniaId(campaniaId);
         dto.setResponsableId(responsableId);
@@ -142,8 +151,10 @@ public class VoluntarioController {
         // si js pasa turnos los metemos a la lista del dto
         if (turnosJson != null && !turnosJson.isEmpty() && !turnosJson.equals("[]")) {
             try {
-                listaTurnos = objectMapper.readValue(turnosJson, new TypeReference<List<TurnoNuevoDTO>>() {});
-            } catch (Exception ignored) {}
+                listaTurnos = objectMapper.readValue(turnosJson, new TypeReference<List<TurnoNuevoDTO>>() {
+                });
+            } catch (Exception ignored) {
+            }
         }
         dto.setTurnosAsignados(listaTurnos);
         return dto;
@@ -159,36 +170,41 @@ public class VoluntarioController {
             @RequestParam(value = "horaFin", required = false) String horaFin,
             @RequestParam("turnosJson") String turnosJson) {
 
-        //pasamos los param de la url y los metemos en el dto
-        VoluntarioNuevoDTO dto = construirDto(campaniaId, responsableId, observaciones, horasSueltas, horaInicio, horaFin, turnosJson);
+        // pasamos los param de la url y los metemos en el dto
+        VoluntarioNuevoDTO dto = construirDto(campaniaId, responsableId, observaciones, horasSueltas, horaInicio,
+                horaFin, turnosJson);
         voluntarioService.guardarVoluntario(dto);
         return "redirect:/voluntarios?campaniaId=" + campaniaId;
     }
 
     @GetMapping("/modificar")
-    public String modificarVoluntario(@RequestParam("campaniaId") Long campaniaId, @RequestParam("voluntarioId") Long voluntarioId, Model model) {
+    public String modificarVoluntario(@RequestParam("campaniaId") Long campaniaId,
+            @RequestParam("voluntarioId") Long voluntarioId, Model model) {
         CampaniaDTO campaniaTabla = campaniaService.findById(campaniaId);
 
-        //cargamos el contexto de la tabla principal (como en tiendas)
+        // cargamos el contexto de la tabla principal (como en tiendas)
         model.addAttribute("voluntariosSelec", voluntarioService.buscarPorCampania(campaniaTabla.getId()));
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("campaniaId", campaniaTabla.getId());
         model.addAttribute("pagina", "inicio-voluntarios");
 
-        //cargamos el vol q vamos a editar
+        // cargamos el vol q vamos a editar
         model.addAttribute("voluntarioSelec", voluntarioService.buscarPorId(voluntarioId));
 
-        //AYUDA IA
+        // AYUDA IA
         try {
-            model.addAttribute("voluntariosJson", objectMapper.writeValueAsString(model.getAttribute("voluntariosSelec")));
+            model.addAttribute("voluntariosJson",
+                    objectMapper.writeValueAsString(model.getAttribute("voluntariosSelec")));
         } catch (Exception e) {
             model.addAttribute("voluntariosJson", "[]");
         }
 
-        //AYUDA IA
+        // AYUDA IA
         try {
-            model.addAttribute("entidadesJson", objectMapper.writeValueAsString(entidadColaboradoraService.listarTodas()));
-            model.addAttribute("tiendasJson", objectMapper.writeValueAsString(tiendaService.listarTiendasPorCampania(campaniaId)));
+            model.addAttribute("entidadesJson",
+                    objectMapper.writeValueAsString(entidadColaboradoraService.listarTodas()));
+            model.addAttribute("tiendasJson",
+                    objectMapper.writeValueAsString(tiendaService.listarTiendasPorCampania(campaniaId)));
         } catch (Exception e) {
             model.addAttribute("entidadesJson", "[]");
             model.addAttribute("tiendasJson", "[]");
@@ -206,7 +222,7 @@ public class VoluntarioController {
             @RequestParam("observaciones") String observaciones,
             @RequestParam("turnosJson") String turnosJson) {
 
-        //aqui las horas van a null pq no se pueden tocar desde el modificar
+        // aqui las horas van a null pq no se pueden tocar desde el modificar
         VoluntarioNuevoDTO dto = construirDto(campaniaId, responsableId, observaciones, null, null, null, turnosJson);
         voluntarioService.actualizarVoluntario(voluntarioId, dto);
 
