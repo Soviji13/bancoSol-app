@@ -8,6 +8,7 @@ export function FooterVoluntarios({
   manejaContenidoLateral,
   voluntarios, // <-- Lista actual para exportar
   campaniaActivaNombre, // <-- Nombre para el archivo
+  rol
 }) {
   const [modoEdicion, setModoEdicion] = useState(false);
 
@@ -76,6 +77,8 @@ export function FooterVoluntarios({
   //FOOTER NORMAL
   return (
     <div className="voluntarios-footer">
+  {rol !== "RESPONSABLE_TIENDA" && rol !== "RESPONSABLE_ENTIDAD" && (
+    <>
       <button
         className="voluntarios-btn-footer"
         disabled={!filaSeleccionada}
@@ -88,8 +91,8 @@ export function FooterVoluntarios({
         className="voluntarios-btn-footer"
         disabled={!filaSeleccionada}
         onClick={() => {
-          setModoEdicion(true); //cambiamos el footer
-          manejaContenidoLateral("modificar-voluntario"); //abrimos el panel
+          setModoEdicion(true);
+          manejaContenidoLateral("modificar-voluntario");
         }}
       >
         Modificar voluntario
@@ -101,7 +104,8 @@ export function FooterVoluntarios({
       >
         Añadir voluntario
       </button>
-
+    </>
+  )}
       <button
         className="voluntarios-btn-footer btn-exportar"
         onClick={() =>

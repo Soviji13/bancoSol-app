@@ -144,6 +144,7 @@ function ContenidoInicial({
   tipoContenido,
   manejaContenidoLateral,
   manejaContenidoInicial,
+  rol
 }) {
   return (
     <div className="contenedor_contenido contenedor_principal">
@@ -164,8 +165,10 @@ function ContenidoInicial({
       )}
       {tipoContenido === "voluntarios" && (
         <MainVoluntarios
+          rol={rol}
           manejaContenidoLateral={manejaContenidoLateral}
           manejaContenidoInicial={manejaContenidoInicial}
+
         />
       )}
 
@@ -233,6 +236,7 @@ export function VentanaGestion({rol}) {
         contenidoInicial={contenidoInicial}
       />
       <ContenidoInicial
+        rol={rol}
         tipoContenido={contenidoInicial}
         manejaContenidoLateral={manejaContenidoLateral}
         manejaContenidoInicial={manejaContenidoInicial}
