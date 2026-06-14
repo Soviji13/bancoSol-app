@@ -9,6 +9,7 @@ import { obtenerVoluntarios } from "../api/voluntariosApi";
 export function MainVoluntarios({
   manejaContenidoLateral,
   manejaContenidoInicial,
+  rol
 }) {
   //guardar la campania q el usuario tiene seleccionada
   const [campaniaActiva, setCampaniaActiva] = useState(() => {
@@ -142,6 +143,7 @@ export function MainVoluntarios({
         manejaContenidoLateral={manejaContenidoLateral}
         voluntarios={voluntarios}
         campaniaActivaNombre={campaniaActiva.nombre}
+        rol={rol}
       />
       <ModalCampanias
         isOpen={modalCampaniasAbierto}
