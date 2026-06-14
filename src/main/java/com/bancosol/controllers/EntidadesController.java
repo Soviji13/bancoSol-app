@@ -66,9 +66,10 @@ public class EntidadesController {
                 : this.campaniaService.findById(campaniaId);
 
         // Obtenemos las entidades colaboradoras a mostrar
-        List<EntidadColaboradoraDTO> entidadesCampania = this.entidadService.findAllByCampaniaId(campaniaTabla.getId());
+        Map<CampaniaDTO, List<EntidadColaboradoraDTO>> entidadesCampania = this.entidadService
+                .filtrarEntidades(null, null, false, null, null, campaniaTabla.getId());
 
-        model.addAttribute("entidadesSelec", entidadesCampania);
+        model.addAttribute("mapaEntidadesFiltradas", entidadesCampania); // El nombre que busca tu tabla.jsp
         model.addAttribute("campaniaSelec", campaniaTabla);
         model.addAttribute("pagina", "inicio-entidades");
 
@@ -213,6 +214,42 @@ public class EntidadesController {
 
         this.entidadService.eliminarEntidad(entidadId);
         return ("redirect:/entidades?campaniaId=" + campaniaId);
+    }
+
+    // Para filtrar
+    // -----------------------------------------------------
+    // Para filtrar (Sofía Si Villalba Jiménez) (IA recoge y devuelve atributos para
+    // ahorrar tiempo)
+    @GetMapping("/filtrar")
+    public String filtrarEntidades(
+            @RequestParam(value = "nombreTienda", required = false) String nombreTienda,
+            @RequestParam(value = "localidadId", required = false) Long localidadId,
+            @RequestParam(value = "todasCampanias", required = false) Boolean todasCampanias,
+            @RequestParam(value = "esCapital", required = false) Boolean esCapital,
+            @RequestParam(value = "activo", required = false) Boolean activo,
+            @RequestParam(value = "campaniaId", required = true) Long campaniaId,
+            Model model) {
+
+        CampaniaDTO campaniaTabla = this.campaniaService.findById(campaniaId);
+
+        Map<CampaniaDTO, List<EntidadColaboradoraDTO>> entidadesFiltradas = this.entidadService
+                .filtrarEntidades(nombreTienda, localidadId, todasCampanias, esCapital, activo, campaniaId);
+
+        model.addAttribute("mapaEntidadesFiltradas", entidadesFiltradas);
+        model.addAttribute("campaniaSelec", campaniaTabla);
+        model.addAttribute("modoTodasCampanias", todasCampanias != null && todasCampanias);
+
+        model.addAttribute("fTienda", nombreTienda);
+        model.addAttribute("fLocalidadId", localidadId);
+        model.addAttribute("fTodasCampanias", todasCampanias);
+        model.addAttribute("fCapital", esCapital);
+        model.addAttribute("fActivo", activo);
+
+        model.addAttribute("pagina", "inicio-entidades");
+        model.addAttribute("panelIzquierdo", "entidades_colaboradoras/filtros.jsp");
+        model.addAttribute("modoEdicion", false);
+
+        return "inicio";
     }
 
 }

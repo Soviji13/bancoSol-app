@@ -363,6 +363,7 @@ public class EntidadColaboradoraService {
             // Primero registramos sus datos básicos
             nuevaEntidad.setNombre(datos.getInformacionGeneral().getNombre());
             nuevaEntidad.setObservaciones(datos.getInformacionGeneral().getObservaciones());
+            nuevaEntidad.setEstadoActivo(datos.getInformacionGeneral().getEstadoActivo());
 
             // Ahora actualizamos su dirección
             Direccion nuevaDireccion = nuevaEntidad.getDireccion();
@@ -580,6 +581,49 @@ public class EntidadColaboradoraService {
             // La dirección
             this.direccionRepository.delete(direccionEliminar);
         }
+    }
+
+    // Aplicar filtros (QUERYS HECHAS POR IA PERO SUPERVISADAS POR MÍ Y CORREGIDAS)
+    public Map<CampaniaDTO, List<EntidadColaboradoraDTO>> filtrarEntidades(
+            String nombreTienda, Long localidadId, Boolean todasCampanias,
+            Boolean esCapital, Boolean activo, Long campaniaId) {
+
+        String filtroTienda = (nombreTienda != null && !nombreTienda.trim().isEmpty()) ? nombreTienda.trim() : null;
+
+        List<CampaniaDTO> campaniasAProcesar = new ArrayList<>();
+        if (todasCampanias != null && todasCampanias) {
+            campaniasAProcesar = campaniaService.listarTodas();
+        } else {
+            campaniasAProcesar.add(campaniaService.findById(campaniaId));
+        }
+
+        Map<CampaniaDTO, List<EntidadColaboradoraDTO>> mapaResultado = new HashMap<>();
+
+        for (CampaniaDTO campania : campaniasAProcesar) {
+            // La BD nos trae ya las entidades listas y filtradas
+            List<EntidadColaboradora> entidadesFiltradas = this.tiendaColabRepo.findFiltrosByCampania(
+                    campania.getId(), activo, esCapital, localidadId, filtroTienda);
+
+            if (entidadesFiltradas != null && !entidadesFiltradas.isEmpty()) {
+                List<EntidadColaboradoraDTO> dtoList = entidadesFiltradas.stream()
+                        .map(entidad -> {
+                            EntidadColaboradoraDTO dto = entidadMapper.toDTO(entidad);
+
+                            // Le cargamos las tiendas asignadas para esta campaña específica
+                            List<String> nombresTiendas = this
+                                    .devolverTiendasPorCampania(entidad.getId(), campania.getId()).stream()
+                                    .map(TiendaDTO::getNombre)
+                                    .collect(Collectors.toList());
+                            dto.setNombresTiendas(nombresTiendas);
+
+                            return dto;
+                        })
+                        .collect(Collectors.toList());
+
+                mapaResultado.put(campania, dtoList);
+            }
+        }
+        return mapaResultado;
     }
 
     // Final parte Sofía

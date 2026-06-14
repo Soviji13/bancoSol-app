@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.TiendaColaborador;
 
 import jakarta.transaction.Transactional;
@@ -39,4 +40,20 @@ public interface TiendaColaboradorRepository extends JpaRepository<TiendaColabor
 
     @Transactional
     void deleteByColaboradorId(Long idColaborador);
+
+    @Query("SELECT DISTINCT c FROM EntidadColaboradora c " +
+            "JOIN c.campanias cam " +
+            "LEFT JOIN c.tiendasAsignadas tc ON tc.campania.id = :campaniaId " +
+            "LEFT JOIN tc.tienda t " +
+            "WHERE cam.id = :campaniaId " +
+            "AND (CAST(:activo AS boolean) IS NULL OR c.estadoActivo = :activo) " +
+            "AND (CAST(:esCapital AS boolean) IS NULL OR c.direccion.esCapital = :esCapital) " +
+            "AND (CAST(:localidadId AS long) IS NULL OR c.direccion.localidad.id = :localidadId) " +
+            "AND (:nombreTienda IS NULL OR :nombreTienda = '' OR LOWER(t.nombre) LIKE LOWER(CONCAT('%', :nombreTienda, '%')))")
+    List<EntidadColaboradora> findFiltrosByCampania(
+            @Param("campaniaId") Long campaniaId,
+            @Param("activo") Boolean activo,
+            @Param("esCapital") Boolean esCapital,
+            @Param("localidadId") Long localidadId,
+            @Param("nombreTienda") String nombreTienda);
 }

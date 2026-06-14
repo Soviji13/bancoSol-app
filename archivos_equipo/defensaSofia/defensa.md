@@ -61,3 +61,23 @@ Hemos realizado este orden: Eliminar primero los que el usuario ha indicado -> M
 De esta forma, si un nuevo tiene ahora contacto principal, no se altera la BBDD ni sale una restricción, puesto que antes, como no se actualizaba aún el antiguo, la BBDD detectaba que había dos contactos principales.
 
 ### Usar `flush()`
+
+## Relacionado con los filtros
+
+### Unificación de Query en `TiendaColaboradorRepository`
+
+Como toda la lógica de mostrar mis colaboradores, se centra en función de la campaña y de la tienda, lo más eficiente es realizar una query directamente aquí.
+
+### `searchParams.append()`
+
+Es una forma más limpia de pasar una URL por JS, de esta forma, los parámetros son mejor visualizados por el programador.
+
+## Login
+
+### `addFlashAttribute`
+
+Sirve para poder enviar rápidamente un atributo justo a la siguiente página a la que nos redireccionamos. Es un dato temporal
+
+### Autorizacion Filter
+
+Desde aquí se puede manejar la lógica de usuario con permisos de una forma más eficaz que mirando en todos los `controllers`.

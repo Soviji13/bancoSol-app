@@ -329,10 +329,6 @@
                     <p style="color:#1e3a8a">${tiendasColab.size()}</p> 
                 </div>
                 <div class="fila-flex" style="margin-bottom: 15px;">
-                    <span class="etiqueta" style="margin-bottom: 5px; display: block;">Número de voluntarios:</span>
-                    <p>Cuando las tiendas estén completas lo meteré, para el principio DRY</p>
-                </div>
-                <div class="fila-flex" style="margin-bottom: 15px;">
                     <span class="etiqueta" style="margin-bottom: 5px; display: block;">Entidad activa:</span>
                     <input 
                         type="checkbox" 
