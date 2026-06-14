@@ -6,6 +6,19 @@
     padding-bottom: 100px;
 
     max-height: 90vh;
+
+    /* MODIFICACIÓN JOSE:
+       Activamos scroll vertical dentro del formulario cuando el contenido supere la altura máxima.
+       Antes existía max-height, pero no había overflow-y, por eso el contenido quedaba cortado sin poder desplazarse. */
+    overflow-y: auto;
+
+    /* MODIFICACIÓN JOSE:
+       Evitamos scroll horizontal accidental por inputs, fieldsets o elementos dinámicos demasiado anchos. */
+    overflow-x: hidden;
+
+    /* MODIFICACIÓN JOSE:
+       Asegura que padding y borde entren dentro del tamaño total del formulario. */
+    box-sizing: border-box;
 }
 
 #entidades .modal-header {
@@ -63,12 +76,12 @@
 }
 
 /* Tipografía y estilos unificados para todos los controles de entrada de datos */
-#entidades input[type="text"], 
-#entidades input[type="number"], 
-#entidades input[type="email"], 
-#entidades input[type="password"], 
-#entidades input[type="tel"], 
-#entidades textarea, 
+#entidades input[type="text"],
+#entidades input[type="number"],
+#entidades input[type="email"],
+#entidades input[type="password"],
+#entidades input[type="tel"],
+#entidades textarea,
 #entidades select {
     /* Espaciado interno para que el texto introducido no quede enano ni apretado */
     padding: 10px;
@@ -222,20 +235,43 @@
     justify-content: center;
     align-items: center;
     /* Capa de prioridad alta para asegurar que flota por encima de la tabla y del pie de página */
-    z-index: 9999; 
+    z-index: 9999;
+
+    /* MODIFICACIÓN JOSE:
+       Impedimos que el overlay genere un scroll externo raro.
+       El scroll debe estar dentro del formulario .god-form. */
+    overflow: hidden;
+
+    /* MODIFICACIÓN JOSE:
+       Permite que los hijos con altura 100% calculen bien su espacio disponible. */
+    min-height: 0;
 }
 
 /* SUSTITUCIÓN DE VISTA (Cuando el formulario ocupa el lugar de la tabla) */
 #entidades #modal-registro.v-sustitucion {
     /* Rompemos el posicionamiento fixed para que el formulario vuelva a comportarse como un bloque normal de la página */
-    position: static; 
+    position: static;
     /* Lo forzamos a mostrarse en bloque ocupando su lugar natural en el flujo del documento HTML */
-    display: block;   
+    display: block;
     /* Eliminamos el velo negro de fondo porque ya no está flotando sobre la tabla, ahora ocupa su espacio */
-    background: none; 
+    background: none;
     /* Expandimos el ancho al máximo disponible de la ventana */
     width: 100%;
-    height: auto;
+
+    /* MODIFICACIÓN JOSE:
+       Antes estaba en height: auto, por eso el formulario crecía hacia abajo y no generaba scroll interno.
+       Lo cambiamos a 100% para que se ajuste al alto disponible de la vista. */
+    height: 100%;
+
+    /* MODIFICACIÓN JOSE:
+       Necesario en layouts con flex/grid para que el contenido pueda encogerse y activar scroll interno. */
+    min-height: 0;
+
+    /* MODIFICACIÓN JOSE:
+       El contenedor de sustitución no debe desplazar toda la pantalla.
+       El scroll se delega al formulario interno .god-form. */
+    overflow: hidden;
+
     /* Bajamos la prioridad de capa al nivel estándar de los bloques normales de la aplicación */
     z-index: 1;
 }
@@ -244,13 +280,30 @@
 #entidades #modal-registro.v-sustitucion .god-form {
     /* Forzamos que use el 100% del ancho disponible para mimetizarse perfectamente con las dimensiones que tenía la tabla */
     width: 100%;
-    max-width: 100%; 
+    max-width: 100%;
     /* Eliminamos márgenes para que se alinee limpio a los bordes de la pantalla */
     margin: 0;
     /* Eliminamos la sombra paralela perimetral para que se integre de forma plana y elegante en la página */
-    box-shadow: none; 
+    box-shadow: none;
     /* Quitamos bordes */
     border: none;
-    /* Eliminamos el tope del alto del viewport (90vh) para que crezca libremente hacia abajo según se añadan responsables */
-    max-height: none; 
+
+    /* MODIFICACIÓN JOSE:
+       Antes se eliminaba el límite de altura con max-height: none.
+       Eso provocaba que el formulario creciera sin crear scroll.
+       Ahora ocupa el alto disponible y activa scroll interno. */
+    height: 100%;
+    max-height: 100%;
+
+    /* MODIFICACIÓN JOSE:
+       Activa el scroll vertical del formulario en modo sustitución de vista. */
+    overflow-y: auto;
+
+    /* MODIFICACIÓN JOSE:
+       Evita scroll horizontal si se generan responsables, campañas o filas anchas dinámicamente. */
+    overflow-x: hidden;
+
+    /* MODIFICACIÓN JOSE:
+       Hace que padding y borde se incluyan dentro del alto/ancho total. */
+    box-sizing: border-box;
 }
