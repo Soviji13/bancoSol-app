@@ -12,23 +12,25 @@ import java.util.Optional;
 @Repository
 public interface CoordinadorRepository extends JpaRepository<Coordinador, Long> {
 
-    @Override
-    @EntityGraph(attributePaths = {
-            "contacto",
-            "usuario",
-            "campanias"
-    })
-    List<Coordinador> findAll();
+        @Override
+        @EntityGraph(attributePaths = {
+                        "contacto",
+                        "usuario",
+                        "campanias"
+        })
+        List<Coordinador> findAll();
 
-    @Override
-    @EntityGraph(attributePaths = {
-            "contacto",
-            "usuario",
-            "campanias"
-    })
-    Optional<Coordinador> findById(Long id);
+        @Override
+        @EntityGraph(attributePaths = {
+                        "contacto",
+                        "usuario",
+                        "campanias"
+        })
+        Optional<Coordinador> findById(Long id);
 
-    boolean existsByUsuario_Id(Long usuarioId);
+        boolean existsByUsuario_Id(Long usuarioId);
 
-    boolean existsByContacto_Id(Long contactoId);
+        boolean existsByContacto_Id(Long contactoId);
+
+        Optional<Coordinador> findByUsuarioId(Long usuarioId);
 }

@@ -1,5 +1,5 @@
 // Script refactorizado de parte de Clientes - Sofía Si Villalba Jiménez
-// IA usada solo para entender cómo vincular el JavaScript
+// IA usada solo para entender cómo vincular el JavaScript y donde se comente más
 
 // Intentamos a acceder al apartado de entidades
 const seccionEntidades = document.getElementById("entidades");
@@ -9,7 +9,7 @@ if (seccionEntidades) {
     // PARA MOSTRAR LAS DEMÁS TIENDAS ---------------------------------------------------------------------
 
     // Se obtienen los botones de desplegar tienda
-    const botonesDesplegar = seccionEntidades.querySelectorAll(".boton-desplegar-tiendas-js");
+    const botonesDesplegar = document.querySelectorAll(".boton-desplegar-tiendas-js");
 
     // Recorremos cada uno
     botonesDesplegar.forEach(boton => {
@@ -498,11 +498,19 @@ if (seccionEntidades) {
             document.querySelectorAll('.eliminar-responsable-js').forEach(boton => {
                 boton.style.display = 'none';
             });
+
+            // Nos volvemos a donde estábamos (sin editar)
+            const idCampania = seccionEntidades.dataset.idCampaniaActual;
+            const idEntidad = parseInt(document.getElementById('detalle-id-display').textContent.trim());
+
+            window.location.href = `http://localhost:8080/entidades?campaniaId=${idCampania}&entidadId=${idEntidad}`;
             
             // Cargamos los datos del formulario
             //cargarDatosFormulario();
         }
     }
+
+    // BOTON DE MODIFICAR -------------------------------------------------------------------------
 
     const botonEliminar = document.getElementById('btn-eliminar-colaborador');
     const botonModificar = document.getElementById('btn-modificar-colaborador');
@@ -542,6 +550,7 @@ if (seccionEntidades) {
             const idEntidad = parseInt(document.getElementById('detalle-id-display').textContent.trim());
             const nombre = document.getElementById('titulo-colaborador').value;
             const observaciones = document.getElementById('edit-observaciones').value;
+            const estaActiva = document.querySelector('input[name="estaActiva"]').checked;
 
             if (!nombre) textoErrores += "\n- Información General: Nombre de la entidad";
 
@@ -668,7 +677,8 @@ if (seccionEntidades) {
                 idEntidad: idEntidad,
                 informacionGeneral: {
                     nombre: nombre,
-                    observaciones: observaciones.trim()
+                    observaciones: observaciones.trim(),
+                    estadoActivo: estaActiva
                 },
                 localizacion: {
                     calle: calle,
@@ -743,7 +753,7 @@ if (seccionEntidades) {
         });
     }
 
-    // PARA ABRIR PANEL DE CREAR ENTIDAD -------------------------------------------------------------------------------
+    // PARA ABRIR PANEL DE CREAR ENTIDAD (0 IA) -------------------------------------------------------------------------------
     const botonAbrirRegistro = document.getElementById ('btn-abrir-registro');
 
     if (botonAbrirRegistro) {
@@ -754,5 +764,168 @@ if (seccionEntidades) {
         botonAbrirRegistro.addEventListener('click', () => {
             window.location.href = `http://localhost:8080/entidades/crear?campaniaId=${idCampania}`;
         })
+    }
+
+    // PARA AÑADIR FILTROS (0 IA) ----------------------------------------------------------------------------------------------
+    
+    const botonFiltros = document.getElementById('filtrar');
+
+    if (botonFiltros) {
+        const idCampania = seccionEntidades.dataset.idCampaniaActual;
+
+        botonFiltros.addEventListener('click', () => {
+            window.location.href = `http://localhost:8080/entidades/?filtros=${true}&campaniaId=${idCampania}`;
+        })
+    }
+
+    // PARA EL MENÚ FILTROS ------------------------------------------------------
+    // IA para recoger datos y enviarlos
+    const botonQuitarFiltros = document.getElementById('btn-cerrar-filtros');
+    
+    if (botonQuitarFiltros) {
+        botonQuitarFiltros.addEventListener('click', async function () {
+            const idCampania = seccionEntidades.dataset.idCampaniaActual;
+            window.location.href = `http://localhost:8080/entidades/?campaniaId=${idCampania}`;
+        });
+
+        // Cargamos todas las localidades y auto-seleccionamos si venimos de un filtrado
+        const filtroLocalidad = document.getElementById('filtro-localidad');
+        filtroLocalidad.setAttribute('readonly', 'true');
+        filtroLocalidad.setAttribute('disabled', 'true');
+        try {
+            const dataLocalidades = await fetch(`/localidades/devolver-json`);
+            const localidades = await dataLocalidades.json();
+            const idGuardado = filtroLocalidad.getAttribute('data-seleccionada'); // Leemos del JSP
+
+            if (localidades && localidades.length > 0) {
+                filtroLocalidad.innerHTML = `<option value="">Todas las localidades</option>` + 
+                localidades.map(l => {
+                    const isSelected = (idGuardado && parseInt(idGuardado) === l.id) ? 'selected' : '';
+                    return `<option value="${l.id}" ${isSelected}>${l.nombre}</option>`;
+                }).join('');
+            }
+
+            filtroLocalidad.removeAttribute('readonly');
+            filtroLocalidad.removeAttribute('disabled');
+
+        } catch (error) { console.error(error); }
+
+        // Recogemos todos los filtros cuando se pulsa Aplicar
+        const btnAplicar = document.getElementById('btn-aplicar-filtros');
+
+        if (btnAplicar) {
+            btnAplicar.addEventListener('click', function () {
+                const tiendaInput = document.getElementById('filtro-tienda').value.trim(); 
+                const localidadInput = document.getElementById('filtro-localidad').value; 
+                const mostrarTodasCampanias = document.getElementById('filtro-todas-campanias').checked; 
+                const soloCapital = document.getElementById('filtro-capital').checked; 
+                const colaboradorActivo = document.getElementById('filtro-activa').checked; 
+                const idCampania = seccionEntidades.dataset.idCampaniaActual;
+
+                // Construcción limpia y segura de URL (¡Arreglo de tu bug anterior!)
+                let url = new URL('http://localhost:8080/entidades/filtrar');
+                if (tiendaInput) url.searchParams.append('nombreTienda', tiendaInput);
+                if (localidadInput) url.searchParams.append('localidadId', parseInt(localidadInput));
+                if (mostrarTodasCampanias) url.searchParams.append('todasCampanias', true);
+                if (soloCapital) url.searchParams.append('esCapital', true);
+                if (colaboradorActivo) url.searchParams.append('activo', true);
+                
+                url.searchParams.append('campaniaId', idCampania);
+
+                window.location.href = url.toString();
+            });
+        }
+
+        // Para limpiar los inputs visualmente sin recargar
+        const btnLimpiar = document.getElementById('btn-limpiar-filtros');
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', function () {
+                document.getElementById('filtro-tienda').value = "";
+                document.getElementById('filtro-localidad').value = "";
+                document.getElementById('filtro-todas-campanias').checked = false;
+                document.getElementById('filtro-capital').checked = false;
+                document.getElementById('filtro-activa').checked = false;
+            });
+        }
+    }
+
+    // PARA EXPORTAR A CSV ----------------------------------------------------------------------
+    // Refactorizado de la versión de clientes para adaptarse al renderizado de JSTL de Sofía, refactorización total por IA
+    const btnCsv = document.querySelector('.csv'); //
+        
+    if (btnCsv) {
+        btnCsv.style.cursor = 'pointer';
+        btnCsv.title = 'Descargar lista actual de colaboradores en CSV';
+            
+        btnCsv.addEventListener('click', () => {
+            // Obtenemos todas las filas reales de datos de la tabla, ignorando las filas separadoras de campaña
+            const filasTabla = document.querySelectorAll('#tabla-body tr:not(.fila-seccion-campania)'); //
+            
+            if (filasTabla.length > 0 && !filasTabla[0].querySelector('td[colspan="6"]')) {
+                // Si hay datos reales expuestos en la UI, disparamos la exportación leyendo el DOM
+                exportarTablaACsv(filasTabla);
+            } else {
+                alert("No hay datos cargados en la tabla para exportar. Por favor, asegúrate de que la tabla muestra colaboradores.");
+            }
+        });
+    }
+
+    function exportarTablaACsv(filasHTML) {
+        // 1. Definimos las cabeceras exactas basadas en las columnas visuales de tu tabla.jsp
+        const cabeceras = [
+            "Colaborador", 
+            "Domicilio", 
+            "Colabora en", 
+            "Contacto Principal", 
+            "Tienda(s) asignada(s)"
+        ];
+
+        // Función defensiva para sanear las cadenas: duplica comillas, limpia espacios y quita saltos de línea molestos
+        const limpiar = (texto) => {
+            if (!texto) return '""';
+            // Limpiamos los espacios en blanco colgados y tabulaciones del JSP
+            let limpio = texto.textContent.replace(/\s+/g, ' ').trim();
+            // Duplicamos comillas internas para no romper el formato estándar CSV
+            return `"${limpio.replace(/"/g, '""')}"`;
+        };
+
+        // 2. Mapeamos las filas del HTML leyendo celda por celda
+        const filasCsv = Array.from(filasHTML).map(tr => {
+            const celdas = tr.querySelectorAll('td'); //
+            
+            // Recogemos los valores en base al orden de las columnas de tu tabla
+            const colaborador = limpiar(celdas[0]);
+            const domicilio = limpiar(celdas[1]);
+            const colaboraEn = limpiar(celdas[2]);
+            const contacto = limpiar(celdas[3]);
+            
+            // Para las tiendas, leemos el contenedor del resumen (celdas[4])
+            // Si tiene el componente "tiendas-resumen", extraemos su texto; si no, el texto plano de la celda
+            const divResumen = celdas[4].querySelector('.tiendas-resumen'); //
+            const tiendas = divResumen ? limpiar(divResumen) : limpiar(celdas[4]);
+
+            return [colaborador, domicilio, colaboraEn, contacto, tiendas].join(",");
+        });
+
+        // 3. Crear el contenido final con el BOM (Byte Order Mark) para soporte de la 'ñ' y tildes en Excel
+        const BOM = "\uFEFF";
+        const contenidoFinal = BOM + cabeceras.join(",") + "\n" + filasCsv.join("\n");
+
+        // 4. Fabricamos el archivo de descarga binario de tipo UTF-8 sin código obsoleto
+        const blobFinal = new Blob([contenidoFinal], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blobFinal);
+            
+        const link = document.createElement("a");
+        const fecha = new Date().toISOString().slice(0, 10);
+            
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bancosol_colaboradores_${fecha}.csv`);
+        link.style.visibility = 'hidden';
+            
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+            
+        URL.revokeObjectURL(url);
     }
 }

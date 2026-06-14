@@ -11,4 +11,5 @@ import lombok.*;
 public class InformacionGeneralDTO {
   private String nombre;
   private String observaciones;
+  private Boolean estadoActivo;
 }
