@@ -1,3 +1,4 @@
+//Hecho inicialmente por Jose González (80%), posteriormente refactorizado con IA para buscar optmización mejor formato sin alterar la funcionalidad (20%)
 package com.bancosol.services;
 
 import com.bancosol.dao.IncidenciaRepository;

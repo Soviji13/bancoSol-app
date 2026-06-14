@@ -1,3 +1,4 @@
+//Generado por IA partiendo del modelo de bbdd aprobado por el profesor. Posteriormente revisado por el equipo
 package com.bancosol.entities;
 
 import jakarta.persistence.*;
@@ -31,8 +32,7 @@ public class Campania {
     @Column(name = "fecha_fin", nullable = false, unique = true)
     private LocalDate fechaFin;
 
-    // Magia de Hibernate: Le decimos que este campo es de solo lectura
-    // porque Postgres lo calcula automáticamente con el GENERATED ALWAYS
+
     @Column(insertable = false, updatable = false)
     private Short anio;
 

@@ -8,6 +8,14 @@
     max-height: 90vh;
 }
 
+#entidades .modal-header {
+    display: flex;
+}
+
+#entidades .btn-cerrar-modal {
+    margin-left: auto;
+}
+
 #entidades fieldset {
     /* Enmarcamos cada sección lógica (Información, Localización...) con un borde oscuro sutil */
     border: 2px solid var(--color-texto);
@@ -209,8 +217,6 @@
 #entidades .modal-overlay {
     width: 100%;
     height: 100%;
-    /* Fondo negro con un 70% de opacidad para oscurecer y desenfocar la tabla de atrás */
-    background: rgba(0, 0, 0, 0.7); 
     /* Oculto por defecto al arrancar la vista (JS cambiará el estado según se requiera) */
     /* Preparado para centrar el formulario perfectamente en los ejes X e Y cuando se active */
     justify-content: center;

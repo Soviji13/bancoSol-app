@@ -1,3 +1,5 @@
+<%--Hecho por Jose González (95%), refactorizado finalmente con IA para  buscar eficiencia sin alterar la funcionalidad (5%) --%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 

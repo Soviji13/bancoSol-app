@@ -1,3 +1,4 @@
+// Realización: Alejandro Jiménez González
 package com.bancosol.dto;
 
 import lombok.*;

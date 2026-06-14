@@ -1,3 +1,4 @@
+//Queries realizadas por Jose
 package com.bancosol.dao;
 
 import com.bancosol.entities.Coordinador;
@@ -11,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface CoordinadorRepository extends JpaRepository<Coordinador, Long> {
 
-    //Se trae el coordinador + el resto de cosas incluidas
     @Override
     @EntityGraph(attributePaths = {
             "contacto",
@@ -29,4 +29,6 @@ public interface CoordinadorRepository extends JpaRepository<Coordinador, Long> 
     Optional<Coordinador> findById(Long id);
 
     boolean existsByUsuario_Id(Long usuarioId);
+
+    boolean existsByContacto_Id(Long contactoId);
 }

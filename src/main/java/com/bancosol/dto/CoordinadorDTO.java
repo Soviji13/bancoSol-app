@@ -1,4 +1,4 @@
-// Generado inicialmente con IA (90%) ajustado y mantenido a lo largo del proyecto por Jose González (10%)
+//Generado por IA partiendo de su respectiva entidad. Posteriormente revisado por el equipo
 package com.bancosol.dto;
 
 import lombok.AllArgsConstructor;

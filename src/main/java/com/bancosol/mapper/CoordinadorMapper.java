@@ -1,3 +1,4 @@
+//Hecho por Jose González (80%), refactorizado finalmente con IA para buscar eficiencia y comentar el código sin alterar la funcionalidad (20%)
 package com.bancosol.mapper;
 
 import com.bancosol.dto.CoordinadorDTO;
@@ -53,21 +54,6 @@ public class CoordinadorMapper extends MapperDTO<CoordinadorDTO, Coordinador> {
         return coordinadores.stream()
                 .map(this::toDTO)
                 .toList();
-    }
-
-    public Coordinador toEntity(CoordinadorDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-
-        Coordinador coordinador = new Coordinador();
-
-        coordinador.setId(dto.getId());
-        coordinador.setArea(dto.getArea());
-        coordinador.setTiendas(dto.getTiendas());
-        coordinador.setPermisoModificar(dto.getPermisoModificar());
-
-        return coordinador;
     }
 
     public CoordinadorFormDTO toFormDTO(Coordinador coordinador) {

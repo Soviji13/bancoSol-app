@@ -1,8 +1,20 @@
+<%--Hecho por Jose González (90%), refactorizado finalmente con IA para  buscar eficiencia sin alterar la funcionalidad (10%) --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/incidencias/formIncidencia.css">
-<script src="${pageContext.request.contextPath}/js/incidencias/formIncidencia.js" defer></script>
+<c:choose>
+    <c:when test="${incidencia.responsableTiendaId != null}">
+        <c:set var="tipoResponsableActual" value="TIENDA" />
+    </c:when>
+
+    <c:when test="${incidencia.responsableEntidadId != null}">
+        <c:set var="tipoResponsableActual" value="ENTIDAD" />
+    </c:when>
+
+    <c:otherwise>
+        <c:set var="tipoResponsableActual" value="" />
+    </c:otherwise>
+</c:choose>
 
 <section class="formulario-incidencia">
 
@@ -33,25 +45,30 @@
         </div>
     </c:if>
 
-    <form class="form-incidencia"
+    <form id="form-incidencia"
+          class="form-incidencia"
           method="post"
           action="${pageContext.request.contextPath}/incidencias/guardar">
 
         <c:if test="${incidencia.id != null}">
-            <input type="hidden" name="id" value="${incidencia.id}">
+            <input type="hidden"
+                   name="id"
+                   value="${incidencia.id}">
         </c:if>
 
-        <div class="campo-formulario">
+        <div class="campo-formulario campo-formulario--completo">
             <label for="asunto">Asunto</label>
+
             <input id="asunto"
                    name="asunto"
                    type="text"
-                   value="<c:out value='${incidencia.asunto}' />"
+                   value="${incidencia.asunto}"
                    required>
         </div>
 
-        <div class="campo-formulario">
+        <div class="campo-formulario campo-formulario--completo">
             <label for="descripcion">Descripción</label>
+
             <textarea id="descripcion"
                       name="descripcion"
                       rows="6"><c:out value="${incidencia.descripcion}" /></textarea>
@@ -59,6 +76,7 @@
 
         <div class="campo-formulario">
             <label for="estado">Estado</label>
+
             <select id="estado" name="estado">
                 <option value="PENDIENTE"
                         <c:if test="${incidencia.estado == null || incidencia.estado == 'PENDIENTE'}">selected</c:if>>
@@ -78,27 +96,31 @@
         </div>
 
         <div class="campo-formulario">
-            <label for="tipo-responsable">Tipo de responsable</label>
+            <label for="tipo-responsable">Tipo de incidencia</label>
 
-            <select id="tipo-responsable" name="tipoResponsable">
+            <select id="tipo-responsable"
+                    name="tipoResponsable"
+                    required>
                 <option value="">Selecciona un tipo</option>
 
                 <option value="TIENDA"
-                        <c:if test="${incidencia.responsableTiendaId != null}">selected</c:if>>
-                    Responsable de tienda
+                        <c:if test="${tipoResponsableActual == 'TIENDA'}">selected</c:if>>
+                    Tienda
                 </option>
 
                 <option value="ENTIDAD"
-                        <c:if test="${incidencia.responsableEntidadId != null}">selected</c:if>>
-                    Responsable de entidad
+                        <c:if test="${tipoResponsableActual == 'ENTIDAD'}">selected</c:if>>
+                    Entidad
                 </option>
             </select>
         </div>
 
-        <div id="grupo-responsable-tienda" class="campo-formulario grupo-responsable">
-            <label for="responsableTiendaId">Responsable de tienda</label>
+        <div id="grupo-responsable-tienda"
+             class="campo-formulario grupo-responsable">
+            <label for="responsableTiendaId">Autor / responsable de tienda</label>
 
-            <select id="responsableTiendaId" name="responsableTiendaId">
+            <select id="responsableTiendaId"
+                    name="responsableTiendaId">
                 <option value="">Selecciona un responsable de tienda</option>
 
                 <c:forEach var="responsableTienda" items="${responsablesTienda}">
@@ -110,19 +132,32 @@
             </select>
         </div>
 
-        <div id="grupo-responsable-entidad" class="campo-formulario grupo-responsable">
-            <label for="responsableEntidadId">Responsable de entidad</label>
+        <div id="grupo-responsable-entidad"
+             class="campo-formulario grupo-responsable">
+            <label for="responsableEntidadId">Autor / responsable de entidad</label>
 
-            <select id="responsableEntidadId" name="responsableEntidadId">
+            <select id="responsableEntidadId"
+                    name="responsableEntidadId">
                 <option value="">Selecciona un responsable de entidad</option>
 
                 <c:forEach var="responsableEntidad" items="${responsablesEntidad}">
                     <option value="${responsableEntidad.id}"
                             <c:if test="${incidencia.responsableEntidadId == responsableEntidad.id}">selected</c:if>>
-                        <c:out value="${responsable.nombreContacto}" />
-                        <c:if test="${not empty responsable.emailContacto}">
-                            - <c:out value="${responsable.emailContacto}" />
-                        </c:if>
+
+                        <c:choose>
+                            <c:when test="${responsableEntidad.contacto != null}">
+                                <c:out value="${responsableEntidad.contacto.nombre}" />
+
+                                <c:if test="${not empty responsableEntidad.contacto.email}">
+                                    - <c:out value="${responsableEntidad.contacto.email}" />
+                                </c:if>
+                            </c:when>
+
+                            <c:otherwise>
+                                Responsable entidad ${responsableEntidad.id}
+                            </c:otherwise>
+                        </c:choose>
+
                     </option>
                 </c:forEach>
             </select>

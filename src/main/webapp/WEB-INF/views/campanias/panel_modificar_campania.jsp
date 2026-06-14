@@ -1,3 +1,4 @@
+<%-- Alejandro Jiménez González 95% (5% IA consultas a IA para lod el formModificar ) --%>
 <%@ page import="com.bancosol.dto.CampaniaDTO" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%

@@ -103,7 +103,7 @@
     <%-- Botones inferiores --%>
     <div class="pie-pagina">
         <div class="container-interactuar">
-            <div id="btn-eliminar-colaborador" class="activado" style="cursor: pointer;">Eliminar colaborador</div>
+            <div id="btn-eliminar-colaborador" class="${modoEdicion != null && modoEdicion ? 'activado' : 'desactivado'}" title="Debes primero seleccionar un colaborador" style="cursor: pointer;">Eliminar colaborador</div>
             <div id="btn-modificar-colaborador" class="${modoEdicion != null && modoEdicion ? 'activado' : 'desactivado'}" title="Debes primero seleccionar un colaborador">Modificar colaborador</div>
             <div id="btn-abrir-registro" class="activado" style="cursor: pointer;">Añadir colaborador</div>
         </div>

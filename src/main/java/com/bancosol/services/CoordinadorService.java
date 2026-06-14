@@ -1,3 +1,4 @@
+//Hecho inicalmente por Jose González(75%), posteriormente completado por Sofia (5%), Jose usó IA al final para refactorizar el servicio y optimizarlo (20%)
 package com.bancosol.services;
 
 import com.bancosol.dao.CampaniaRepository;
@@ -15,7 +16,6 @@ import com.bancosol.entities.Coordinador;
 import com.bancosol.entities.EntidadColaboradora;
 import com.bancosol.entities.Usuario;
 import com.bancosol.entities.enums.TipoRol;
-import com.bancosol.mapper.CampaniaMapper;
 
 import com.bancosol.mapper.CoordinadorMapper;
 
@@ -29,12 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.text.Normalizer;
+import java.util.Locale;
 
 // Sofía
 import java.util.Map;
 import com.bancosol.dto.TiendaDTO;
 import com.bancosol.dto.CampaniaDTO;
-import com.bancosol.services.TiendaService;
 
 @Service
 @AllArgsConstructor
@@ -73,6 +74,65 @@ public class CoordinadorService {
                 coordinadorMapper.toDTOList(coordinadorRepository.findAllById(ids));
 
         return completarIdEntidad(coordinadores);
+    }
+
+    public List<CoordinadorDTO> filtrar(String nombre,
+                                        Long campaniaId,
+                                        Short tiendasMinimas) {
+
+        String nombreNormalizado = normalizarTextoParaFiltro(nombre);
+
+        return listarTodos()
+                .stream()
+                .filter(coordinador -> cumpleFiltroNombre(coordinador, nombreNormalizado))
+                .filter(coordinador -> cumpleFiltroCampania(coordinador, campaniaId))
+                .filter(coordinador -> cumpleFiltroTiendasMinimas(coordinador, tiendasMinimas))
+                .toList();
+    }
+
+    private boolean cumpleFiltroNombre(CoordinadorDTO coordinador, String nombreNormalizado) {
+        if (!tieneTexto(nombreNormalizado)) {
+            return true;
+        }
+
+        return normalizarTextoParaFiltro(coordinador.getNombre()).contains(nombreNormalizado);
+    }
+
+    private boolean cumpleFiltroCampania(CoordinadorDTO coordinador, Long campaniaId) {
+        if (campaniaId == null) {
+            return true;
+        }
+
+        if (coordinador.getIdsCampanias() == null || coordinador.getIdsCampanias().isEmpty()) {
+            return false;
+        }
+
+        return coordinador.getIdsCampanias().contains(campaniaId);
+    }
+
+    private boolean cumpleFiltroTiendasMinimas(CoordinadorDTO coordinador, Short tiendasMinimas) {
+        if (tiendasMinimas == null) {
+            return true;
+        }
+
+        Short tiendas = coordinador.getTiendas();
+
+        if (tiendas == null) {
+            return tiendasMinimas <= 0;
+        }
+
+        return tiendas >= tiendasMinimas;
+    }
+
+    private String normalizarTextoParaFiltro(String texto) {
+        if (!tieneTexto(texto)) {
+            return "";
+        }
+
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .trim()
+                .toLowerCase(Locale.ROOT);
     }
 
     public CoordinadorFormDTO buscarFormularioPorId(Long id) {
@@ -139,33 +199,47 @@ public class CoordinadorService {
     }
 
     @Transactional
-    public void eliminar(Long id) {
+    public void eliminar(Long id) { //Protegido pra evitar white label
         Coordinador coordinador = buscarCoordinadorPorId(id);
+
+        List<EntidadColaboradora> entidadesAsociadas =
+                entidadRepository.findByCoordinador_Id(coordinador.getId());
+        //No puede existir entidad sin coordinador
+        if (!entidadesAsociadas.isEmpty()) {
+            throw new IllegalStateException(
+                    "No se puede eliminar el coordinador porque tiene entidades colaboradoras asociadas. " +
+                            "Reasigna o elimina primero esas entidades."
+            );
+        }
 
         Contacto contacto = coordinador.getContacto();
         Usuario usuario = coordinador.getUsuario();
 
-        desasociarEntidades(coordinador);
         desasociarCampanias(coordinador);
 
-        /*
-         * Rompemos la relación antes de borrar para evitar problemas
-         * de claves foráneas al eliminar después contacto y usuario.
-         */
         coordinador.setContacto(null);
         coordinador.setUsuario(null);
 
         coordinadorRepository.delete(coordinador);
         coordinadorRepository.flush();
 
-        if (contacto != null) {
-            contactoRepository.delete(contacto);
+        if (contacto != null && contacto.getId() != null) {
+            boolean contactoEnUso = coordinadorRepository.existsByContacto_Id(contacto.getId());
+
+            if (!contactoEnUso) {
+                contactoRepository.delete(contacto);
+            }
         }
 
-        if (usuario != null) {
-            usuarioRepository.delete(usuario);
+        if (usuario != null && usuario.getId() != null) {
+            boolean usuarioEnUso = coordinadorRepository.existsByUsuario_Id(usuario.getId());
+
+            if (!usuarioEnUso) {
+                usuarioRepository.delete(usuario);
+            }
         }
     }
+
 
     private Coordinador buscarCoordinadorPorId(Long id) {
         validarId(id, "coordinador");
